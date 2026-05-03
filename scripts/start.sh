@@ -28,8 +28,15 @@ fi
 # Check if centre exists
 if [ ! -f "$ROBOS_ROOT/centre/server.js" ]; then
     echo "ERROR: centre/server.js not found."
-    echo "Run ./scripts/setup.sh first, or check that the centre module is installed."
+    echo "Run ./scripts/setup.sh first."
     exit 1
+fi
+
+# Build if dist/ is missing
+if [ ! -d "$ROBOS_ROOT/centre/dist" ]; then
+    echo "Building dashboard (first run)..."
+    cd "$ROBOS_ROOT/centre" && npx astro build 2>/dev/null
+    cd "$ROBOS_ROOT"
 fi
 
 # Start server

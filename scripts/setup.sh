@@ -27,8 +27,14 @@ if [ -d "$ROBOS_ROOT/centre" ] && [ -f "$ROBOS_ROOT/centre/package.json" ]; then
     echo ""
     echo "Installing Command Centre dependencies..."
     cd "$ROBOS_ROOT/centre"
-    npm install --production --silent
+    npm install --silent
     echo "[OK] Dependencies installed"
+
+    # Build dashboard
+    echo ""
+    echo "Building dashboard..."
+    npx astro build --silent 2>/dev/null || npx astro build
+    echo "[OK] Dashboard built"
 
     # Initialize database
     if [ -f "$ROBOS_ROOT/centre/scripts/init-db.js" ]; then
