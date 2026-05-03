@@ -1,0 +1,1 @@
+-- Initial schema applied via schema.sql

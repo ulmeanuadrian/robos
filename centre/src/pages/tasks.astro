@@ -1,0 +1,8 @@
+---
+import Shell from '../layouts/Shell.astro';
+import TaskBoard from '../islands/TaskBoard.svelte';
+---
+
+<Shell title="robOS Centre - Tasks" activeTab="tasks">
+  <TaskBoard client:load />
+</Shell>

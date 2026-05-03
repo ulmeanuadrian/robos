@@ -1,0 +1,46 @@
+---
+import Shell from '../layouts/Shell.astro';
+import StatusCards from '../islands/StatusCards.svelte';
+import ActivityFeed from '../islands/ActivityFeed.svelte';
+import SystemHealth from '../islands/SystemHealth.svelte';
+import OnboardingWizard from '../islands/OnboardingWizard.svelte';
+---
+
+<Shell title="robOS Centre - Home" activeTab="home">
+  <div class="home-grid">
+    <div class="home-main">
+      <OnboardingWizard client:load />
+      <StatusCards client:load />
+      <ActivityFeed client:load />
+    </div>
+    <div class="home-sidebar">
+      <SystemHealth client:load />
+    </div>
+  </div>
+
+  <style>
+    .home-grid {
+      display: grid;
+      grid-template-columns: 1fr 360px;
+      gap: var(--space-6);
+    }
+
+    .home-main {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-6);
+    }
+
+    .home-sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-6);
+    }
+
+    @media (max-width: 1024px) {
+      .home-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</Shell>

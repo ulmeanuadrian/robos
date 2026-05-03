@@ -1,0 +1,38 @@
+# Internal (not distributed to customers)
+.internal/
+
+# User data (never overwritten by updates)
+# Brand files are templates -- track them, but users customize locally
+# Use git update-index --skip-worktree brand/*.md to stop tracking local edits
+context/USER.md
+context/learnings.md
+context/memory/
+projects/*
+!projects/.gitkeep
+clients/*/
+cron/jobs/*
+!cron/jobs/.gitkeep
+cron/logs/
+cron/status/
+.env
+
+# Runtime
+.command-centre/
+centre/node_modules/
+centre/dist/
+*.pid
+
+# Logs
+*.log
+cron/logs/
+
+# OS
+.DS_Store
+Thumbs.db
+*~
+.*.swp
+
+# Editor
+.vscode/
+.idea/
+*.sublime-workspace

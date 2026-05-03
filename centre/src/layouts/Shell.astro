@@ -1,0 +1,158 @@
+---
+import '../styles/tokens.css';
+
+interface Props {
+  title?: string;
+  activeTab?: string;
+}
+
+const { title = 'robOS Centre', activeTab = 'home' } = Astro.props;
+
+const tabs = [
+  { id: 'home', label: 'Home', href: '/', icon: 'home' },
+  { id: 'tasks', label: 'Tasks', href: '/tasks/', icon: 'list-checks' },
+  { id: 'schedule', label: 'Schedule', href: '/schedule/', icon: 'clock' },
+  { id: 'skills', label: 'Skills', href: '/skills/', icon: 'puzzle' },
+  { id: 'analytics', label: 'Analytics', href: '/analytics/', icon: 'bar-chart' },
+  { id: 'files', label: 'Files', href: '/files/', icon: 'folder' },
+  { id: 'settings', label: 'Settings', href: '/settings/', icon: 'settings' },
+];
+
+const iconPaths: Record<string, string> = {
+  home: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6',
+  'list-checks': 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4',
+  clock: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z',
+  puzzle: 'M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z',
+  'bar-chart': 'M18 20V10M12 20V4M6 20v-6',
+  folder: 'M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z',
+  settings: 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z',
+};
+---
+
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{title}</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='28' font-size='28'>&#x2699;</text></svg>" />
+</head>
+<body>
+  <nav class="nav-bar">
+    <div class="nav-inner">
+      <div class="nav-left">
+        <a href="/" class="nav-brand">
+          <span class="brand-icon">&#x2699;</span>
+          <span class="brand-text">rob<span class="brand-os">OS</span></span>
+        </a>
+        <div class="nav-tabs">
+          {tabs.map(tab => (
+            <a
+              href={tab.href}
+              class:list={['nav-tab', { active: activeTab === tab.id }]}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d={iconPaths[tab.icon]} />
+              </svg>
+              <span>{tab.label}</span>
+            </a>
+          ))}
+        </div>
+      </div>
+      <div class="nav-right">
+        <div id="client-switcher-slot"></div>
+      </div>
+    </div>
+  </nav>
+
+  <main class="main-content">
+    <slot />
+  </main>
+
+  <style>
+    .nav-bar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: var(--color-nav-bg);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .nav-inner {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 var(--space-6);
+      height: 56px;
+    }
+
+    .nav-left {
+      display: flex;
+      align-items: center;
+      gap: var(--space-8);
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      text-decoration: none;
+      color: var(--color-text);
+      font-weight: 700;
+      font-size: var(--text-lg);
+    }
+
+    .brand-icon {
+      font-size: 1.4rem;
+    }
+
+    .nav-tabs {
+      display: flex;
+      align-items: center;
+      gap: var(--space-1);
+    }
+
+    .nav-tab {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: var(--space-2) var(--space-3);
+      font-size: var(--text-sm);
+      color: var(--color-muted);
+      text-decoration: none;
+      border-radius: var(--radius-md);
+      transition: all var(--transition-fast);
+      font-weight: 500;
+    }
+
+    .nav-tab:hover {
+      color: var(--color-text);
+      background: var(--color-surface-hover);
+    }
+
+    .nav-tab.active {
+      color: var(--color-primary);
+      background: #fae8df;
+    }
+
+    .brand-os {
+      font-weight: 800;
+      color: var(--color-primary);
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+
+    .main-content {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: var(--space-6);
+    }
+  </style>
+</body>
+</html>

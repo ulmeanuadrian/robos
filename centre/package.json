@@ -1,0 +1,29 @@
+{
+  "name": "robos-centre",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "start": "node server.js",
+    "init-db": "node scripts/init-db.js"
+  },
+  "dependencies": {
+    "@astrojs/svelte": "^8.1.0",
+    "@tailwindcss/postcss": "^4.2.4",
+    "astro": "^6.2.1",
+    "better-sqlite3": "^12.9.0",
+    "chokidar": "^5.0.0",
+    "croner": "^10.0.1",
+    "lucide-svelte": "^1.0.1",
+    "svelte": "^5.55.5",
+    "tailwindcss": "^4.2.4"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^25.6.0",
+    "typescript": "^5.9.3"
+  }
+}

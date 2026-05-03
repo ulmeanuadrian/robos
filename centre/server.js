@@ -1,0 +1,303 @@
+import http from 'http';
+import { readFileSync, existsSync, statSync } from 'fs';
+import { join, extname } from 'path';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+import { listTasks, createTask, getTask, updateTask, deleteTask } from './api/tasks.js';
+import { listJobs, createJob, updateJob, triggerRun, getHistory } from './api/cron.js';
+import { listSkills, listCatalog } from './api/skills.js';
+import { listFiles, readFile } from './api/files.js';
+import { getEnv, setEnv, getMcp, setMcp } from './api/settings.js';
+import { getSummary } from './api/dashboard.js';
+import { listClients } from './api/clients.js';
+import { handleSse } from './api/events.js';
+import { getSkillStats, getCostBreakdown, getQualityStats } from './api/analytics.js';
+import { closeDb } from './lib/db.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const DIST_DIR = join(__dirname, 'dist');
+const PORT = parseInt(process.env.PORT || '3000', 10);
+
+const MIME_TYPES = {
+  '.html': 'text/html',
+  '.css': 'text/css',
+  '.js': 'application/javascript',
+  '.json': 'application/json',
+  '.svg': 'image/svg+xml',
+  '.png': 'image/png',
+  '.ico': 'image/x-icon',
+  '.woff2': 'font/woff2',
+  '.woff': 'font/woff',
+  '.txt': 'text/plain',
+};
+
+/**
+ * Parse URL query string into an object.
+ */
+function parseQuery(urlStr) {
+  const url = new URL(urlStr, 'http://localhost');
+  const params = {};
+  for (const [key, value] of url.searchParams) {
+    params[key] = value;
+  }
+  return { pathname: url.pathname, query: params };
+}
+
+/**
+ * Read the request body as JSON.
+ */
+function readBody(req) {
+  return new Promise((resolve, reject) => {
+    const chunks = [];
+    req.on('data', chunk => chunks.push(chunk));
+    req.on('end', () => {
+      try {
+        const raw = Buffer.concat(chunks).toString();
+        resolve(raw ? JSON.parse(raw) : {});
+      } catch (e) {
+        reject(e);
+      }
+    });
+    req.on('error', reject);
+  });
+}
+
+/**
+ * Send JSON response.
+ */
+function json(res, data, status = 200) {
+  res.writeHead(status, {
+    'Content-Type': 'application/json',
+    'Access-Control-Allow-Origin': '*',
+  });
+  res.end(JSON.stringify(data));
+}
+
+/**
+ * Send error response.
+ */
+function error(res, message, status = 500) {
+  json(res, { error: message }, status);
+}
+
+/**
+ * Serve a static file from the dist directory.
+ */
+function serveStatic(res, filePath) {
+  if (!existsSync(filePath)) return false;
+
+  try {
+    const stat = statSync(filePath);
+    if (!stat.isFile()) return false;
+
+    const ext = extname(filePath);
+    const mime = MIME_TYPES[ext] || 'application/octet-stream';
+    const content = readFileSync(filePath);
+
+    res.writeHead(200, {
+      'Content-Type': mime,
+      'Content-Length': content.length,
+      'Cache-Control': ext === '.html' ? 'no-cache' : 'public, max-age=3600',
+    });
+    res.end(content);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Route API requests.
+ */
+async function handleApi(req, res, pathname, query) {
+  const method = req.method;
+
+  try {
+    // Tasks
+    if (pathname === '/api/tasks' && method === 'GET') {
+      return json(res, listTasks(query));
+    }
+    if (pathname === '/api/tasks' && method === 'POST') {
+      const body = await readBody(req);
+      return json(res, createTask(body), 201);
+    }
+
+    const taskMatch = pathname.match(/^\/api\/tasks\/([^/]+)$/);
+    if (taskMatch) {
+      const id = taskMatch[1];
+      if (method === 'GET') {
+        const task = getTask(id);
+        return task ? json(res, task) : error(res, 'Not found', 404);
+      }
+      if (method === 'PATCH') {
+        const body = await readBody(req);
+        const updated = updateTask(id, body);
+        return updated ? json(res, updated) : error(res, 'Not found', 404);
+      }
+      if (method === 'DELETE') {
+        return deleteTask(id) ? json(res, { ok: true }) : error(res, 'Not found', 404);
+      }
+    }
+
+    // Cron
+    if (pathname === '/api/cron' && method === 'GET') {
+      return json(res, listJobs());
+    }
+    if (pathname === '/api/cron' && method === 'POST') {
+      const body = await readBody(req);
+      return json(res, createJob(body), 201);
+    }
+
+    const cronRunMatch = pathname.match(/^\/api\/cron\/([^/]+)\/run$/);
+    if (cronRunMatch && method === 'POST') {
+      const run = triggerRun(cronRunMatch[1]);
+      return run ? json(res, run, 201) : error(res, 'Job not found', 404);
+    }
+
+    const cronHistoryMatch = pathname.match(/^\/api\/cron\/([^/]+)\/history$/);
+    if (cronHistoryMatch && method === 'GET') {
+      return json(res, getHistory(cronHistoryMatch[1]));
+    }
+
+    const cronPatchMatch = pathname.match(/^\/api\/cron\/([^/]+)$/);
+    if (cronPatchMatch && method === 'PATCH') {
+      const body = await readBody(req);
+      const updated = updateJob(cronPatchMatch[1], body);
+      return updated ? json(res, updated) : error(res, 'Not found', 404);
+    }
+
+    // Skills
+    if (pathname === '/api/skills' && method === 'GET') {
+      return json(res, listSkills());
+    }
+    if (pathname === '/api/skills/catalog' && method === 'GET') {
+      return json(res, listCatalog());
+    }
+
+    // Files
+    if (pathname === '/api/files' && method === 'GET') {
+      if (query.path) {
+        const data = readFile(query.path);
+        return data ? json(res, data) : error(res, 'Not found', 404);
+      }
+      return json(res, listFiles());
+    }
+
+    // Settings
+    if (pathname === '/api/settings/env' && method === 'GET') {
+      return json(res, getEnv());
+    }
+    if (pathname === '/api/settings/env' && method === 'PUT') {
+      const body = await readBody(req);
+      setEnv(body);
+      return json(res, { ok: true });
+    }
+    if (pathname === '/api/settings/mcp' && method === 'GET') {
+      return json(res, getMcp());
+    }
+    if (pathname === '/api/settings/mcp' && method === 'PUT') {
+      const body = await readBody(req);
+      setMcp(body);
+      return json(res, { ok: true });
+    }
+
+    // Dashboard
+    if (pathname === '/api/dashboard/summary' && method === 'GET') {
+      return json(res, getSummary());
+    }
+
+    // Clients
+    if (pathname === '/api/clients' && method === 'GET') {
+      return json(res, listClients());
+    }
+
+    // Analytics
+    if (pathname === '/api/analytics/skills' && method === 'GET') {
+      return json(res, getSkillStats());
+    }
+    if (pathname === '/api/analytics/costs' && method === 'GET') {
+      return json(res, getCostBreakdown());
+    }
+    if (pathname === '/api/analytics/quality' && method === 'GET') {
+      return json(res, getQualityStats());
+    }
+
+    // SSE Events
+    if (pathname === '/api/events' && method === 'GET') {
+      return handleSse(req, res);
+    }
+
+    return error(res, 'Not found', 404);
+  } catch (e) {
+    console.error(`API error [${method} ${pathname}]:`, e.message);
+    return error(res, e.message, 500);
+  }
+}
+
+/**
+ * Main request handler.
+ */
+async function handler(req, res) {
+  // CORS preflight
+  if (req.method === 'OPTIONS') {
+    res.writeHead(204, {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, PATCH, PUT, DELETE, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type',
+      'Access-Control-Max-Age': '86400',
+    });
+    return res.end();
+  }
+
+  const { pathname, query } = parseQuery(req.url || '/');
+
+  // API routes
+  if (pathname.startsWith('/api/')) {
+    return handleApi(req, res, pathname, query);
+  }
+
+  // Static file serving from dist/
+  if (existsSync(DIST_DIR)) {
+    // Try exact file
+    let filePath = join(DIST_DIR, pathname);
+    if (serveStatic(res, filePath)) return;
+
+    // Try with .html extension (for clean URLs)
+    if (!extname(pathname)) {
+      filePath = join(DIST_DIR, pathname, 'index.html');
+      if (serveStatic(res, filePath)) return;
+
+      filePath = join(DIST_DIR, pathname + '.html');
+      if (serveStatic(res, filePath)) return;
+    }
+
+    // Fallback to index.html
+    filePath = join(DIST_DIR, 'index.html');
+    if (serveStatic(res, filePath)) return;
+  }
+
+  error(res, 'Not found. Run "npm run build" first.', 404);
+}
+
+// Create and start server
+const server = http.createServer(handler);
+
+server.listen(PORT, () => {
+  console.log(`RobOS Centre running on http://localhost:${PORT}`);
+});
+
+// Graceful shutdown
+function shutdown() {
+  console.log('\nShutting down...');
+  server.close(() => {
+    closeDb();
+    process.exit(0);
+  });
+  // Force exit after 5s
+  setTimeout(() => process.exit(1), 5000);
+}
+
+process.on('SIGINT', shutdown);
+process.on('SIGTERM', shutdown);

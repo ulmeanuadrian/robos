@@ -1,0 +1,189 @@
+{
+  "version": "1.0.0",
+  "updated": "2026-05-04",
+  "skills": [
+    {
+      "name": "brand-voice",
+      "category": "brand",
+      "description": "Extract or build a brand voice profile (import, extract, build, or auto-scrape)",
+      "core": true,
+      "installed": true
+    },
+    {
+      "name": "brand-audience",
+      "category": "brand",
+      "description": "Build an Ideal Customer Profile through interview or market research",
+      "core": true,
+      "installed": true
+    },
+    {
+      "name": "brand-positioning",
+      "category": "brand",
+      "description": "Find the positioning angle that makes a product stand out from competitors",
+      "core": true,
+      "installed": true
+    },
+    {
+      "name": "sys-skill-builder",
+      "category": "sys",
+      "description": "Create new skills with proper frontmatter, directory structure, and test validation",
+      "core": true,
+      "installed": true
+    },
+    {
+      "name": "sys-session-close",
+      "category": "sys",
+      "description": "End-of-session wrap-up with feedback collection, memory finalization, and git check",
+      "core": true,
+      "installed": true
+    },
+    {
+      "name": "sys-goal-breakdown",
+      "category": "sys",
+      "description": "Break a goal into actionable tasks across 3 levels of complexity",
+      "core": true,
+      "installed": true
+    },
+    {
+      "name": "content-blog-post",
+      "category": "content",
+      "description": "Write SEO-optimized blog posts matched to brand voice and audience",
+      "core": false,
+      "installed": true
+    },
+    {
+      "name": "content-social-post",
+      "category": "content",
+      "description": "Create platform-specific social media posts with optimal formatting",
+      "core": false,
+      "installed": false
+    },
+    {
+      "name": "content-repurpose",
+      "category": "content",
+      "description": "Turn one piece of content into platform-native posts for 8 social platforms",
+      "core": false,
+      "installed": true
+    },
+    {
+      "name": "content-email-sequence",
+      "category": "content",
+      "description": "Build multi-step email sequences (welcome, nurture, launch, re-engagement)",
+      "core": false,
+      "installed": false
+    },
+    {
+      "name": "content-copywriting",
+      "category": "content",
+      "description": "Persuasive copy with 7-dimension quality scoring for landing pages and ads",
+      "core": false,
+      "installed": true
+    },
+    {
+      "name": "content-newsletter",
+      "category": "content",
+      "description": "Write newsletter editions with curated links, commentary, and CTAs",
+      "core": false,
+      "installed": false
+    },
+    {
+      "name": "research-competitors",
+      "category": "research",
+      "description": "Deep competitor analysis with messaging, pricing, and feature comparison",
+      "core": false,
+      "installed": true
+    },
+    {
+      "name": "research-trending",
+      "category": "research",
+      "description": "Scan web, social, and news for emerging trends in a given niche",
+      "core": false,
+      "installed": true
+    },
+    {
+      "name": "research-keyword",
+      "category": "research",
+      "description": "Keyword research with search intent classification and content gap analysis",
+      "core": false,
+      "installed": false
+    },
+    {
+      "name": "content-case-study",
+      "category": "content",
+      "description": "Write customer case studies from interview notes or raw data",
+      "core": false,
+      "installed": false
+    },
+    {
+      "name": "brand-style-guide",
+      "category": "brand",
+      "description": "Generate a complete brand style guide from voice, audience, and positioning",
+      "core": false,
+      "installed": false
+    },
+    {
+      "name": "tool-humanizer",
+      "category": "tool",
+      "description": "Strip AI writing patterns from text with 10 pattern categories and 3 modes",
+      "core": false,
+      "installed": true
+    },
+    {
+      "name": "tool-wp-publisher",
+      "category": "tool",
+      "description": "Publish content to WordPress with SEO metadata and featured images",
+      "core": false,
+      "installed": false
+    },
+    {
+      "name": "tool-social-scheduler",
+      "category": "tool",
+      "description": "Schedule posts across social platforms via Zernio API",
+      "core": false,
+      "installed": false
+    },
+    {
+      "name": "sys-cron-manager",
+      "category": "sys",
+      "description": "Create, edit, and monitor recurring cron jobs for automated workflows",
+      "core": false,
+      "installed": false
+    },
+    {
+      "name": "sys-client-onboard",
+      "category": "sys",
+      "description": "Set up a new client workspace with brand files, project structure, and context",
+      "core": false,
+      "installed": false
+    },
+    {
+      "name": "content-landing-page",
+      "category": "content",
+      "description": "Write landing page copy with hero, benefits, social proof, and CTA sections",
+      "core": false,
+      "installed": false
+    }
+  ],
+  "starterPacks": [
+    {
+      "name": "consultant",
+      "description": "Solo consultants and coaches",
+      "files": ["voice.md", "audience.md", "positioning.md"]
+    },
+    {
+      "name": "agency",
+      "description": "Small marketing/creative agencies (2-10 people)",
+      "files": ["voice.md", "audience.md", "positioning.md"]
+    },
+    {
+      "name": "ecommerce",
+      "description": "Online store owners (Shopify, WooCommerce, etc.)",
+      "files": ["voice.md", "audience.md", "positioning.md"]
+    },
+    {
+      "name": "creator",
+      "description": "Content creators, YouTubers, newsletter writers",
+      "files": ["voice.md", "audience.md", "positioning.md"]
+    }
+  ]
+}
