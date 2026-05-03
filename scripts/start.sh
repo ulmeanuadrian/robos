@@ -4,14 +4,16 @@ set -euo pipefail
 ROBOS_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 PID_DIR="$ROBOS_ROOT/.command-centre"
 PID_FILE="$PID_DIR/server.pid"
-PORT="${PORT:-3000}"
 
-# Source .env if it exists
+# Source .env if it exists (before setting PORT so .env can override)
 if [ -f "$ROBOS_ROOT/.env" ]; then
     set -a
     source "$ROBOS_ROOT/.env"
     set +a
 fi
+
+# PORT: CLI env > .env > default 3000
+export PORT="${PORT:-3000}"
 
 # Check if already running
 if [ -f "$PID_FILE" ]; then
