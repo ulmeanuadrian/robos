@@ -1,47 +1,47 @@
-# RobOS Cheat Sheet
+# robOS - Ghid rapid
 
-## Setup & Lifecycle
+## Setup si pornire
 
 ```bash
-./scripts/setup.sh          # First-time setup (Node deps, .env, user profile)
-./scripts/start.sh          # Start Command Centre dashboard
-./scripts/stop.sh           # Stop Command Centre
-./scripts/update.sh         # Pull latest + detect new skills
+./scripts/setup.sh          # Prima configurare (Node deps, .env, profil)
+./scripts/start.sh          # Porneste dashboard-ul
+./scripts/stop.sh           # Opreste dashboard-ul
+./scripts/update.sh         # Actualizeaza + detecteaza skills noi
 ```
 
 ## Skills
 
 ```bash
-./scripts/list-skills.sh              # Show installed + available skills
-./scripts/add-skill.sh <name>         # Install from catalog
-./scripts/remove-skill.sh <name>      # Uninstall (with confirmation)
+./scripts/list-skills.sh              # Arata skills instalate + disponibile
+./scripts/add-skill.sh <name>         # Instaleaza din catalog
+./scripts/remove-skill.sh <name>      # Dezinstaleaza (cu confirmare)
 ```
 
-In Claude Code, skills are triggered by natural language. Examples:
-- "Write a blog post about X" triggers `content-blog-post`
-- "Research competitors for X" triggers `research-competitors`
-- "Check brand voice on this draft" triggers `brand-voice-check`
+Skills se activeaza prin limbaj natural. Exemple:
+- "onboard me" sau "ajuta-ma sa incep" -> `sys-onboard`
+- "plan de zi" sau "plan my day" -> `sys-daily-plan`
+- "audit" sau "cum stau" -> `sys-audit`
+- "level up" sau "ce sa automatizez" -> `sys-level-up`
+- "write a blog post about X" -> `content-blog-post`
+- "research competitors for X" -> `research-competitors`
+- "humanize this" -> `tool-humanizer`
 
-## Clients
+## Clienti
 
 ```bash
-./scripts/add-client.sh <slug> ["Display Name"]
-# Creates: clients/<slug>/ with brand, context, projects, cron
+./scripts/add-client.sh <slug> ["Nume Afisat"]
+# Creeaza: clients/<slug>/ cu brand, context, projects, cron
 ```
 
-Switch context in Claude Code:
-- "Switch to client acme-corp"
-- "Work on acme-corp's blog post"
-
-## Cron / Scheduled Jobs
+## Cron / Joburi programate
 
 ```bash
-./scripts/start-crons.sh     # Start the cron daemon
-./scripts/stop-crons.sh      # Stop the cron daemon
-./scripts/status-crons.sh    # Show all jobs and their last run
+./scripts/start-crons.sh     # Porneste daemonul cron
+./scripts/stop-crons.sh      # Opreste daemonul
+./scripts/status-crons.sh    # Arata joburile si ultimele rulari
 ```
 
-Job file format (`cron/jobs/<name>.json`):
+Format fisier job (`cron/jobs/<name>.json`):
 ```json
 {
   "name": "daily-blog-post",
@@ -52,55 +52,49 @@ Job file format (`cron/jobs/<name>.json`):
 }
 ```
 
-## Directory Map
+## Structura directorului
 
 ```
 .
-├── brand/              # Your brand context (voice, audience, etc.)
-├── centre/             # Command Centre app (do not edit)
-├── clients/            # Per-client workspaces
+├── brand/              # Context de brand (voce, audienta, pozitionare)
+├── centre/             # Dashboard (nu edita manual)
+├── clients/            # Workspace-uri per client
 ├── context/
-│   ├── SOUL.md         # Agent personality
-│   ├── USER.md         # Your profile
-│   ├── learnings.md    # Cross-session insights
-│   └── memory/         # Daily session journals
+│   ├── SOUL.md         # Personalitate agent
+│   ├── USER.md         # Profilul tau
+│   ├── priorities.md   # Prioritati curent trimestru
+│   ├── learnings.md    # Feedback per-skill
+│   ├── audits/         # Istoric scoruri 4C
+│   └── memory/         # Jurnale zilnice
+├── connections.md      # Inventar tool-uri conectate
 ├── cron/
-│   ├── jobs/           # Scheduled job definitions
-│   ├── logs/           # Execution logs
-│   └── templates/      # Job templates
-├── docs/               # Documentation
-├── projects/           # Output from skills
-├── scripts/            # Management scripts
+│   ├── jobs/           # Definitii joburi programate
+│   └── logs/           # Loguri de executie
+├── projects/           # Output din skills
+├── scripts/            # Scripturi de management
 ├── skills/
-│   ├── _catalog/       # Available skills (read-only)
-│   └── <skill>/        # Installed skills
-├── AGENTS.md           # Shared project rules
-├── CLAUDE.md           # Claude Code instructions
-└── .env                # API keys (not committed)
+│   ├── _catalog/       # Skills disponibile (catalog + starter packs)
+│   └── <skill>/        # Skills instalate
+├── AGENTS.md           # Reguli partajate
+├── CLAUDE.md           # Instructiuni Claude Code
+└── .env                # API keys (nu se comit)
 ```
 
-## Daily Memory
+## Fluxul zilnic
 
-Session journals are auto-created at `context/memory/YYYY-MM-DD.md`.
-Each session tracks: Goal, Deliverables, Decisions, Open Threads.
+1. Dimineata: "plan de zi" -> planifica pe baza memoriei si prioritatilor
+2. Lucreaza in Claude Code -> skills se activeaza automat
+3. Seara: "gata" -> `sys-session-close` salveaza memoria
+4. Saptamanal: "audit" -> verifica scor 4C si progres
 
-## Context Loading
+## Memory
 
-Skills declare what context they need. Brand files are only loaded when a skill requests them.
-This keeps sessions fast and token-efficient.
-
-## Keyboard Shortcuts (Claude Code)
-
-| Shortcut | Action |
-|----------|--------|
-| `/` | Enter command mode |
-| `Esc` | Cancel current operation |
-| `Ctrl+C` | Interrupt generation |
-| `Up/Down` | Navigate history |
+Jurnalele se creeaza automat la `context/memory/YYYY-MM-DD.md`.
+Fiecare sesiune urmareste: Goal, Deliverables, Decisions, Open Threads.
 
 ## Tips
 
-- Start sessions with a task, not a greeting -- gets you to output faster
-- Fill in `brand/voice.md` first -- it unlocks the most skill improvements
-- Use `context/learnings.md` to correct recurring mistakes
-- Check `cron/logs/` if a scheduled job didn't produce expected output
+- Incepe cu "onboard me" daca e prima data -- te configureaza in 15 min
+- Completeaza `brand/voice.md` prima -- deblocheaza calitatea tuturor skills
+- Ruleaza "audit" regulat ca sa vezi ce mai ai de imbunatatit
+- Foloseste `context/learnings.md` ca sa corectezi greseli recurente

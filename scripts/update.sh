@@ -39,6 +39,13 @@ if [ -d "centre" ]; then
     CENTRE_HASH_BEFORE=$(git log -1 --format="%H" -- centre/ 2>/dev/null || echo "")
 fi
 
+# Backup database before update
+DB_FILE="$ROBOS_ROOT/.command-centre/robos.db"
+if [ -f "$DB_FILE" ]; then
+    cp "$DB_FILE" "${DB_FILE}.bak-$(date +%Y%m%d-%H%M%S)"
+    echo "[OK] Database backed up"
+fi
+
 # Pull latest
 echo "Pulling latest changes..."
 git pull --ff-only || {

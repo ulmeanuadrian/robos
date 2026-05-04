@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "type": "module",
   "private": true,
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
@@ -15,9 +18,7 @@
     "@tailwindcss/postcss": "^4.2.4",
     "astro": "^6.2.1",
     "better-sqlite3": "^12.9.0",
-    "chokidar": "^5.0.0",
     "croner": "^10.0.1",
-    "lucide-svelte": "^1.0.1",
     "svelte": "^5.55.5",
     "tailwindcss": "^4.2.4"
   },

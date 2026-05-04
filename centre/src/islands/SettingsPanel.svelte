@@ -77,13 +77,6 @@
     fetchSettings();
   });
 
-  // Re-fetch when tab changes
-  $effect(() => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-    activeTab;
-    fetchSettings();
-  });
-
   const tabs = [
     { id: 'env' as const, label: 'Environment' },
     { id: 'mcp' as const, label: 'MCP Config' },
@@ -207,7 +200,7 @@
             <h4>Setup Wizard</h4>
             <p>Run the RobOS setup process.</p>
           </div>
-          <code class="script-cmd">node scripts/setup.js</code>
+          <code class="script-cmd">bash scripts/setup.sh</code>
         </div>
       </div>
     </div>

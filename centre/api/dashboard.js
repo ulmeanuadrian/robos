@@ -1,5 +1,6 @@
 import { getDb } from '../lib/db.js';
 import { listSkills } from './skills.js';
+import { execSync } from 'child_process';
 
 /**
  * GET /api/dashboard/summary
@@ -35,4 +36,18 @@ export function getSummary() {
     cronActive,
     recentActivity,
   };
+}
+
+/**
+ * GET /api/dashboard/health
+ * Returns system health checks.
+ */
+export function getHealth() {
+  let claudeCli = false;
+  try {
+    execSync('which claude', { stdio: 'pipe' });
+    claudeCli = true;
+  } catch { /* not found */ }
+
+  return { claudeCli };
 }

@@ -2,7 +2,8 @@ import { readFileSync, writeFileSync, existsSync } from 'fs';
 import { join } from 'path';
 import { workspaceRoot } from '../lib/config.js';
 
-const SENSITIVE_PATTERNS = ['KEY', 'SECRET', 'TOKEN', 'PASSWORD', 'PASS'];
+const SENSITIVE_PATTERNS = ['KEY', 'SECRET', 'TOKEN', 'PASSWORD', 'PASS', 'PRIVATE', 'CREDENTIAL', 'DSN', 'AUTH'];
+const SHELL_DANGEROUS = /[\$`\(\)\{\};\|&<>!\\]/;
 
 /**
  * GET /api/settings/env — read .env file with masked values
@@ -37,8 +38,8 @@ export function getEnv() {
 }
 
 function maskValue(val) {
-  if (val.length <= 4) return '****';
-  return val.slice(0, 3) + '***' + val.slice(-2);
+  if (!val || val.length <= 8) return '****';
+  return val.slice(0, 3) + '****';
 }
 
 /**
@@ -59,12 +60,17 @@ export function setEnv(vars) {
     }
   }
 
-  // Build new content, skip masked values that weren't changed
   const lines = [];
   for (const v of vars) {
-    const value = v.masked && v.value.includes('***')
+    let value = v.masked && v.value.includes('****')
       ? existingVars[v.key] || v.value
       : v.value;
+
+    // Reject shell-dangerous characters to prevent injection via source .env
+    if (SHELL_DANGEROUS.test(value)) {
+      value = existingVars[v.key] || '';
+    }
+
     lines.push(`${v.key}=${value}`);
   }
 
@@ -90,6 +96,9 @@ export function getMcp() {
  * PUT /api/settings/mcp — write .mcp.json
  */
 export function setMcp(config) {
+  if (!config || typeof config !== 'object') return false;
+  if (config.mcpServers && typeof config.mcpServers !== 'object') return false;
+
   const mcpPath = join(workspaceRoot, '.mcp.json');
   writeFileSync(mcpPath, JSON.stringify(config, null, 2) + '\n', 'utf-8');
   return true;

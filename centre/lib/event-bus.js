@@ -32,13 +32,6 @@ export function emit(event, data) {
 }
 
 /**
- * Listen for internal events.
- */
-export function on(event, handler) {
-  emitter.on(event, handler);
-}
-
-/**
  * Send keepalive to all SSE clients.
  */
 export function sendKeepalive() {
@@ -52,4 +45,7 @@ export function sendKeepalive() {
   }
 }
 
-export const clientCount = () => sseClients.size;
+// Global keepalive - one interval for all clients
+setInterval(() => {
+  if (sseClients.size > 0) sendKeepalive();
+}, 30000);

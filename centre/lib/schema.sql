@@ -70,7 +70,7 @@ INSERT OR IGNORE INTO schema_version (version) VALUES (1);
 
 CREATE INDEX IF NOT EXISTS idx_tasks_status ON tasks(status);
 CREATE INDEX IF NOT EXISTS idx_tasks_clientId ON tasks(clientId);
-CREATE INDEX IF NOT EXISTS idx_tasks_goalGroup ON tasks(goalGroup);
+-- goalGroup index removed (column exists but unused in queries)
 CREATE INDEX IF NOT EXISTS idx_task_logs_taskId ON task_logs(taskId);
 CREATE INDEX IF NOT EXISTS idx_cron_runs_jobSlug ON cron_runs(jobSlug);
 CREATE INDEX IF NOT EXISTS idx_cron_runs_startedAt ON cron_runs(startedAt);

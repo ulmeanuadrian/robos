@@ -47,14 +47,34 @@ nohup node "$ROBOS_ROOT/centre/server.js" > "$PID_DIR/server.log" 2>&1 &
 SERVER_PID=$!
 echo "$SERVER_PID" > "$PID_FILE"
 
-echo "Command Centre started (PID $SERVER_PID)"
-echo "URL: http://localhost:${PORT}"
+echo "Command Centre starting (PID $SERVER_PID)..."
 echo "Log: .command-centre/server.log"
 
-# Open browser (best effort)
-sleep 1
-if command -v xdg-open &>/dev/null; then
-    xdg-open "http://localhost:${PORT}" 2>/dev/null || true
-elif command -v open &>/dev/null; then
-    open "http://localhost:${PORT}" 2>/dev/null || true
+# Health check - wait for server to respond
+READY=0
+for i in $(seq 1 15); do
+    if curl -s -o /dev/null -w '' "http://localhost:${PORT}" 2>/dev/null; then
+        READY=1
+        break
+    fi
+    sleep 1
+done
+
+if [ "$READY" -eq 1 ]; then
+    echo "[OK] Command Centre running at http://localhost:${PORT}"
+    # Open browser (best effort)
+    if command -v xdg-open &>/dev/null; then
+        xdg-open "http://localhost:${PORT}" 2>/dev/null || true
+    elif command -v open &>/dev/null; then
+        open "http://localhost:${PORT}" 2>/dev/null || true
+    fi
+else
+    echo "WARNING: Server did not respond within 15 seconds."
+    echo "Check logs: cat .command-centre/server.log"
+    if ! kill -0 "$SERVER_PID" 2>/dev/null; then
+        echo "ERROR: Server process died. Last 10 lines:"
+        tail -10 "$PID_DIR/server.log" 2>/dev/null || true
+        rm -f "$PID_FILE"
+        exit 1
+    fi
 fi

@@ -1,6 +1,6 @@
-# RobOS - Shared Project Instructions
+# robOS - Shared Project Instructions
 
-RobOS is an agentic operating system that runs on Claude Code. It gives a single AI operator
+robOS is an agentic operating system that runs on Claude Code. It gives a single AI operator
 persistent memory, installable skills, brand context, cron scheduling, and multi-client
 workspace isolation. It ships as a template -- users clone it, run setup, and start working.
 
@@ -45,11 +45,15 @@ in the session's Open Threads.
 
 | Skill | Version | Category | Description |
 |-------|---------|----------|-------------|
+| sys-onboard | 1.0.0 | sys | Interactive onboarding: starter pack, 5-question interview, first skill run |
+| sys-audit | 1.1.0 | sys | Score 4C framework (0-100) with revision loop: auto-fixes gaps in bounded iterations |
+| sys-level-up | 1.1.0 | sys | 5 discovery questions + feasibility gate to only suggest what robOS can deliver |
+| sys-daily-plan | 1.0.0 | sys | Morning planning: memory + priorities + open threads into focused daily plan |
 | brand-voice | 1.0.0 | brand | Extract or build a brand voice profile (import, extract, build, or auto-scrape) |
 | brand-audience | 1.0.0 | brand | Build an Ideal Customer Profile through interview or market research |
 | brand-positioning | 1.0.0 | brand | Find the positioning angle that makes a product stand out |
 | sys-skill-builder | 1.0.0 | sys | Create new skills with proper frontmatter, structure, and test validation |
-| sys-session-close | 1.0.0 | sys | End-of-session wrap-up with feedback, memory, and git check |
+| sys-session-close | 1.1.0 | sys | End-of-session wrap-up with plan alignment check, feedback, and memory |
 | sys-goal-breakdown | 1.0.0 | sys | Break a goal into actionable tasks across 3 complexity levels |
 | content-copywriting | 1.0.0 | content | Persuasive copy with 7-dimension scoring for landing pages, ads, emails |
 | content-repurpose | 1.0.0 | content | Turn one piece of content into platform-native posts for 8 platforms |
@@ -57,6 +61,24 @@ in the session's Open Threads.
 | research-trending | 1.0.0 | research | Research trending topics across Reddit, X, HN, YouTube in last 30 days |
 | tool-humanizer | 1.0.0 | tool | Strip AI writing patterns (10 categories, 3 modes: quick/standard/deep) |
 | research-competitors | 1.0.0 | research | Competitor messaging, pricing, and positioning analysis with gap detection |
+
+---
+
+## Model Recommendations
+
+Skills work on any Claude model, but choosing the right tier improves cost and quality:
+
+| Skill category | Recommended | Rationale |
+|---|---|---|
+| sys-onboard, sys-audit, sys-level-up | Opus | Deep reasoning, multi-step synthesis, run rarely |
+| sys-daily-plan, sys-session-close, sys-goal-breakdown | Sonnet | Structured retrieval + planning, run daily |
+| content-blog-post, content-copywriting, content-repurpose | Sonnet | Good cost/quality balance for generation |
+| brand-voice, brand-audience, brand-positioning | Opus | Run once during setup, need nuanced analysis |
+| research-trending, research-competitors | Sonnet | Web research + synthesis, moderate complexity |
+| tool-humanizer | Haiku | Pattern-matching transformation, high-volume use |
+| sys-skill-builder | Opus | Architecture decisions, run rarely |
+
+Usage: if running Claude Code with model selection (--model flag or /model command), switch before running expensive skills. Not a hard requirement -- all skills degrade gracefully on smaller models.
 
 ---
 
@@ -105,9 +127,8 @@ Always include a `_metadata.json` in Level 2+ outputs:
 
 ```
 skills/{skill-name}/
-  SKILL.md          # Frontmatter + instructions (required)
-  prompt.md         # The main prompt template (required)
-  examples/         # Example inputs/outputs (optional)
+  SKILL.md          # Frontmatter + step-by-step instructions (required)
+  references/       # Supporting docs, API refs, examples (optional)
   lib/              # Helper scripts if needed (optional)
 ```
 
@@ -139,7 +160,7 @@ outputs:
 
 1. Skill directory exists in `skills/`
 2. `SKILL.md` has valid frontmatter with all required fields
-3. `prompt.md` exists and references input variables with `{variable}` syntax
+3. Step-by-step instructions are actionable (not vague)
 4. Skill is listed in the Skill Registry table in this file
 5. If the skill needs API keys, they're documented in `.env.example`
 
@@ -147,7 +168,7 @@ outputs:
 
 ## Graceful Degradation
 
-RobOS works at every context level:
+robOS works at every context level:
 
 - **Zero config**: No brand files, no USER.md filled in. Skills still work with generic defaults.
 - **Partial config**: Some brand files filled in. Skills use what's available, skip what's not.

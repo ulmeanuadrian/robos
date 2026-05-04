@@ -22,6 +22,18 @@ fi
 
 echo "[OK] Node.js $(node -v)"
 
+# Check Claude CLI
+if command -v claude &>/dev/null; then
+    echo "[OK] Claude CLI found"
+else
+    echo ""
+    echo "WARNING: Claude CLI not found in PATH."
+    echo "  RobOS works best with Claude Code installed."
+    echo "  Install: https://docs.anthropic.com/en/docs/claude-code"
+    echo "  Cron scheduling will not work without it."
+    echo ""
+fi
+
 # Install dependencies
 if [ -d "$ROBOS_ROOT/centre" ] && [ -f "$ROBOS_ROOT/centre/package.json" ]; then
     echo ""
@@ -40,7 +52,15 @@ if [ -d "$ROBOS_ROOT/centre" ] && [ -f "$ROBOS_ROOT/centre/package.json" ]; then
     if [ -f "$ROBOS_ROOT/centre/scripts/init-db.js" ]; then
         echo ""
         echo "Initializing database..."
-        node "$ROBOS_ROOT/centre/scripts/init-db.js"
+        if ! node "$ROBOS_ROOT/centre/scripts/init-db.js"; then
+            echo "ERROR: Database initialization failed."
+            exit 1
+        fi
+        DB_PATH="$ROBOS_ROOT/.command-centre/robos.db"
+        if [ ! -f "$DB_PATH" ]; then
+            echo "ERROR: Database file not created at $DB_PATH"
+            exit 1
+        fi
         echo "[OK] Database ready"
     fi
 else

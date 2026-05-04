@@ -9,13 +9,13 @@ interface Props {
 const { title = 'robOS Centre', activeTab = 'home' } = Astro.props;
 
 const tabs = [
-  { id: 'home', label: 'Home', href: '/', icon: 'home' },
-  { id: 'tasks', label: 'Tasks', href: '/tasks/', icon: 'list-checks' },
-  { id: 'schedule', label: 'Schedule', href: '/schedule/', icon: 'clock' },
+  { id: 'home', label: 'Acasa', href: '/', icon: 'home' },
+  { id: 'tasks', label: 'Task-uri', href: '/tasks/', icon: 'list-checks' },
+  { id: 'schedule', label: 'Program', href: '/schedule/', icon: 'clock' },
   { id: 'skills', label: 'Skills', href: '/skills/', icon: 'puzzle' },
-  { id: 'analytics', label: 'Analytics', href: '/analytics/', icon: 'bar-chart' },
-  { id: 'files', label: 'Files', href: '/files/', icon: 'folder' },
-  { id: 'settings', label: 'Settings', href: '/settings/', icon: 'settings' },
+  { id: 'analytics', label: 'Analitice', href: '/analytics/', icon: 'bar-chart' },
+  { id: 'files', label: 'Fisiere', href: '/files/', icon: 'folder' },
+  { id: 'settings', label: 'Setari', href: '/settings/', icon: 'settings' },
 ];
 
 const iconPaths: Record<string, string> = {
@@ -29,7 +29,7 @@ const iconPaths: Record<string, string> = {
 };
 ---
 
-<html lang="en">
+<html lang="ro">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />

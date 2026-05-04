@@ -6,10 +6,10 @@
   }
 
   let checks = $state<HealthCheck[]>([
-    { label: 'Cron Daemon', status: 'unknown', detail: 'Checking...' },
-    { label: 'Brand Context', status: 'unknown', detail: 'Checking...' },
-    { label: 'Today\'s Memory', status: 'unknown', detail: 'Checking...' },
-    { label: 'Claude CLI', status: 'unknown', detail: 'Checking...' },
+    { label: 'Cron Daemon', status: 'unknown', detail: 'Se verifica...' },
+    { label: 'Context brand', status: 'unknown', detail: 'Se verifica...' },
+    { label: 'Memoria zilei', status: 'unknown', detail: 'Se verifica...' },
+    { label: 'Claude CLI', status: 'unknown', detail: 'Se verifica...' },
   ]);
   let loading = $state(true);
 
@@ -21,21 +21,21 @@
         const files = await filesRes.json();
         const fileCount = Array.isArray(files) ? files.length : 0;
         checks[1] = {
-          label: 'Brand Context',
+          label: 'Context brand',
           status: fileCount > 0 ? 'ok' : 'warning',
-          detail: fileCount > 0 ? `${fileCount} brand files configured` : 'No brand files found',
+          detail: fileCount > 0 ? `${fileCount} fisiere brand configurate` : 'Niciun fisier brand',
         };
       } else {
-        checks[1] = { label: 'Brand Context', status: 'warning', detail: 'brand/ directory not accessible' };
+        checks[1] = { label: 'Context brand', status: 'warning', detail: 'brand/ inaccesibil' };
       }
 
       // Check today's memory
       const today = new Date().toISOString().split('T')[0];
       const memRes = await fetch(`/api/files?path=context/memory/${today}.md`);
       if (memRes.ok) {
-        checks[2] = { label: 'Today\'s Memory', status: 'ok', detail: `${today}.md exists` };
+        checks[2] = { label: 'Memoria zilei', status: 'ok', detail: `${today}.md exista` };
       } else {
-        checks[2] = { label: 'Today\'s Memory', status: 'warning', detail: 'No memory file for today' };
+        checks[2] = { label: 'Memoria zilei', status: 'warning', detail: 'Niciun fisier memorie azi' };
       }
 
       // Check cron status
@@ -46,14 +46,28 @@
         checks[0] = {
           label: 'Cron Daemon',
           status: activeJobs > 0 ? 'ok' : 'warning',
-          detail: activeJobs > 0 ? `${activeJobs} active jobs` : 'No active cron jobs',
+          detail: activeJobs > 0 ? `${activeJobs} joburi active` : 'Niciun job cron activ',
         };
       } else {
-        checks[0] = { label: 'Cron Daemon', status: 'warning', detail: 'API not available' };
+        checks[0] = { label: 'Cron Daemon', status: 'warning', detail: 'API indisponibil' };
       }
 
-      // Claude CLI - we just assume it's available in static mode
-      checks[3] = { label: 'Claude CLI', status: 'ok', detail: 'Available (check via terminal)' };
+      // Claude CLI - check via /api/dashboard/health
+      try {
+        const cliRes = await fetch('/api/dashboard/health');
+        if (cliRes.ok) {
+          const health = await cliRes.json();
+          checks[3] = {
+            label: 'Claude CLI',
+            status: health.claudeCli ? 'ok' : 'error',
+            detail: health.claudeCli ? 'Disponibil' : 'Nu e instalat -- instaleaza Claude Code',
+          };
+        } else {
+          checks[3] = { label: 'Claude CLI', status: 'unknown', detail: 'Verificare indisponibila' };
+        }
+      } catch {
+        checks[3] = { label: 'Claude CLI', status: 'unknown', detail: 'Verificare indisponibila' };
+      }
     } catch {
       // Leave defaults
     } finally {
@@ -77,7 +91,7 @@
 
 <div class="card health-container">
   <div class="health-header">
-    <h3>System Health</h3>
+    <h3>Stare sistem</h3>
   </div>
   <div class="health-list">
     {#each checks as check}

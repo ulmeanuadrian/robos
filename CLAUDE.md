@@ -1,4 +1,4 @@
-# RobOS - Claude Code Instructions
+# robOS - Claude Code Instructions
 
 Read @AGENTS.md for shared project rules, skill categories, and output standards.
 
@@ -12,9 +12,15 @@ When a session begins, do the following silently (no output):
 
 1. Read `context/SOUL.md` -- internalize personality
 2. Read `context/USER.md` -- know who you're working with
-3. Read today's memory file at `context/memory/YYYY-MM-DD.md` (if it exists)
-4. Scan `skills/` directory -- note what's installed vs. what's in `skills/_catalog/`
-5. Check `cron/status/` for anything that ran since last session
+3. **Session Recovery Check** (before anything else):
+   - Find the most recent file in `context/memory/` (by filename date, not filesystem date)
+   - If it has `### Open Threads` with items but NO closing pattern (no "Session: X deliverables" line at the end):
+     → Previous session ended without proper close
+     → Flag internally: will mention open threads on first interaction
+   - If the most recent memory file is >3 days old:
+     → Flag internally: user has been away, will offer context recap on first interaction
+4. Read today's memory file at `context/memory/YYYY-MM-DD.md` (if it exists)
+5. Scan `skills/` directory -- note what's installed vs. what's in `skills/_catalog/`
 
 Do NOT read at startup:
 - `brand/*` files (load only when a skill requests them)
@@ -23,11 +29,21 @@ Do NOT read at startup:
 
 Do NOT greet the user. Wait for them to speak.
 
+### Startup (New User - Not Yet Onboarded)
+
+Check `brand/voice.md`. If it only contains HTML comments or template placeholders (no real tone/vocabulary content), the user has NOT completed onboarding:
+1. Say: "Bine ai venit in robOS. Spune **onboard me** ca sa te configurez in 15 minute, sau sari direct la orice task."
+2. Do NOT auto-run onboarding. Wait for them.
+
 ### First Interaction
 
-If the user opens with a casual greeting ("hey", "morning", "what's up"):
+If the user opens with a casual greeting ("hey", "morning", "salut", "buna"):
 - Respond briefly
-- Mention any open threads from today's memory or cron results worth noting
+- If session recovery flagged unfinished open threads: mention them first.
+  Format: "Ultima sesiune ({date}) a ramas cu: {thread 1}, {thread 2}. Continuam?"
+- If session recovery flagged >3 days absence: "Welcome back. Ultima sesiune ({date}): {goal}."
+- Otherwise: mention any open threads from today's memory or cron results worth noting
+- Suggest: "Spune **plan de zi** ca sa-ti planific ziua" (only if no plan exists in today's memory yet)
 - Keep it to 2-3 lines max
 
 If the user opens with a task, go straight to work.
@@ -81,6 +97,42 @@ When the user signals they're done ("done", "that's it", "signing off", "bye", c
 
 ---
 
+## Key Files
+
+| File | Purpose |
+|------|---------|
+| `context/USER.md` | Who you're working with |
+| `context/priorities.md` | Current quarter goals and active sprint |
+| `connections.md` | Tool inventory and connection status |
+| `context/audits/` | 4C audit history (score progression) |
+| `context/learnings.md` | Per-skill feedback and patterns |
+| `brand/voice.md` | How the brand sounds |
+| `brand/audience.md` | Who the brand talks to |
+| `brand/positioning.md` | Market position and differentiators |
+| `brand/samples.md` | Real writing samples for voice calibration |
+
+## Core Workflows
+
+- **User nou**: spune "onboard me" sau "ajuta-ma sa incep" -> `sys-onboard`
+- **Dimineata**: spune "plan de zi" sau "plan my day" -> `sys-daily-plan`
+- **Rutina completa**: spune "morning routine" sau "rutina de dimineata" -> compound (vezi mai jos)
+- **Verifica progres**: spune "audit" sau "cum stau" -> `sys-audit` (scor 4C, 0-100)
+- **Gaseste oportunitati**: spune "level up" sau "ce sa automatizez" -> `sys-level-up`
+- **Sfarsit de zi**: spune "done" sau "gata" -> `sys-session-close`
+
+### Morning Routine (Compound Trigger)
+
+When user says "morning routine" or "rutina de dimineata":
+
+1. Run `sys-daily-plan` (produces today's plan with 3 priorities)
+2. Check if an audit exists in `context/audits/` from the last 7 days:
+   - If NO recent audit OR it's Monday: run `sys-audit` in quick mode (score + top gap only, no full report)
+   - If recent audit exists and score >= 60: skip audit, mention score briefly
+3. If audit ran and score dropped vs previous: suggest "Vrei sa rulez /level-up ca sa gasim ce s-a degradat?"
+
+Total output: max 30 lines combined. No repetition between steps.
+End with: "Gata. Prioritatea #1: {first priority}. Incepem?"
+
 ## General Rules
 
 - Load context on demand, not upfront. Skills declare what they need in their SKILL.md frontmatter.
@@ -88,3 +140,4 @@ When the user signals they're done ("done", "that's it", "signing off", "bye", c
 - Brand files are expensive context. Only load them when a task genuinely needs brand voice/positioning.
 - Prefer the installed skill over base knowledge. If `content-blog-post` is installed, use it -- don't wing it.
 - When in doubt about scope, ask one clarifying question, then proceed.
+- When outputting from a skill and brand context is empty, say explicitly what's missing and how it would improve output.

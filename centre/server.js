@@ -1,6 +1,6 @@
 import http from 'http';
 import { readFileSync, existsSync, statSync } from 'fs';
-import { join, extname } from 'path';
+import { join, extname, resolve } from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 
@@ -9,7 +9,7 @@ import { listJobs, createJob, updateJob, triggerRun, getHistory } from './api/cr
 import { listSkills, listCatalog } from './api/skills.js';
 import { listFiles, readFile } from './api/files.js';
 import { getEnv, setEnv, getMcp, setMcp } from './api/settings.js';
-import { getSummary } from './api/dashboard.js';
+import { getSummary, getHealth } from './api/dashboard.js';
 import { listClients } from './api/clients.js';
 import { handleSse } from './api/events.js';
 import { getSkillStats, getCostBreakdown, getQualityStats } from './api/analytics.js';
@@ -48,10 +48,20 @@ function parseQuery(urlStr) {
 /**
  * Read the request body as JSON.
  */
+const MAX_BODY_SIZE = 1024 * 1024; // 1MB
+
 function readBody(req) {
   return new Promise((resolve, reject) => {
     const chunks = [];
-    req.on('data', chunk => chunks.push(chunk));
+    let totalSize = 0;
+    req.on('data', chunk => {
+      totalSize += chunk.length;
+      if (totalSize > MAX_BODY_SIZE) {
+        req.destroy();
+        return reject(new Error('Request body too large'));
+      }
+      chunks.push(chunk);
+    });
     req.on('end', () => {
       try {
         const raw = Buffer.concat(chunks).toString();
@@ -70,7 +80,6 @@ function readBody(req) {
 function json(res, data, status = 200) {
   res.writeHead(status, {
     'Content-Type': 'application/json',
-    'Access-Control-Allow-Origin': '*',
   });
   res.end(JSON.stringify(data));
 }
@@ -143,7 +152,7 @@ async function handleApi(req, res, pathname, query) {
 
     // Cron
     if (pathname === '/api/cron' && method === 'GET') {
-      return json(res, listJobs());
+      return json(res, listJobs(query));
     }
     if (pathname === '/api/cron' && method === 'POST') {
       const body = await readBody(req);
@@ -207,6 +216,9 @@ async function handleApi(req, res, pathname, query) {
     if (pathname === '/api/dashboard/summary' && method === 'GET') {
       return json(res, getSummary());
     }
+    if (pathname === '/api/dashboard/health' && method === 'GET') {
+      return json(res, getHealth());
+    }
 
     // Clients
     if (pathname === '/api/clients' && method === 'GET') {
@@ -240,14 +252,9 @@ async function handleApi(req, res, pathname, query) {
  * Main request handler.
  */
 async function handler(req, res) {
-  // CORS preflight
+  // CORS: only allow same-origin (dashboard is served from same host)
   if (req.method === 'OPTIONS') {
-    res.writeHead(204, {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, PATCH, PUT, DELETE, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type',
-      'Access-Control-Max-Age': '86400',
-    });
+    res.writeHead(204);
     return res.end();
   }
 
@@ -260,17 +267,20 @@ async function handler(req, res) {
 
   // Static file serving from dist/
   if (existsSync(DIST_DIR)) {
-    // Try exact file
-    let filePath = join(DIST_DIR, pathname);
-    if (serveStatic(res, filePath)) return;
+    const safePath = (p) => {
+      const resolved = resolve(DIST_DIR, p.replace(/^\/+/, ''));
+      return resolved.startsWith(DIST_DIR + '/') || resolved === DIST_DIR ? resolved : null;
+    };
 
-    // Try with .html extension (for clean URLs)
+    let filePath = safePath(pathname);
+    if (filePath && serveStatic(res, filePath)) return;
+
     if (!extname(pathname)) {
-      filePath = join(DIST_DIR, pathname, 'index.html');
-      if (serveStatic(res, filePath)) return;
+      filePath = safePath(pathname + '/index.html');
+      if (filePath && serveStatic(res, filePath)) return;
 
-      filePath = join(DIST_DIR, pathname + '.html');
-      if (serveStatic(res, filePath)) return;
+      filePath = safePath(pathname + '.html');
+      if (filePath && serveStatic(res, filePath)) return;
     }
 
     // Fallback to index.html
@@ -285,7 +295,7 @@ async function handler(req, res) {
 const server = http.createServer(handler);
 
 server.listen(PORT, () => {
-  console.log(`RobOS Centre running on http://localhost:${PORT}`);
+  console.log(`robOS Centre running on http://localhost:${PORT}`);
 });
 
 // Graceful shutdown

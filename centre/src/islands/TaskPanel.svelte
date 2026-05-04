@@ -25,6 +25,7 @@
   interface Props {
     task: Task;
     onclose: () => void;
+    onupdate?: (id: string, changes: Partial<Task>) => void;
   }
 
   let { task, onclose }: Props = $props();
@@ -51,14 +52,15 @@
 
   async function updateStatus(newStatus: string) {
     try {
-      await fetch(`/api/tasks/${task.id}`, {
+      const res = await fetch(`/api/tasks/${task.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus }),
       });
-      task.status = newStatus;
-      if (newStatus === 'done') {
-        task.completedAt = new Date().toISOString();
+      if (res.ok) {
+        const changes: Partial<Task> = { status: newStatus };
+        if (newStatus === 'done') changes.completedAt = new Date().toISOString();
+        onupdate?.(task.id, changes);
       }
     } catch {
       // ignore

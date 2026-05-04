@@ -29,28 +29,28 @@
 
   const cards = $derived([
     {
-      label: 'Active Tasks',
+      label: 'Task-uri active',
       count: activeTasks,
       color: 'var(--color-primary)',
       bg: '#eff6ff',
       icon: '&#9654;',
     },
     {
-      label: 'Needs Review',
+      label: 'De revizuit',
       count: reviewTasks,
       color: '#d97706',
       bg: 'var(--color-warning-bg)',
       icon: '&#9888;',
     },
     {
-      label: 'Skills Installed',
+      label: 'Skills instalate',
       count: skillsCount,
       color: '#7c3aed',
       bg: '#f5f3ff',
       icon: '&#10070;',
     },
     {
-      label: 'Cron Active',
+      label: 'Cron active',
       count: cronActive,
       color: '#059669',
       bg: 'var(--color-success-bg)',

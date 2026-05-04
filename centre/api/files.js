@@ -1,11 +1,11 @@
 import { readdirSync, readFileSync, statSync, existsSync } from 'fs';
-import { join, relative } from 'path';
+import { join, resolve, relative } from 'path';
 import { workspaceRoot } from '../lib/config.js';
 
 /** Directories to show in the file browser */
 const BROWSABLE = ['context', 'brand', 'projects', 'skills', 'cron', 'clients'];
 /** Top-level files to show */
-const BROWSABLE_FILES = ['CLAUDE.md', 'AGENTS.md', '.env'];
+const BROWSABLE_FILES = ['CLAUDE.md', 'AGENTS.md', 'connections.md'];
 
 /**
  * Recursively build a file tree for a directory.
@@ -88,12 +88,12 @@ export function listFiles() {
  * Returns { content, path } or null if not found.
  */
 export function readFile(relPath) {
-  // Security: prevent path traversal
-  const normalized = relPath.replace(/\.\./g, '').replace(/^\/+/, '');
-  const fullPath = join(workspaceRoot, normalized);
+  const normalized = relPath.replace(/^\/+/, '');
+  const fullPath = resolve(workspaceRoot, normalized);
+  const rel = relative(workspaceRoot, fullPath);
 
-  // Must be inside workspace
-  if (!fullPath.startsWith(workspaceRoot)) {
+  // Security: reject any path that escapes workspace
+  if (rel.startsWith('..') || rel.startsWith('/')) {
     return null;
   }
 

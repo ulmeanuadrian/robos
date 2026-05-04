@@ -1,8 +1,8 @@
 ---
 name: sys-session-close
-version: 1.0.0
+version: 1.1.0
 category: sys
-description: "End-of-session wrap-up. Reviews deliverables, collects feedback, logs learnings, updates daily memory, and checks for uncommitted changes."
+description: "End-of-session wrap-up. Reviews deliverables, checks plan alignment, collects feedback, logs learnings, updates daily memory, and checks for uncommitted changes."
 triggers:
   - "thanks"
   - "that's it"
@@ -45,6 +45,24 @@ Scan today's memory file (`context/memory/YYYY-MM-DD.md`) and the current conver
 3. **Open threads** -- Anything started but not finished, or explicitly deferred.
 
 If no memory file exists for today, create one now from conversation history.
+
+# Step 1b: Plan vs Reality Check
+
+If today's memory file has a `### Goal` section that was written by sys-daily-plan (contains numbered priorities):
+
+1. Extract the planned priorities (up to 3)
+2. Compare against actual deliverables from Step 1
+3. For each priority, classify:
+   - **DONE** -- deliverable clearly matches the priority
+   - **PARTIAL** -- started but not completed
+   - **PIVOTED** -- did something different instead (identify what)
+   - **SKIPPED** -- not touched at all
+4. If any priority is PIVOTED or SKIPPED, note the reason from conversation context (don't ask the user -- infer from what actually happened)
+5. Include in the final summary output:
+   ```
+   Plan alignment: {DONE count}/3 priorities completed
+   ```
+6. Log to `context/learnings.md` under `## General` ONLY if a pattern emerges (3+ days of same drift type). Single-day pivots are normal and don't need logging.
 
 # Step 2: Ask for Feedback
 
@@ -105,9 +123,11 @@ Output a 2-3 line summary of what got done. Format:
 
 ```
 ---
-Session: {deliverable count} deliverables, {decision count} decisions.
+Session: {deliverable count} deliverables, {decision count} decisions. Plan alignment: {X}/3.
 {One sentence about the most important thing accomplished.}
 {One sentence about open threads, if any.}
 ```
+
+If no daily plan existed (Step 1b didn't apply), omit "Plan alignment" from the output.
 
 Keep it brief. No fanfare, no "great session!" energy. Just the facts.

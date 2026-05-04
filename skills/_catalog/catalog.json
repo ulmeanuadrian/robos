@@ -24,6 +24,34 @@
       "installed": true
     },
     {
+      "name": "sys-onboard",
+      "category": "sys",
+      "description": "Interactive onboarding: starter pack selection, 5-question interview, brand personalization, and first skill run",
+      "core": true,
+      "installed": true
+    },
+    {
+      "name": "sys-audit",
+      "category": "sys",
+      "description": "Score your RobOS setup on the 4C framework (Context, Connections, Capabilities, Cadence) out of 100",
+      "core": true,
+      "installed": true
+    },
+    {
+      "name": "sys-level-up",
+      "category": "sys",
+      "description": "5 discovery questions to find your next automation opportunity",
+      "core": true,
+      "installed": true
+    },
+    {
+      "name": "sys-daily-plan",
+      "category": "sys",
+      "description": "Morning planning: reads memory, priorities, open threads to produce a focused daily plan",
+      "core": true,
+      "installed": true
+    },
+    {
       "name": "sys-skill-builder",
       "category": "sys",
       "description": "Create new skills with proper frontmatter, directory structure, and test validation",

@@ -1,12 +1,12 @@
 # robOS
 
-Turn Claude Code into your agentic operating system.
+Transforma Claude Code in sistemul tau operativ agentic.
 
-robOS gives Claude Code persistent brand memory, proven skill methodologies, scheduled automation, and a visual command centre. It works like a business partner that knows your voice, your audience, and your workflow -- from day one.
+robOS da lui Claude Code memorie persistenta de brand, metodologii de skill-uri testate, automatizare programata si un centru de comanda vizual. Functioneaza ca un partener de business care iti cunoaste vocea, audienta si fluxul de lucru -- din prima zi.
 
 ---
 
-## Quickstart
+## Start rapid
 
 ```bash
 git clone https://<TOKEN>@github.com/your-org/robos.git
@@ -15,197 +15,205 @@ bash scripts/setup.sh
 bash scripts/start.sh
 ```
 
-Setup checks your system, installs dependencies (~30 seconds), and asks two questions: your name and your business. Then open `http://localhost:3000` -- you're ready.
+Setup-ul verifica sistemul, instaleaza dependentele (~30 secunde) si pune doua intrebari: numele tau si business-ul tau. Apoi deschide `http://localhost:3000` -- esti gata.
 
-On first launch, the dashboard detects you're new and walks you through building your brand foundation: voice, audience, and positioning.
+La prima pornire, dashboard-ul detecteaza ca esti nou si te ghideaza prin construirea fundatiei de brand: voce, audienta si pozitionare.
 
 ---
 
-## What You Get
+## Ce primesti
 
-### 1. Brand Memory That Follows You Everywhere
+### 1. Memorie de brand care te urmareste peste tot
 
-Claude Projects work on claude.ai only. robOS brand context works across every Claude surface -- CLI, VS Code, Desktop, Web. Your voice profile, audience, and positioning load automatically in every session.
+Claude Projects functioneaza doar pe claude.ai. Contextul de brand robOS functioneaza pe orice suprafata Claude -- CLI, VS Code, Desktop, Web. Profilul de voce, audienta si pozitionarea se incarca automat in fiecare sesiune.
 
-### 2. Proven Skill Methodologies
+### 2. Metodologii de skill-uri testate
 
-Claude Code has skill infrastructure. robOS fills it with tested processes. The copywriting skill doesn't just "write copy" -- it follows a framework, loads your brand voice, scores output on 7 dimensions, and strips AI patterns automatically.
+Claude Code are infrastructura de skill-uri. robOS o umple cu procese testate. Skill-ul de copywriting nu doar "scrie copy" -- urmeaza un framework, incarca vocea de brand, noteaza output-ul pe 7 dimensiuni si elimina pattern-urile AI automat.
 
-**6 core skills included:**
+**16 skill-uri pre-instalate:**
 
-| Skill | What it does |
-|-------|-------------|
-| `brand-voice` | Extract or build your brand voice (4 modes: import, extract, build, auto-scrape) |
-| `brand-audience` | Define your ideal customer through interview or research |
-| `brand-positioning` | Find the angle that makes your offer stand out |
-| `sys-skill-builder` | Create custom skills for your business |
-| `sys-session-close` | End-of-session memory capture and feedback logging |
-| `sys-goal-breakdown` | Break goals into actionable tasks across 3 complexity levels |
+| Skill | Ce face |
+|-------|---------|
+| `sys-onboard` | Onboarding interactiv in 15 min (starter pack + interviu + first win) |
+| `sys-audit` | Scor 4C (Context/Connections/Capabilities/Cadence) din 100 |
+| `sys-daily-plan` | Planificare zilnica din memorie + prioritati |
+| `sys-level-up` | 5 intrebari ca sa gasesti ce sa automatizezi |
+| `brand-voice` | Extrage sau construieste vocea de brand (4 moduri) |
+| `brand-audience` | Defineste clientul ideal prin interviu sau research |
+| `brand-positioning` | Gaseste unghiul care te diferentiaza |
+| `content-blog-post` | Articole SEO cu keyword research si humanizer |
+| `content-copywriting` | Copy persuasiv cu scoring pe 7 dimensiuni |
+| `content-repurpose` | Un continut -> posturi native pt 8 platforme |
+| `research-trending` | Trenduri din Reddit, X, HN, YouTube (ultimele 30 zile) |
+| `research-competitors` | Analiza competitori: mesaje, preturi, diferentiere |
+| `tool-humanizer` | Sterge 10 tipuri de pattern-uri AI din text |
+| `sys-skill-builder` | Creeaza skill-uri custom pentru business-ul tau |
+| `sys-session-close` | Captura de memorie si feedback la sfarsit de sesiune |
+| `sys-goal-breakdown` | Sparge obiective in task-uri pe 3 nivele de complexitate |
 
-**15 optional skills** available in the catalog (copywriting, SEO, content repurposing, trending research, humanizer, and more).
+**11 skill-uri aditionale** disponibile in catalog (email sequences, newsletter, keyword research, case study, landing page si altele).
 
-### 3. Per-Skill Learning
+### 3. Invatare per skill
 
-Feedback accumulates per skill, not in a generic blob. Corrections to your copywriting output don't pollute your SEO skill. After 30 days, each skill is measurably better than day one.
+Feedback-ul se acumuleaza per skill, nu intr-un blob generic. Corectiile la output-ul de copywriting nu polueaza skill-ul de SEO. Dupa 30 de zile, fiecare skill e masurabil mai bun decat in prima zi.
 
-### 4. Visual Command Centre
+### 4. Centru de comanda vizual
 
-A lightweight dashboard (Astro + Svelte, < 80KB JS) that shows you everything at a glance:
+Un dashboard lightweight (Astro + Svelte, < 80KB JS) care iti arata totul dintr-o privire:
 
-| Tab | What it shows |
-|-----|---------------|
-| **Home** | Active tasks, review queue, recent activity, system health |
-| **Tasks** | Kanban board (Backlog, Active, Review, Done) with slide-out details |
-| **Schedule** | Cron jobs with run history, cost per run, pause/resume |
-| **Skills** | Installed skills + catalog of available ones |
-| **Files** | Browse context/, brand/, projects/ -- read any file |
-| **Settings** | Environment variables, MCP config, Claude settings |
+| Tab | Ce arata |
+|-----|----------|
+| **Home** | Task-uri active, coada de review, activitate recenta, sanatatea sistemului |
+| **Tasks** | Board Kanban (Backlog, Active, Review, Done) cu detalii slide-out |
+| **Schedule** | Job-uri cron cu istoric rulari, cost per rulare, pauza/reluare |
+| **Skills** | Skill-uri instalate + catalog cu cele disponibile |
+| **Files** | Browse context/, brand/, projects/ -- citeste orice fisier |
+| **Settings** | Variabile de mediu, config MCP, setari Claude |
 
-Cold start: under 300ms. No dev server -- production-built static assets.
+Cold start: sub 300ms. Fara dev server -- asset-uri statice built pentru productie.
 
-### 5. Scheduled Automation
+### 5. Automatizare programata
 
-Define jobs as markdown files in `cron/jobs/`. The managed scheduler runs them headlessly via `claude -p` and tracks results in the dashboard.
+Defineste job-uri ca fisiere JSON in `cron/jobs/`. Scheduler-ul le ruleaza headless prin `claude -p` si urmareste rezultatele in dashboard.
 
-```markdown
----
-name: Daily Research
-schedule: "09:00"
-days: weekdays
-model: sonnet
-active: true
----
-
-Research trending topics in AI automation for the last 24 hours.
-Save output to: projects/research-trending/{today}_daily.md
+```json
+{
+  "name": "daily-research",
+  "schedule": "0 9 * * 1-5",
+  "skill": "research-trending",
+  "args": {"topic": "AI automation"},
+  "enabled": true
+}
 ```
 
-Manage from the dashboard or CLI:
+Gestioneaza din dashboard sau CLI:
 ```bash
-bash scripts/start-crons.sh    # start the scheduler
-bash scripts/status-crons.sh   # check what's running
-bash scripts/stop-crons.sh     # stop scheduling
+bash scripts/start-crons.sh    # porneste scheduler-ul
+bash scripts/status-crons.sh   # verifica ce ruleaza
+bash scripts/stop-crons.sh     # opreste programarea
 ```
 
-### 6. Multiple Clients
+### 6. Clienti multipli
 
-Each client gets isolated brand context, memory, projects, and scheduled jobs. Zero cross-contamination.
+Fiecare client primeste context de brand izolat, memorie, proiecte si job-uri programate. Zero contaminare incrucisata.
 
 ```bash
 bash scripts/add-client.sh "Acme Corp"
 cd clients/acme-corp && claude
 ```
 
-Switch clients from the dashboard dropdown or by changing directories.
+Schimba clientul din dropdown-ul dashboard-ului sau navigand in alt director.
 
 ---
 
-## How It Works
+## Cum functioneaza
 
-**Claude Code is where you work. The dashboard is where you see and control.**
+**Claude Code e unde lucrezi. Dashboard-ul e unde vezi si controlezi.**
 
 ```
-You (terminal)              Dashboard (browser)
+Tu (terminal)               Dashboard (browser)
      |                           |
      v                           v
   claude                   localhost:3000
      |                           |
-     +--- reads CLAUDE.md -------+--- shows status
-     |    reads brand/           |    shows tasks
-     |    uses skills/           |    manages cron
-     |    writes projects/       |    browses files
-     |    writes memory/         |    edits settings
+     +--- citeste CLAUDE.md -----+--- arata status
+     |    citeste brand/         |    arata task-uri
+     |    foloseste skills/      |    gestioneaza cron
+     |    scrie in projects/     |    browse fisiere
+     |    scrie in memory/       |    editeaza setari
      |                           |
-     +------ shared filesystem --+
+     +------ filesystem comun ---+
 ```
 
-The dashboard watches the filesystem for changes. When Claude writes a file, the dashboard picks it up. When you create a cron job in the dashboard, the scheduler runs it via Claude CLI.
+Dashboard-ul urmareste filesystem-ul pentru schimbari. Cand Claude scrie un fisier, dashboard-ul il preia. Cand creezi un job cron in dashboard, scheduler-ul il ruleaza prin Claude CLI.
 
 ---
 
-## File Structure
+## Structura fisierelor
 
 ```
 robos/
   context/
-    SOUL.md              Agent personality
-    USER.md              Your profile (generated at setup)
-    learnings.md         Per-skill feedback accumulation
-    memory/              Daily session logs
+    SOUL.md              Personalitatea agentului
+    USER.md              Profilul tau (generat la setup)
+    priorities.md        Prioritati trimestriale
+    learnings.md         Acumulare feedback per skill
+    audits/              Istoric scoruri 4C
+    memory/              Jurnale zilnice de sesiune
   brand/
-    voice.md             Brand voice profile (6 dimensions)
-    audience.md          Ideal customer profile
-    positioning.md       Differentiating angles
-    samples.md           Example content
-    assets.md            Links, handles, resources
-  skills/                Installed skill packs
-  projects/              All generated output
-  cron/jobs/             Scheduled job definitions
-  clients/               Multi-client workspaces
-  centre/                Dashboard app (Astro + Svelte)
-  scripts/               Setup, start, update, manage
-  CLAUDE.md              Instructions for Claude Code
-  AGENTS.md              Shared project rules
+    voice.md             Profil voce de brand (6 dimensiuni)
+    audience.md          Profil client ideal
+    positioning.md       Unghiuri de diferentiere
+    samples.md           Exemple de continut
+  connections.md         Inventar tool-uri conectate (7 domenii)
+  skills/                Pachete de skill-uri instalate
+  projects/              Tot output-ul generat
+  cron/jobs/             Definitii job-uri programate
+  clients/               Workspace-uri multi-client
+  centre/                Aplicatia dashboard (Astro + Svelte)
+  scripts/               Setup, start, update, management
+  CLAUDE.md              Instructiuni pentru Claude Code
+  AGENTS.md              Reguli comune ale proiectului
 ```
 
 ---
 
-## Managing Skills
+## Gestionare skill-uri
 
 ```bash
-bash scripts/list-skills.sh                    # see installed + available
-bash scripts/add-skill.sh content-copywriting  # install from catalog
-bash scripts/remove-skill.sh content-seo       # remove a skill
+bash scripts/list-skills.sh                    # vezi instalate + disponibile
+bash scripts/add-skill.sh content-copywriting  # instaleaza din catalog
+bash scripts/remove-skill.sh content-seo       # sterge un skill
 ```
 
-Or from the dashboard: Skills tab > catalog > Install.
+Sau din dashboard: tab-ul Skills > catalog > Instaleaza.
 
 ---
 
-## Updating
+## Actualizare
 
 ```bash
 bash scripts/update.sh
 ```
 
-Pulls the latest skills, methodologies, and dashboard improvements. Your brand context, memory, projects, and API keys are never overwritten.
+Descarca cele mai noi skill-uri, metodologii si imbunatatiri ale dashboard-ului. Contextul de brand, memoria, proiectele si cheile API nu sunt niciodata suprascrise.
 
-If a skill you've customized has upstream changes, you'll see a diff and choose per-skill: accept upstream or keep yours.
+Daca un skill pe care l-ai personalizat are schimbari upstream, vei vedea un diff si alegi per-skill: accepti upstream sau pastrezi al tau.
 
 ---
 
-## API Keys
+## Chei API
 
-Most skills work without API keys. Some are enhanced with external services. All keys go in `.env`.
+Majoritatea skill-urilor functioneaza fara chei API. Unele sunt imbunatatite cu servicii externe. Toate cheile merg in `.env`.
 
 ```bash
-cat .env.example    # see available keys with descriptions
+cat .env.example    # vezi cheile disponibile cu descrieri
 ```
 
-Skills tell you when they could use a key and always offer a fallback.
+Skill-urile iti spun cand ar putea folosi o cheie si ofera intotdeauna un fallback.
 
 ---
 
-## Your Data Is Safe
+## Datele tale sunt in siguranta
 
-Never overwritten by updates:
-- `brand/` -- your voice, audience, positioning
-- `context/` -- your memory, learnings, session history
-- `projects/` -- everything generated for you
-- `clients/` -- all client workspaces
-- `.env` -- your API keys (gitignored)
+Nu sunt niciodata suprascrise de update-uri:
+- `brand/` -- vocea, audienta, pozitionarea ta
+- `context/` -- memoria, learnings, istoricul sesiunilor
+- `projects/` -- tot ce a fost generat pentru tine
+- `clients/` -- toate workspace-urile de client
+- `.env` -- cheile tale API (gitignored)
 
 ---
 
-## Tech Stack
+## Stack tehnic
 
 - **Dashboard**: Astro 5 + Svelte 5 islands + Tailwind 4
-- **Database**: SQLite (better-sqlite3, WAL mode)
-- **Server**: Node.js production server (not a dev server)
-- **Scheduling**: croner library with leader election
-- **File watching**: chokidar for workspace sync
-- **Live updates**: Server-Sent Events (SSE)
+- **Baza de date**: SQLite (better-sqlite3, WAL mode)
+- **Server**: Node.js production server (nu dev server)
+- **Programare**: croner library
+- **Update-uri live**: Server-Sent Events (SSE)
 
 ---
 
-Built by RoboMarketing
+Construit de RoboMarketing

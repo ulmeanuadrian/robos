@@ -18,6 +18,8 @@ cron/status/
 
 # Runtime
 .command-centre/
+data/
+node_modules/
 centre/node_modules/
 centre/dist/
 *.pid

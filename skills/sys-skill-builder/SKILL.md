@@ -2,7 +2,7 @@
 name: sys-skill-builder
 version: 1.0.0
 category: sys
-description: "Creates new skills for RobOS. Walks through purpose, triggers, reference materials, drafts SKILL.md with proper frontmatter, creates directory structure, and validates with a test run."
+description: "Creates new skills for robOS. Walks through purpose, triggers, reference materials, drafts SKILL.md with proper frontmatter, creates directory structure, and validates with a test run."
 triggers:
   - "create a skill"
   - "build a skill"

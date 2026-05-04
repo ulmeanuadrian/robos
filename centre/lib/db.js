@@ -20,6 +20,7 @@ export function getDb() {
   _db = new Database(dbPath);
   _db.pragma('journal_mode = WAL');
   _db.pragma('foreign_keys = ON');
+  _db.pragma('busy_timeout = 5000');
 
   // Apply base schema
   const schemaPath = join(centreRoot, 'lib', 'schema.sql');
@@ -64,13 +65,16 @@ function runMigrations(db) {
     if (version <= currentVersion) continue;
 
     const sql = readFileSync(join(migrationsDir, file), 'utf-8');
-    // Strip leading comment-only lines before checking if there's real SQL
     const stripped = sql.replace(/^\s*--[^\n]*\n/gm, '').trim();
     if (stripped) {
-      db.exec(sql);
+      const migrate = db.transaction(() => {
+        db.exec(sql);
+        db.prepare('INSERT OR REPLACE INTO schema_version (version) VALUES (?)').run(version);
+      });
+      migrate();
+    } else {
+      db.prepare('INSERT OR REPLACE INTO schema_version (version) VALUES (?)').run(version);
     }
-
-    db.prepare('INSERT OR REPLACE INTO schema_version (version) VALUES (?)').run(version);
   }
 }
 

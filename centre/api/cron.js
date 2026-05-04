@@ -4,9 +4,18 @@ import { emit } from '../lib/event-bus.js';
 /**
  * GET /api/cron — list all cron jobs with their latest run
  */
-export function listJobs() {
+export function listJobs(query = {}) {
   const db = getDb();
-  const jobs = db.prepare('SELECT * FROM cron_jobs ORDER BY name ASC').all();
+  let sql = 'SELECT * FROM cron_jobs';
+  const params = [];
+
+  if (query.clientId) {
+    sql += ' WHERE clientId = ?';
+    params.push(query.clientId);
+  }
+
+  sql += ' ORDER BY name ASC';
+  const jobs = db.prepare(sql).all(...params);
 
   return jobs.map(job => {
     const lastRun = db.prepare(`
