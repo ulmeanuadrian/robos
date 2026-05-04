@@ -18,7 +18,7 @@ import { closeDb } from './lib/db.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const DIST_DIR = join(__dirname, 'dist');
-const PORT = parseInt(process.env.PORT || '3000', 10);
+const PORT = parseInt(process.env.PORT || '3001', 10);
 
 const MIME_TYPES = {
   '.html': 'text/html',
