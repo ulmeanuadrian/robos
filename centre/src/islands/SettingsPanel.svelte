@@ -168,16 +168,16 @@
         <div class="config-file">
           <h4>CLAUDE.md</h4>
           <p>Session lifecycle, memory management, and general rules.</p>
-          <button class="btn btn-secondary btn-sm" onclick={() => { /* Would navigate to file browser */ }}>
+          <a class="btn btn-secondary btn-sm" href="/files/?path=CLAUDE.md">
             View in Files
-          </button>
+          </a>
         </div>
         <div class="config-file">
           <h4>AGENTS.md</h4>
           <p>Shared project rules, skill categories, and output standards.</p>
-          <button class="btn btn-secondary btn-sm" onclick={() => { /* Would navigate to file browser */ }}>
+          <a class="btn btn-secondary btn-sm" href="/files/?path=AGENTS.md">
             View in Files
-          </button>
+          </a>
         </div>
       </div>
     </div>

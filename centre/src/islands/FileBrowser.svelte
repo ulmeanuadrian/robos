@@ -22,7 +22,26 @@
       tree = [];
     } finally {
       loading = false;
+      maybeOpenFromUrl();
     }
+  }
+
+  function maybeOpenFromUrl() {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    const wanted = params.get('path');
+    if (!wanted) return;
+    const segments = wanted.split('/');
+    if (segments.length > 1) {
+      const next = new Set(expandedDirs);
+      let acc = '';
+      for (let i = 0; i < segments.length - 1; i++) {
+        acc = acc ? `${acc}/${segments[i]}` : segments[i];
+        next.add(acc);
+      }
+      expandedDirs = next;
+    }
+    loadFile(wanted);
   }
 
   async function loadFile(path: string) {
