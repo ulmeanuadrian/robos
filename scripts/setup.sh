@@ -56,7 +56,7 @@ if [ -d "$ROBOS_ROOT/centre" ] && [ -f "$ROBOS_ROOT/centre/package.json" ]; then
             echo "ERROR: Database initialization failed."
             exit 1
         fi
-        DB_PATH="$ROBOS_ROOT/.command-centre/robos.db"
+        DB_PATH="$ROBOS_ROOT/data/robos.db"
         if [ ! -f "$DB_PATH" ]; then
             echo "ERROR: Database file not created at $DB_PATH"
             exit 1
