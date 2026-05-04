@@ -80,6 +80,7 @@ export function listSkills() {
   const entries = readdirSync(skillsDir, { withFileTypes: true });
   return entries
     .filter(e => e.isDirectory() && !e.name.startsWith('_'))
+    .filter(e => existsSync(join(skillsDir, e.name, 'SKILL.md')))
     .map(e => readSkill(join(skillsDir, e.name), e.name, true));
 }
 
@@ -95,6 +96,7 @@ export function listCatalog() {
   const entries = readdirSync(catalogDir, { withFileTypes: true });
   return entries
     .filter(e => e.isDirectory())
+    .filter(e => existsSync(join(catalogDir, e.name, 'SKILL.md')))
     .map(e => readSkill(join(catalogDir, e.name), e.name, false))
     .filter(s => !installedNames.has(s.name));
 }
