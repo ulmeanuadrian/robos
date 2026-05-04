@@ -6,7 +6,8 @@ import { workspaceRoot } from '../lib/config.js';
  * Parse simple YAML-like frontmatter from SKILL.md
  */
 function parseFrontmatter(content) {
-  const match = content.match(/^---\n([\s\S]*?)\n---/);
+  const normalized = content.replace(/\r\n/g, '\n');
+  const match = normalized.match(/^---\n([\s\S]*?)\n---/);
   if (!match) return {};
 
   const fm = {};
