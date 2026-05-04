@@ -1,6 +1,6 @@
 import http from 'http';
 import { readFileSync, existsSync, statSync } from 'fs';
-import { join, extname, resolve } from 'path';
+import { join, extname, resolve, sep } from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 
@@ -269,7 +269,7 @@ async function handler(req, res) {
   if (existsSync(DIST_DIR)) {
     const safePath = (p) => {
       const resolved = resolve(DIST_DIR, p.replace(/^\/+/, ''));
-      return resolved.startsWith(DIST_DIR + '/') || resolved === DIST_DIR ? resolved : null;
+      return resolved.startsWith(DIST_DIR + sep) || resolved === DIST_DIR ? resolved : null;
     };
 
     let filePath = safePath(pathname);
