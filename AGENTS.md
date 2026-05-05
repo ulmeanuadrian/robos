@@ -174,7 +174,7 @@ Cand un skill are munca naturala paralela (≥3 unitati independente, fiecare �
 
 1. **Prag de paralelism**: helper `scripts/parallel-budget.js`, functia `shouldParallelize(units, est_seconds_per_unit)` decide. Sub prag → secvential, intentionat.
 2. **Cost cap**: max **8 sub-agenti paraleli** per invocare de skill. Daca ai mai multi, sparge in waves secventiale de cate 8.
-3. **Timeout per sub-agent**: 90s soft, 180s hard cap. Daca un agent depaseste, trateaza-l ca failed.
+3. **Timeout per sub-agent (advisory)**: 90s soft, 180s hard cap, definit in `parallel-budget.js` ca `SUBAGENT_TIMEOUT_MS_ADVISORY`. **NU e enforced runtime** — Agent tool e invocat declarativ din SKILL.md prompts si parent-ul nu are hook sa puna `Promise.race`. Constantele exista ca contract documentat: cand designezi un skill, presupui ca sub un agent care depaseste 90s e degradant si proiectezi pattern-ul de fail accordingly. In practica, depinzi de Claude Code harness pentru timeout final.
 4. **Retry policy**: 1 retry max, doar pentru agenti idempotenti (citire + analiza). Zero retry pentru agenti cu side-effects (file writes).
 5. **Idempotenta**: sub-agentii NU comit git, NU push, NU trimit email, NU modifica `.env`. Side-effects ireversibile raman in main thread, dupa confirmare user.
 6. **Niciun secret in prompt**: daca un agent are nevoie de API key, citeste el `.env`. Main thread nu pasa cheia ca string.

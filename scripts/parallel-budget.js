@@ -16,8 +16,15 @@ const path = require('path');
 const MIN_UNITS = 3;
 const MIN_SECONDS_PER_UNIT = 10;
 const MAX_PARALLEL_AGENTS = 8;
-const SUBAGENT_TIMEOUT_MS = 90_000;
-const SUBAGENT_HARD_CAP_MS = 180_000;
+
+// ADVISORY values — NOT runtime-enforced. The Agent tool in Claude Code
+// is invoked declaratively from SKILL.md prompts and the parent has no
+// hook to race a Promise against the sub-agent's response. These values
+// are kept as a documented policy that skills SHOULD respect when
+// describing "if an agent hangs" behavior; they cannot be programmatically
+// applied today. See AGENTS.md > Concurrency Patterns > Reguli globale.
+const SUBAGENT_TIMEOUT_MS_ADVISORY = 90_000;
+const SUBAGENT_HARD_CAP_MS_ADVISORY = 180_000;
 
 function shouldParallelize(units, estSecondsPerUnit) {
   if (typeof units !== 'number' || typeof estSecondsPerUnit !== 'number') return false;
@@ -78,8 +85,8 @@ module.exports = {
   MIN_UNITS,
   MIN_SECONDS_PER_UNIT,
   MAX_PARALLEL_AGENTS,
-  SUBAGENT_TIMEOUT_MS,
-  SUBAGENT_HARD_CAP_MS,
+  SUBAGENT_TIMEOUT_MS_ADVISORY,
+  SUBAGENT_HARD_CAP_MS_ADVISORY,
 };
 
 if (require.main === module) {
