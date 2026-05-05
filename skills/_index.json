@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-05T20:17:41.234Z",
+  "generated_at": "2026-05-05T20:19:35.580Z",
   "count": 17,
   "by_category": {
     "brand": 3,
@@ -612,9 +612,9 @@
     },
     {
       "name": "sys-level-up",
-      "version": "1.1.0",
+      "version": "2.0.0",
       "category": "sys",
-      "description": "Asks 5 targeted questions to discover what to automate next. Filters through feasibility gate to only suggest what robOS can actually deliver.",
+      "description": "Asks 5 targeted questions to discover what to automate next. Adversarial Synthesis: 3 parallel agents (PRO/CONTRA/ALT) analyze answers + synthesizer produces balanced trade-off matrix instead of single confirmation-bias view.",
       "triggers": [
         "level up",
         "ce sa automatizez",
@@ -631,18 +631,20 @@
         "update"
       ],
       "context_loads": [
-        "context/USER.md (reads)",
-        "context/priorities.md (reads)",
-        "connections.md (reads)",
-        "context/learnings.md (reads)",
-        "skills/_catalog/catalog.json (reads)"
+        "context/USER.md (sub-agents read)",
+        "context/priorities.md (sub-agents read)",
+        "connections.md (sub-agents read)",
+        "context/learnings.md (sub-agents read + synthesizer appends)",
+        "skills/_catalog/catalog.json (sub-agents read)"
       ],
       "inputs": [],
       "outputs": [
-        "3 concrete suggestions (skill to build, skill to install, or connection to add)",
-        "Optionally: new skill created via sys-skill-builder"
+        "3 perspective deliverables (PRO/CONTRA/ALT) merged into a trade-off matrix",
+        "context/priorities.md updated cu DEFERRED items",
+        "context/learnings.md appended sub ## sys-level-up",
+        "data/skill-telemetry.ndjson (appended)"
       ],
-      "last_modified": "2026-05-04T20:54:25.569Z"
+      "last_modified": "2026-05-05T20:19:12.988Z"
     },
     {
       "name": "sys-onboard",
