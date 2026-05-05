@@ -21,6 +21,7 @@
 import { readFileSync, statSync, existsSync, mkdirSync, writeFileSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
+import { logHookError } from './lib/hook-error-sink.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -188,4 +189,7 @@ function emitReminder(sessionId, now, reason, sinceWriteMs, state) {
   process.exit(0);
 }
 
-main().catch(() => process.exit(0));
+main().catch((e) => {
+  logHookError('checkpoint-reminder', e);
+  process.exit(0);
+});

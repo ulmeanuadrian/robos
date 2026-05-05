@@ -23,6 +23,7 @@ import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { homedir } from 'os';
 import { appendNdjson } from './lib/ndjson-log.js';
+import { logHookError } from './lib/hook-error-sink.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -189,4 +190,7 @@ async function main() {
   process.exit(0);
 }
 
-main().catch(() => process.exit(0));
+main().catch((e) => {
+  logHookError('activity-capture', e);
+  process.exit(0);
+});

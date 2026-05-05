@@ -28,6 +28,7 @@ import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync, statSy
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { routePrompt } from './skill-route.js';
+import { logHookError } from './lib/hook-error-sink.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -303,6 +304,8 @@ async function main() {
 
 main().catch((e) => {
   // Niciodata nu blocheaza promptul din cauza unei erori de hook.
+  // Dar logam in data/hook-errors.ndjson ca operatorul sa stie.
+  logHookError('hook-user-prompt', e);
   process.stderr.write(`[hook-user-prompt error] ${e.message}\n`);
   process.exit(0);
 });
