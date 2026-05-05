@@ -1,8 +1,8 @@
 ---
 name: content-blog-post
-version: 1.0.0
+version: 2.0.0
 category: content
-description: "Write SEO-optimized blog posts matched to brand voice. Includes keyword research, competitive gap analysis, structured outline, humanizer pass, and full meta tag generation."
+description: "Write SEO-optimized blog posts matched to brand voice. Default: single draft. Mode=options: 3 parallel agents craft 3 stylistic angles (punchy / narrative / contrarian) — user picks or blends."
 triggers:
   - "scrie un articol"
   - "blog despre"
@@ -19,6 +19,15 @@ negative_triggers:
   - "ad copy"
   - "repurpose"
   - "social post"
+multi_angle_triggers:
+  - "show me options"
+  - "show me angles"
+  - "vreau optiuni"
+  - "mai multe versiuni"
+  - "3 angles"
+  - "3 variante"
+output_discipline: encapsulated
+concurrency_pattern: multi-angle-creativity (opt-in only)
 context_loads:
   - brand/voice.md (reads)
   - brand/audience.md (reads)
@@ -29,114 +38,235 @@ inputs:
   - keywords (optional: target keywords, auto-researched if not provided)
   - target_length (optional: word count, default 1200)
   - intent (optional: informational | commercial | transactional | navigational)
+  - mode (optional: "default" | "options", default "default")
 outputs:
-  - Blog post draft in projects/content-blog-post/
-  - SEO metadata (title tag, meta description, slug)
+  - Blog post draft(s) in projects/content-blog-post/
+  - SEO metadata
+  - data/skill-telemetry.ndjson (appended in mode=options)
 ---
 
-# Step 1: Load Brand Context
+# Mode selection (main thread, first decision)
 
-Read `brand/voice.md` and `brand/audience.md`. Summarize each in 2-3 bullets. If empty, proceed with neutral professional tone and note what would improve.
+Verifica daca user a cerut explicit multi-angle:
+- Mesajul contine `mode=options`, "show me options", "vreau optiuni", "3 variante", "3 angles" → mode = "options"
+- Sau detectezi high-stakes (lansare, pitch, content ce va fi distribuit larg) → propune: "Asta pare important. Vrei 3 variante stilistice paralele (mode=options) sau un singur draft?"
+- Altfel → mode = "default"
 
-Read `context/learnings.md` section `## content-blog-post` for past adjustments.
+---
 
-# Step 2: Get Topic and Keywords
+# === Default mode (mode = default) ===
 
-If the user provided keywords, use them. If not:
+## Step 1: Load brand context
 
-1. Take the topic and generate 5-8 keyword variations (long-tail, question-based, comparison)
-2. Present to user for confirmation
-3. Select primary keyword (1) and secondary keywords (3-5)
+Read `brand/voice.md` si `brand/audience.md`. Internalize tone + audience. Read `context/learnings.md` sectiunea `## content-blog-post`. Nu output catre user.
 
-Classify search intent:
-- **Informational**: "how to", "what is", "guide", "tips"
-- **Commercial**: "best", "review", "comparison", "vs"
-- **Transactional**: "buy", "pricing", "discount", "signup"
-- **Navigational**: brand-specific searches
+## Step 2: Topic + keywords
 
-# Step 3: Research Top Results
+Daca user a dat keywords, foloseste-le. Altfel:
+1. Genereaza 5-8 keyword variations (long-tail, question-based, comparison)
+2. Prezinta user-ului pentru confirmare
+3. Selecteaza 1 primary + 3-5 secondary
 
-Use WebSearch to check the top 5-10 results for the primary keyword:
+Classify intent: informational / commercial / transactional / navigational.
 
-1. Note the common angles (what everyone covers)
-2. Note the gaps (what nobody covers well)
-3. Note content formats (listicle, how-to, deep dive, case study)
-4. Note average word count of top results
+## Step 3: Research + outline (sub-agent)
 
-Identify your angle: pick a gap or a stronger take on a common angle.
-
-# Step 4: Build Outline
-
-Create a structured outline:
+Spawn UN agent:
 
 ```
-H1: [Title with primary keyword naturally placed]
-  Intro (100-150 words): Hook, context, what reader will learn
-  H2: [Section 1] (200-300 words)
-    H3: [Subsection if needed]
-  H2: [Section 2] (200-300 words)
-  H2: [Section 3] (200-300 words)
-  H2: [Section 4] (200-300 words)
-  Conclusion (100-150 words): Summary, CTA, next steps
+subagent_type: general-purpose
+description: "Blog post: research + outline"
+prompt: """
+Topic: {topic}. Primary keyword: {primary}. Secondary: {secondary}. Intent: {intent}. Target length: {target_length}w.
+
+Tasks:
+1. WebSearch top 5-10 results pentru primary keyword. Note common angles + gaps + content formats + avg word count.
+2. Pick angle: gap sau stronger take.
+3. Build outline: H1 (cu primary keyword), Intro, 3-4 H2s (200-300w each, 1+ cu secondary keyword), Conclusion.
+4. Returneaza JSON:
+{
+  "angle": "...",
+  "outline": {"h1":"...", "intro_brief":"...", "sections":[{"h2":"...", "purpose":"...", "target_words":N}], "conclusion_brief":"..."},
+  "competitor_gaps": ["..."],
+  "avg_competitor_length": N
+}
+"""
 ```
 
-Rules for the outline:
-- H1 contains primary keyword, reads naturally
-- H2s cover distinct subtopics, at least one includes a secondary keyword
-- Each section has a clear purpose (teach, prove, compare, apply)
-- Total word count targets match user's request
+Prezinta outline-ul user-ului: "Outline propus: {summary}. OK sau ajustez?"
 
-Present the outline for approval before writing.
+## Step 4: Write draft + finalize (sub-agent)
 
-# Step 5: Write the Draft
+Dupa confirmarea outline-ului, spawn:
 
-Follow the approved outline. For each section:
+```
+subagent_type: general-purpose
+description: "Blog post: draft + SEO + score + humanize + save"
+prompt: """
+Outline aprobat: {outline JSON}
+Brand voice: citeste brand/voice.md.
+Internal links: scaneaza projects/ pentru content existent relevant (2-4 linkable pieces).
 
-1. Open with a hook or transition from the previous section
-2. Make one clear point per paragraph (3-5 sentences)
-3. Use examples, data, or analogies to support claims
-4. Place keywords naturally -- never force them
-5. Vary sentence length (short sentences for emphasis, longer for explanation)
-6. Use subheadings, bullet points, and bold text for scannability
+Tasks:
+1. Write full draft following outline. Rules: 1 idea per paragraph (3-5 sentences), keyword density 0.5-1.5% primary, lower secondary, vary sentence length.
+2. Internal link suggestions: 2-4 cu anchor text + plasare.
+3. SEO metadata: title tag (<60 chars), meta description (<155 chars), slug (<75 chars).
+4. Score 7 dimensions (1-10): readability, keyword integration, structure, brand voice, value density, hook strength, CTA effectiveness. Revise if any <6.
+5. Humanizer pass: scoate em-dash overuse, rule-of-three patterns, corporate buzzwords, hedging, AI tells.
+6. Save la projects/content-blog-post/{date}-{slug}.md cu: full draft, SEO block, internal links, score card, outline used.
+7. Append in context/learnings.md sub ## content-blog-post: topic, primary keyword, angle, word count, score summary, date.
 
-Keyword placement targets:
-- Primary keyword: title, first 100 words, 1-2 H2s, conclusion
-- Secondary keywords: distributed across sections, no stuffing
-- Keyword density: 0.5-1.5% for primary, lower for secondary
+Returneaza JSON:
+{
+  "saved_path": "...",
+  "word_count": N,
+  "score_summary": {...},
+  "title_tag": "...",
+  "meta_description": "..."
+}
+"""
+```
 
-# Step 6: Internal Link Suggestions
+## Step 5: Output (main thread)
 
-Scan `projects/` for existing content that could be linked:
+```
+Saved: {saved_path}
+{word_count} words | Score: {avg}/10 | Title: {title_tag}
+Meta: {meta_description}
+```
 
-- Find 2-4 relevant existing pieces
-- Suggest anchor text and placement
-- If no existing content found, skip silently
+STOP.
 
-# Step 7: Generate SEO Metadata
+---
 
-- **Title tag**: Under 60 characters, includes primary keyword, compelling
-- **Meta description**: Under 155 characters, includes primary keyword, has a CTA or value prop
-- **Slug**: Under 75 characters, lowercase, hyphens, primary keyword present
-- **Suggested alt text**: For any images that should be added
+# === Multi-angle mode (mode = options) ===
 
-# Step 8: Score the Draft
+## Step A: Load brand + extract brief (main thread)
 
-Rate on these dimensions:
+Acelasi ca Steps 1-2 din default, dar fara confirmation pe outline (multi-angle skip-uie outline approval — fiecare agent isi face outline-ul lui).
 
-1. **Readability** -- Flesch score target: 60-70 for general, 40-50 for technical
-2. **Keyword integration** -- Natural placement, appropriate density
-3. **Structure** -- Clear hierarchy, scannable, logical flow
-4. **Brand voice** -- Matches voice.md guidelines
-5. **Value density** -- Every section teaches or proves something
+Confirma scurt: "Generez 3 variante paralele: punchy/conversational, narrativ/story-led, contrarian/data-first. ~3x cost. OK?"
 
-Revise any dimension scoring below 6/10.
+Daca user confirma → continua. Altfel cazi inapoi la default mode.
 
-# Step 9: Humanizer Pass
+## Step B: Concurrency check
 
-Run through `tool-humanizer` (standard mode) if installed. If not, manually check for AI writing patterns and fix them.
+```bash
+node scripts/parallel-budget.js check 3 45
+```
 
-# Step 10: Save and Log
+(45s per draft full)
 
-Save to `projects/content-blog-post/{date}-{slug}.md` with the full draft, SEO metadata block, internal link suggestions, score card, and outline used.
+Returneaza `parallel`. Marcheaza `start_time`.
 
-Append to `context/learnings.md` under `## content-blog-post`: topic, primary keyword, angle chosen, word count delivered, score summary, date completed.
+## Step C: Spawn 3 angle agents IN PARALLEL
+
+**Critic:** intr-un SINGUR mesaj, 3 invocari `Agent`.
+
+Toate primesc acelasi brief (topic, keywords, audience, target length) + brand voice. Fiecare are prompt stilistic diferit:
+
+### Agent PUNCHY
+
+```
+subagent_type: general-purpose
+description: "Blog post angle: punchy/conversational"
+prompt: """
+{base brief}
+
+Style directive: punchy, conversational, hook puternic. Short paragraphs, direct address ("you"), opinions clearly stated. Hook in primele 50 cuvinte trebuie sa traga in. Sentences punctate. Sub-headlines crisp.
+
+Build outline → write draft → SEO metadata → score → humanizer → return.
+
+Returneaza JSON:
+{
+  "angle": "punchy",
+  "status": "ok" | "failed",
+  "draft_path_relative": "(NU salva fisier acum — main thread decide cum salveaza)",
+  "draft_full": "markdown complet",
+  "outline_used": {...},
+  "word_count": N,
+  "score_summary": {...},
+  "title_tag": "...",
+  "meta_description": "...",
+  "characteristic": "1-line ce face acest draft unic"
+}
+"""
+```
+
+### Agent NARRATIVE
+
+```
+subagent_type: general-purpose
+description: "Blog post angle: narrative/story-led"
+prompt: """
+{base brief}
+
+Style directive: narrativ, story-led, emotional connection. Open with a story or scenario. Build through tension/resolution. Use anecdotes, dialogue moments, sensory details. Conclusion ties story back to actionable insight.
+
+(rest same as PUNCHY agent)
+
+Returneaza JSON cu "angle": "narrative" si characteristic specific.
+"""
+```
+
+### Agent CONTRARIAN
+
+```
+subagent_type: general-purpose
+description: "Blog post angle: contrarian/data-first"
+prompt: """
+{base brief}
+
+Style directive: contrarian, data-first, debate-driven. Open cu o claim contra-consensus. Back with hard data (numbers, studies, examples). Acknowledge the conventional view, then dismantle it. Tone: confident, evidence-heavy, slightly provocative.
+
+(rest same as PUNCHY agent)
+
+Returneaza JSON cu "angle": "contrarian" si characteristic specific.
+"""
+```
+
+## Step D: Best-effort save (main thread)
+
+`wall_clock_ms = Date.now() - start_time`.
+
+Pattern 4 = best-effort: prezinti ce a reusit, flag what failed.
+
+Salveaza cele care au reusit in `projects/content-blog-post/{date}-{slug}/options/`:
+- `punchy.md`, `narrative.md`, `contrarian.md` (doar cele cu status=ok)
+- `_brief.md` cu user input + which angles succeeded
+
+## Step E: Output (main thread)
+
+```
+3 variante generate ({N_ok}/3 OK):
+
+1. PUNCHY: {characteristic}
+   {snippet first 100 chars} ...
+   File: projects/content-blog-post/{slug}/options/punchy.md ({word_count}w, score {avg}/10)
+
+2. NARRATIVE: {characteristic}
+   ...
+
+3. CONTRARIAN: {characteristic}
+   ...
+
+{daca <3 OK}: ⚠ Esuat: {failed_angles}. Foloseste mode=options din nou pentru retry pe ele.
+
+Care iti place? Pot face si un Frankenstein-blend din 2 dintre ele.
+```
+
+## Step F: Telemetrie
+
+```bash
+node scripts/parallel-budget.js log content-blog-post parallel 3 {failed_count} {wall_clock_ms} {fallback_used}
+```
+
+`fallback_used` = true daca <3 angles OK.
+
+---
+
+# Note pe ambele moduri
+
+- Default mode foloseste 2 sub-agenti secventiali (research+outline, apoi draft) — incapsulare, nu paralelism. Telemetria nu se logheaza pentru default mode (nu e parallel).
+- Multi-angle mode e opt-in only — niciodata default automat. Cost ~3x.
+- Daca user cere multi-angle dar topic-ul e clar low-stakes (un how-to obisnuit), poti push back: "Topic-ul pare straightforward — un singur draft probabil suficient. Sigur 3 variante?"

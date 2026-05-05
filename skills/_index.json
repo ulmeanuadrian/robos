@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-05T20:14:50.612Z",
+  "generated_at": "2026-05-05T20:17:41.234Z",
   "count": 17,
   "by_category": {
     "brand": 3,
@@ -290,9 +290,9 @@
     },
     {
       "name": "content-blog-post",
-      "version": "1.0.0",
+      "version": "2.0.0",
       "category": "content",
-      "description": "Write SEO-optimized blog posts matched to brand voice. Includes keyword research, competitive gap analysis, structured outline, humanizer pass, and full meta tag generation.",
+      "description": "Write SEO-optimized blog posts matched to brand voice. Default: single draft. Mode=options: 3 parallel agents craft 3 stylistic angles (punchy / narrative / contrarian) — user picks or blends.",
       "triggers": [
         "scrie un articol",
         "blog despre",
@@ -321,19 +321,21 @@
         "topic (required)",
         "keywords (optional: target keywords, auto-researched if not provided)",
         "target_length (optional: word count, default 1200)",
-        "intent (optional: informational | commercial | transactional | navigational)"
+        "intent (optional: informational | commercial | transactional | navigational)",
+        "mode (optional: \"default\" | \"options\", default \"default\")"
       ],
       "outputs": [
-        "Blog post draft in projects/content-blog-post/",
-        "SEO metadata (title tag, meta description, slug)"
+        "Blog post draft(s) in projects/content-blog-post/",
+        "SEO metadata",
+        "data/skill-telemetry.ndjson (appended in mode=options)"
       ],
-      "last_modified": "2026-05-05T05:18:38.923Z"
+      "last_modified": "2026-05-05T20:16:25.981Z"
     },
     {
       "name": "content-copywriting",
-      "version": "1.0.0",
+      "version": "2.0.0",
       "category": "content",
-      "description": "Persuasive copy for landing pages, sales pages, emails, ads, and social posts. Picks framework based on format and audience awareness level, scores on 7 dimensions, and runs humanizer pass.",
+      "description": "Persuasive copy for landing pages, sales pages, emails, ads, social posts. Default: single draft via framework. Mode=options: 3 parallel agents craft 3 framework angles (logical / emotional / contrarian) — user picks or blends.",
       "triggers": [
         "scrie copy",
         "copy pentru landing",
@@ -366,13 +368,15 @@
         "format (required: landing-page | sales-page | email | ad | social | headline)",
         "product_or_offer (required: what we're selling)",
         "audience (optional: overrides brand/audience.md if provided)",
-        "awareness_level (optional: 1-5, auto-detected if not specified)"
+        "awareness_level (optional: 1-5, auto-detected if not specified)",
+        "mode (optional: \"default\" | \"options\", default \"default\")"
       ],
       "outputs": [
-        "Copy draft in projects/content-copywriting/",
-        "Score card (7 dimensions)"
+        "Copy draft(s) in projects/content-copywriting/",
+        "Score card (7 dimensions)",
+        "data/skill-telemetry.ndjson (appended in mode=options)"
       ],
-      "last_modified": "2026-05-05T05:18:47.978Z"
+      "last_modified": "2026-05-05T20:17:21.945Z"
     },
     {
       "name": "content-repurpose",
