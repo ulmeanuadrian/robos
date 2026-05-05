@@ -32,6 +32,38 @@ const ACTIVITY_LOG = join(ROBOS_ROOT, 'data', 'activity-log.ndjson');
 const MAX_ENTRIES = 500; // ~150KB max — captureaza ~10-20 sesiuni
 
 /**
+ * Redact sensitive token shapes before persisting to activity log.
+ *
+ * Activity log writes user prompts and assistant text to disk readable
+ * via the dashboard `/api/system/activity` endpoint. Without redaction,
+ * accidentally pasted credentials would persist for ~10-20 sessions in
+ * cleartext on disk.
+ *
+ * Patterns covered:
+ *   - Anthropic / OpenAI / Stripe-style: sk-ant-*, sk-, sk_test_, sk_live_
+ *   - Firecrawl: fc-*
+ *   - Google API: AIza*
+ *   - GitHub PATs: ghp_*, gho_*, ghu_*, ghs_*, ghr_*
+ *   - JWT-shaped: eyJ.*\..*\..*
+ *   - Generic Bearer prefix: Bearer <token>
+ *
+ * @param {string} text
+ * @returns {string}
+ */
+function redactSensitive(text) {
+  if (typeof text !== 'string' || !text) return text;
+  return text
+    .replace(/sk-ant-[A-Za-z0-9_-]{20,}/g, 'sk-ant-****')
+    .replace(/sk-[A-Za-z0-9_-]{20,}/g, 'sk-****')
+    .replace(/sk_(test|live)_[A-Za-z0-9]{20,}/g, 'sk_$1_****')
+    .replace(/fc-[A-Za-z0-9]{20,}/g, 'fc-****')
+    .replace(/AIza[A-Za-z0-9_-]{20,}/g, 'AIza****')
+    .replace(/gh[pousr]_[A-Za-z0-9]{20,}/g, 'gh*_****')
+    .replace(/eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+/g, 'eyJ****.****.****')
+    .replace(/Bearer\s+[A-Za-z0-9._-]{20,}/gi, 'Bearer ****');
+}
+
+/**
  * Deriva path-ul transcriptului Claude Code din session_id si cwd.
  * Format Windows: C:\Users\<user>\.claude\projects\<sanitized-cwd>\<session_id>.jsonl
  * Sanitizare cwd: lowercase, : / \ _ → -
@@ -112,7 +144,7 @@ function extractLastTurn(turns) {
     const tb = uc.find(b => b.type === 'text');
     if (tb) userPrompt = tb.text || '';
   }
-  userPrompt = userPrompt.slice(0, 300).replace(/\s+/g, ' ').trim();
+  userPrompt = redactSensitive(userPrompt).slice(0, 300).replace(/\s+/g, ' ').trim();
 
   // Extract assistant response + tool calls from subsequent turns
   const toolActions = [];
@@ -123,7 +155,7 @@ function extractLastTurn(turns) {
       if (Array.isArray(ac)) {
         for (const block of ac) {
           if (block.type === 'text' && block.text) {
-            if (!assistantText) assistantText = block.text.slice(0, 400).replace(/\s+/g, ' ').trim();
+            if (!assistantText) assistantText = redactSensitive(block.text).slice(0, 400).replace(/\s+/g, ' ').trim();
           } else if (block.type === 'tool_use') {
             const name = block.name || 'unknown';
             const input = block.input || {};
@@ -132,7 +164,8 @@ function extractLastTurn(turns) {
             if (name === 'Edit' || name === 'Write') {
               summary = `${name}:${(input.file_path || '').split(/[\\/]/).pop()}`;
             } else if (name === 'Bash') {
-              summary = `Bash:${(input.command || '').slice(0, 80).split('\n')[0]}`;
+              const cmd = (input.command || '').slice(0, 80).split('\n')[0];
+              summary = `Bash:${redactSensitive(cmd)}`;
             } else if (name === 'Read') {
               summary = `Read:${(input.file_path || '').split(/[\\/]/).pop()}`;
             }
