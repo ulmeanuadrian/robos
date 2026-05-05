@@ -29,6 +29,7 @@ import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { routePrompt } from './skill-route.js';
 import { logHookError } from './lib/hook-error-sink.js';
+import { isClosed, extractOpenThreads as extractOpenThreadsLib } from './lib/memory-format.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -82,7 +83,7 @@ function findLatestMemoryFile() {
   const path = join(MEMORY_DIR, latest);
   const content = readFileSync(path, 'utf-8');
   const date = latest.replace(/\.md$/, '');
-  const hasClosingPattern = /Session:\s*\d+\s*deliverables/i.test(content);
+  const hasClosingPattern = isClosed(content);
 
   return { date, path, content, hasClosingPattern };
 }
@@ -96,24 +97,8 @@ function readTodayMemory() {
   return { path, content: readFileSync(path, 'utf-8') };
 }
 
-/**
- * Extrage Open Threads din continut markdown.
- * Returneaza array de stringuri (bullet items) sau [].
- */
-function extractOpenThreads(content) {
-  if (!content) return [];
-
-  // Cauta ultima sectiune ### Open Threads
-  const matches = [...content.matchAll(/###\s+Open\s+Threads\s*\n([\s\S]*?)(?=\n###|\n##|$)/gi)];
-  if (matches.length === 0) return [];
-
-  const lastSection = matches[matches.length - 1][1];
-  return lastSection
-    .split('\n')
-    .map(l => l.trim())
-    .filter(l => l.startsWith('-') || l.startsWith('*'))
-    .map(l => l.replace(/^[-*]\s+/, ''));
-}
+// Open Threads extraction lives in scripts/lib/memory-format.js.
+const extractOpenThreads = extractOpenThreadsLib;
 
 /**
  * Citeste si consuma toate fisierele recovery din data/session-recovery/ (create de session-timeout-detector).
@@ -214,7 +199,7 @@ function buildStartupBundle() {
   // Memoria zilei — un singur sumar concis, fara lista verbosa
   if (todayMem) {
     const threads = extractOpenThreads(todayMem.content);
-    const closed = /Session:\s*\d+\s*deliverables/i.test(todayMem.content);
+    const closed = isClosed(todayMem.content);
     lines.push(`Memorie azi: ${todayMem.path} (${threads.length} open threads, ${closed ? 'inchisa' : 'in curs'}).`);
   } else if (latest) {
     const daysAgo = Math.floor((Date.now() - new Date(latest.date).getTime()) / 86400000);

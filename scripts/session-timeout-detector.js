@@ -25,6 +25,7 @@ import { readdirSync, readFileSync, writeFileSync, statSync, existsSync, mkdirSy
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { appendNdjson } from './lib/ndjson-log.js';
+import { isClosed, extractOpenThreads } from './lib/memory-format.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -34,8 +35,6 @@ const MEMORY_DIR = join(ROBOS_ROOT, 'context', 'memory');
 const DATA_DIR = join(ROBOS_ROOT, 'data');
 const TIMEOUT_LOG = join(DATA_DIR, 'session-timeout.log');
 const RECOVERY_DIR = join(DATA_DIR, 'session-recovery');
-
-const CLOSING_PATTERN = /Session:\s*\d+\s*deliverables/i;
 
 function parseArgs() {
   const args = process.argv.slice(2);
@@ -75,18 +74,6 @@ function readLatestMemoryContent() {
   };
 }
 
-function extractOpenThreads(content) {
-  if (!content) return [];
-  const matches = [...content.matchAll(/###\s+Open\s+Threads\s*\n([\s\S]*?)(?=\n###|\n##|$)/gi)];
-  if (matches.length === 0) return [];
-  const lastSection = matches[matches.length - 1][1];
-  return lastSection
-    .split('\n')
-    .map(l => l.trim())
-    .filter(l => l.startsWith('-') || l.startsWith('*'))
-    .map(l => l.replace(/^[-*]\s+/, ''));
-}
-
 async function main() {
   const opts = parseArgs();
   const now = Date.now();
@@ -122,7 +109,7 @@ async function main() {
       // Sesiunea e suficient de batrana — verificam memoria
       const mem = readLatestMemoryContent();
       const memTouchedRecently = mem && (now - mem.mtimeMs) < idleMs;
-      const memClosed = mem && CLOSING_PATTERN.test(mem.content);
+      const memClosed = mem && isClosed(mem.content);
 
       if (memTouchedRecently || memClosed) {
         ok.push({ sessionId, ageMin: Math.floor(ageMs / 60000), reason: memClosed ? 'closed' : 'recently_active' });

@@ -25,14 +25,12 @@
 import { readFileSync, readdirSync, existsSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
+import { isClosed, REQUIRED_SECTIONS } from './lib/memory-format.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const ROBOS_ROOT = join(__dirname, '..');
 const MEMORY_DIR = join(ROBOS_ROOT, 'context', 'memory');
-
-const REQUIRED_SECTIONS = ['Goal', 'Deliverables', 'Decisions', 'Open Threads'];
-const CLOSING_PATTERN = /Session:\s*\d+\s*deliverables/i;
 
 function parseArgs() {
   const args = process.argv.slice(2);
@@ -85,7 +83,7 @@ function lintFile(path) {
   }
 
   // Verifica pattern de inchidere (doar warning daca lipseste — sesiunea poate fi in curs)
-  result.info.hasClosingPattern = CLOSING_PATTERN.test(content);
+  result.info.hasClosingPattern = isClosed(content);
   if (!result.info.hasClosingPattern) {
     result.warnings.push('No closing pattern "Session: N deliverables, M decisions" — session may be in progress or improperly closed');
   }

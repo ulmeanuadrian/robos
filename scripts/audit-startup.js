@@ -29,6 +29,7 @@ import { readFileSync, readdirSync, writeFileSync, existsSync, mkdirSync } from 
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { appendNdjson } from './lib/ndjson-log.js';
+import { isClosed } from './lib/memory-format.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -36,8 +37,6 @@ const ROBOS_ROOT = join(__dirname, '..');
 const MEMORY_DIR = join(ROBOS_ROOT, 'context', 'memory');
 const DATA_DIR = join(ROBOS_ROOT, 'data');
 const LOG_FILE = join(DATA_DIR, 'startup-audit.log');
-
-const CLOSING_PATTERN = /Session:\s*\d+\s*deliverables/i;
 
 function parseArgs() {
   const args = process.argv.slice(2);
@@ -84,7 +83,7 @@ function analyzeMemoryFile(filename) {
   const content = readFileSync(path, 'utf-8');
   const date = filename.replace(/\.md$/, '');
 
-  const closed = CLOSING_PATTERN.test(content);
+  const closed = isClosed(content);
   const sessionCount = (content.match(/^##\s+Session\s+\d+/gm) || []).length;
 
   // Extract open threads from LAST Open Threads section
