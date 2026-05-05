@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-05T20:11:31.460Z",
+  "generated_at": "2026-05-05T20:14:50.612Z",
   "count": 17,
   "by_category": {
     "brand": 3,
@@ -376,9 +376,9 @@
     },
     {
       "name": "content-repurpose",
-      "version": "1.0.0",
+      "version": "2.0.0",
       "category": "content",
-      "description": "Turn one piece of content into platform-native posts for LinkedIn, Twitter/X, Instagram, TikTok, YouTube, Threads, Bluesky, and Reddit. Extracts core atoms and adapts format, tone, and hooks per platform.",
+      "description": "Turn one piece of content into platform-native posts for LinkedIn, Twitter/X, Instagram, TikTok, YouTube, Threads, Bluesky, Reddit. Multi-Asset: 1 agent per platform writes in parallel; hard-fail if any platform fails.",
       "triggers": [
         "transforma in social",
         "fa posturi din asta",
@@ -399,19 +399,20 @@
         "SEO article"
       ],
       "context_loads": [
-        "brand/voice.md (reads)",
-        "brand/audience.md (summary)",
-        "context/learnings.md (section content-repurpose)"
+        "brand/voice.md (platform agents read)",
+        "brand/audience.md (platform agents read summary)",
+        "context/learnings.md (synthesizer appends)"
       ],
       "inputs": [
         "source (required: URL, file path, or pasted text)",
-        "platforms (optional: comma-separated list, defaults to all)",
+        "platforms (optional: comma-separated list, defaults to all 8)",
         "angle (optional: specific angle or hook to emphasize)"
       ],
       "outputs": [
-        "Per-platform files in projects/content-repurpose/"
+        "Per-platform files in projects/content-repurpose/{slug}/",
+        "data/skill-telemetry.ndjson (appended)"
       ],
-      "last_modified": "2026-05-05T05:19:52.836Z"
+      "last_modified": "2026-05-05T20:14:32.506Z"
     },
     {
       "name": "research-competitors",
