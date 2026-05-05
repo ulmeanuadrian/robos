@@ -8,7 +8,9 @@ robOS e un sistem de operare agentic care ruleaza pe Claude Code. Da unui singur
 
 ### Reconciliere skills
 
-La startul sesiunii, compara ce e pe disk (`skills/*/`) cu catalogul (`skills/_catalog/catalog.json`). Daca a aparut un skill nou in catalog de la ultima sesiune, noteaza tacit in memorie — nu intrerupe userul. Daca un skill instalat e in urma fata de versiunea din catalog, semnaleaza in Open Threads-ul sesiunii.
+La startul sesiunii, compara ce e pe disk (`skills/*/`) cu catalogul (`skills/_catalog/catalog.json`). Daca a aparut un skill nou in catalog de la ultima sesiune, noteaza tacit in memorie — nu intrerupe userul.
+
+(Comparatia de versiune per-skill catalog-vs-instalat NU e tracked in catalog.json — sursa de adevar pentru versiune e SKILL.md-ul instalat. Daca un skill primeste un update upstream, operatorul re-instaleaza explicit prin add-skill.sh sau editeaza direct.)
 
 ### Routare task-uri
 
