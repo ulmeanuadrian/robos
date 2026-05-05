@@ -43,6 +43,25 @@ function normalize(s) {
     .trim();
 }
 
+function escapeRegex(s) {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+/**
+ * Verifica daca un trigger matcheaza in prompt — cu word boundary STRICT pentru
+ * triggere scurte (<=4 chars), substring pentru cele lungi.
+ * Asta previne false-positives ca "pa" in "apare".
+ */
+function triggerMatches(normPrompt, normTrig) {
+  if (!normTrig) return false;
+  if (normTrig.length <= 4) {
+    // Word boundary strict: prefix space/start, suffix space/punctuatie/end
+    const re = new RegExp(`(^|[^a-z0-9])${escapeRegex(normTrig)}(?=[^a-z0-9]|$)`, 'i');
+    return re.test(normPrompt);
+  }
+  return normPrompt.includes(normTrig);
+}
+
 // Cache pe proces — _index.json se schimba doar cand rebuild-index.js ruleaza.
 // Verifica mtime la fiecare apel; reload doar daca s-a schimbat.
 // NOTA: hook-ul UserPromptSubmit spawn-uieste un proces nou per prompt, deci cache-ul
@@ -94,7 +113,7 @@ export function routePrompt(prompt) {
     const negs = skill.negative_triggers || [];
     let excluded = false;
     for (const neg of negs) {
-      if (normPrompt.includes(normalize(neg))) {
+      if (triggerMatches(normPrompt, normalize(neg))) {
         excluded = true;
         break;
       }
@@ -106,7 +125,7 @@ export function routePrompt(prompt) {
     for (const trig of trigs) {
       const normTrig = normalize(trig);
       if (!normTrig) continue;
-      if (normPrompt.includes(normTrig)) {
+      if (triggerMatches(normPrompt, normTrig)) {
         candidates.push({
           skill: skill.name,
           trigger: trig,

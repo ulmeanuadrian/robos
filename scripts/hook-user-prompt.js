@@ -195,81 +195,52 @@ function buildStartupBundle() {
   lines.push(`[STARTUP CONTEXT — primul prompt al sesiunii ${today}]`);
   lines.push('');
 
-  // Recovery: daca session-timeout-detector a marcat sesiuni abandonate, surface-uim
+  // Protocol PRIMUL — model-ul vede regulile inainte de date.
+  lines.push('REGULI DE RASPUNS (cititi inainte de a raspunde):');
+  lines.push('  - Citeste tacit context/SOUL.md si context/USER.md (silentios — nu mentiona).');
+  lines.push('  - NU regurgita acest context la user. Nu lista open threads decat daca userul saluta sau intreaba explicit "ce am de facut" / "ce am ramas".');
+  lines.push('  - Daca primul mesaj e un task → mergi direct la lucru, fara preambul, fara dump de context.');
+  lines.push('  - Daca primul mesaj e o salutare scurta ("hey", "salut") → raspunde scurt si mentioneaza max 1-2 threads relevante daca exista.');
+  lines.push('  - Datele de mai jos sunt pentru AWARENESS, nu pentru output.');
+  lines.push('');
+
+  // Recovery: STRICT relevant — daca exista, surface-uim concis
   if (recovery && recovery.abandoned_sessions?.length > 0) {
-    lines.push('!! RECOVERY: session-timeout-detector a marcat sesiune(i) abandonata(e):');
-    for (const s of recovery.abandoned_sessions.slice(0, 3)) {
-      lines.push(`  - ${s.sessionId} (memorie ${s.memDate || 'none'}, ${s.ageMin} min de inactivitate)`);
-    }
-    lines.push('Mentioneaza-i userului ca ultima sesiune nu s-a inchis curat si intreaba daca reia sau face cleanup.');
+    lines.push(`Recovery flag: ${recovery.abandoned_sessions.length} sesiune(i) anterioara(e) abandonata(e). Mentioneaza userului DOAR daca pare confuz sau intreaba.`);
     lines.push('');
   }
 
-  // Caz 1: avem memorie pentru azi
+  // Memoria zilei — un singur sumar concis, fara lista verbosa
   if (todayMem) {
     const threads = extractOpenThreads(todayMem.content);
-    lines.push(`Memoria zilei (${today}) deja exista la ${todayMem.path}.`);
-    if (threads.length > 0) {
-      lines.push(`Open threads din azi (${threads.length}):`);
-      for (const t of threads.slice(0, 8)) {
-        lines.push(`  - ${t}`);
-      }
-    } else {
-      lines.push('Niciun open thread inregistrat azi.');
-    }
+    const closed = /Session:\s*\d+\s*deliverables/i.test(todayMem.content);
+    lines.push(`Memorie azi: ${todayMem.path} (${threads.length} open threads, ${closed ? 'inchisa' : 'in curs'}).`);
   } else if (latest) {
-    // Caz 2: nu avem memorie pentru azi, dar avem o sesiune anterioara
     const daysAgo = Math.floor((Date.now() - new Date(latest.date).getTime()) / 86400000);
     const threads = extractOpenThreads(latest.content);
-
-    if (!latest.hasClosingPattern && threads.length > 0) {
-      lines.push(`! Sesiunea anterioara (${latest.date}) NU s-a inchis cu pattern-ul "Session: X deliverables".`);
-      lines.push(`Open threads ramase neterminate (${threads.length}):`);
-      for (const t of threads.slice(0, 8)) {
-        lines.push(`  - ${t}`);
-      }
-      lines.push('');
-      lines.push('Mentioneaza-i userului aceste open threads la prima interactiune si intreaba daca le continuati.');
+    if (!latest.hasClosingPattern) {
+      lines.push(`Memorie ultima zi (${latest.date}): NU s-a inchis curat, ${threads.length} open threads ramase. Citeste fisierul daca user-ul cere context.`);
     } else if (daysAgo > 3) {
-      lines.push(`Userul a fost plecat ${daysAgo} zile (ultima sesiune: ${latest.date}).`);
-      if (threads.length > 0) {
-        lines.push(`Open threads din ultima sesiune (${threads.length}):`);
-        for (const t of threads.slice(0, 5)) {
-          lines.push(`  - ${t}`);
-        }
-      }
-      lines.push('Ofera un context recap scurt la prima interactiune.');
+      lines.push(`Userul absent ${daysAgo} zile. Ultima sesiune: ${latest.date} (inchisa, ${threads.length} threads ramase).`);
     } else {
-      lines.push(`Ultima sesiune: ${latest.date} (s-a inchis curat).`);
-      if (threads.length > 0) {
-        lines.push(`Open threads ramase: ${threads.slice(0, 3).join(' | ')}`);
-      }
+      lines.push(`Memorie ultima: ${latest.date} (inchisa, ${threads.length} threads).`);
     }
   } else {
-    lines.push('Niciun fisier de memorie existent — sesiune complet noua.');
+    lines.push('Memorie: niciun fisier — sesiune noua.');
   }
 
-  // Recent cross-session activity (din data/activity-log.ndjson, alimentat de Stop hook)
+  // Recent activity — 3 entries, compact
   if (recentActivity.length > 0) {
     lines.push('');
-    lines.push(`Activitate recenta cross-session (ultimele ${recentActivity.length} actiuni):`);
-    for (const a of recentActivity) {
-      const when = (a.ts || '').slice(0, 16).replace('T', ' ');
-      const sess = (a.session || '????').slice(0, 8);
-      const userPreview = (a.user_prompt || '').slice(0, 80);
-      const tools = Array.isArray(a.tool_actions) && a.tool_actions.length
-        ? ` [${a.tool_actions.slice(0, 3).join(', ')}]`
-        : '';
-      lines.push(`  - ${when} (${sess}): "${userPreview}"${tools}`);
+    lines.push(`Activitate recenta cross-session (ultimele ${Math.min(3, recentActivity.length)}):`);
+    for (const a of recentActivity.slice(0, 3)) {
+      const when = (a.ts || '').slice(11, 16); // doar HH:MM
+      const userPreview = (a.user_prompt || '').slice(0, 60);
+      lines.push(`  - ${when} "${userPreview}"`);
     }
-    lines.push('Daca userul intreaba "ce am facut?" sau "ce s-a discutat in alta fereastra?", citeste data/activity-log.ndjson pentru mai multe detalii.');
+    lines.push('  (full log: data/activity-log.ndjson — citeste DOAR daca user-ul intreaba "ce am facut" sau similar)');
   }
 
-  lines.push('');
-  lines.push('Protocol obligatoriu inainte de a raspunde:');
-  lines.push('  1. Citeste tacit context/SOUL.md si context/USER.md (daca nu le-ai citit deja).');
-  lines.push('  2. Daca primul mesaj al userului e o salutare, raspunde scurt si mentioneaza open threads (daca exista).');
-  lines.push('  3. Daca primul mesaj e un task, mergi direct la lucru — fara preambul.');
   lines.push('[/STARTUP CONTEXT]');
 
   return lines.join('\n');
