@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-05T20:05:28.998Z",
+  "generated_at": "2026-05-05T20:11:31.460Z",
   "count": 17,
   "by_category": {
     "brand": 3,
@@ -415,9 +415,9 @@
     },
     {
       "name": "research-competitors",
-      "version": "1.0.0",
+      "version": "2.0.0",
       "category": "research",
-      "description": "Analyze competitor messaging, positioning, and pricing. Scrapes competitor sites, builds a comparison matrix, identifies market gaps, and recommends differentiators.",
+      "description": "Analyze competitor messaging, positioning, pricing. MapReduce: 1 agent per competitor scrapes all pages in parallel, a synthesizer builds matrix + identifies gaps + recommends differentiators.",
       "triggers": [
         "analiza competitori",
         "ce zic concurentii",
@@ -434,26 +434,29 @@
         "scrie copy"
       ],
       "context_loads": [
-        "brand/positioning.md (reads, for comparison baseline)",
-        "brand/audience.md (reads, for overlap detection)",
-        "brand/voice.md (summary, for tone comparison)",
-        "context/learnings.md (section research-competitors)"
+        "brand/positioning.md (synthesizer reads, for comparison baseline)",
+        "brand/audience.md (synthesizer reads, for overlap detection)",
+        "brand/voice.md (synthesizer reads summary, for tone comparison)",
+        "context/learnings.md (synthesizer appends)"
       ],
       "inputs": [
-        "competitors (required: 3-5 URLs or company names)",
+        "competitors (required: 3-8 URLs or company names)",
         "focus (optional: messaging | pricing | features | audience | all, default: all)",
         "our_url (optional: your own site for direct comparison)"
       ],
       "outputs": [
-        "Competitor analysis in projects/research-competitors/"
+        "projects/research-competitors/{date}-{slug}/analysis.md",
+        "projects/research-competitors/{date}-{slug}/matrix.md",
+        "projects/research-competitors/{date}-{slug}/raw/{competitor}.json",
+        "data/skill-telemetry.ndjson (appended)"
       ],
-      "last_modified": "2026-05-05T05:20:09.867Z"
+      "last_modified": "2026-05-05T20:11:20.422Z"
     },
     {
       "name": "research-trending",
-      "version": "1.0.0",
+      "version": "2.0.0",
       "category": "research",
-      "description": "Research what is trending in the last 30 days across Reddit, Twitter/X, Hacker News, YouTube, and industry blogs. Extracts discussions, pain points, opinions, and content gaps.",
+      "description": "Research what's trending in last 30 days across Reddit, Twitter/X, HN, blogs, video. MapReduce: 5 source agents scan in parallel, a synthesizer merges + dedupes + extracts signals.",
       "triggers": [
         "ce e trend",
         "ce se discuta despre",
@@ -472,8 +475,8 @@
         "analiza competitori"
       ],
       "context_loads": [
-        "brand/audience.md (summary, for relevance filtering)",
-        "context/learnings.md (section research-trending)"
+        "brand/audience.md (synthesizer reads, for relevance filtering)",
+        "context/learnings.md (synthesizer appends)"
       ],
       "inputs": [
         "topic (required: niche, keyword, or industry)",
@@ -481,9 +484,11 @@
         "focus (optional: pain points | opportunities | opinions | all)"
       ],
       "outputs": [
-        "Research brief in projects/research-trending/"
+        "projects/research-trending/{date}-{slug}/brief.md",
+        "projects/research-trending/{date}-{slug}/sources.md",
+        "data/skill-telemetry.ndjson (appended)"
       ],
-      "last_modified": "2026-05-05T05:20:01.620Z"
+      "last_modified": "2026-05-05T20:10:13.273Z"
     },
     {
       "name": "sys-audit",

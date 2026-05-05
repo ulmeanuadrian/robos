@@ -1,8 +1,8 @@
 ---
 name: research-competitors
-version: 1.0.0
+version: 2.0.0
 category: research
-description: "Analyze competitor messaging, positioning, and pricing. Scrapes competitor sites, builds a comparison matrix, identifies market gaps, and recommends differentiators."
+description: "Analyze competitor messaging, positioning, pricing. MapReduce: 1 agent per competitor scrapes all pages in parallel, a synthesizer builds matrix + identifies gaps + recommends differentiators."
 triggers:
   - "analiza competitori"
   - "ce zic concurentii"
@@ -16,130 +16,282 @@ negative_triggers:
   - "trend"
   - "voce de brand"
   - "scrie copy"
+output_discipline: encapsulated
+concurrency_pattern: mapreduce-research
 context_loads:
-  - brand/positioning.md (reads, for comparison baseline)
-  - brand/audience.md (reads, for overlap detection)
-  - brand/voice.md (summary, for tone comparison)
-  - context/learnings.md (section research-competitors)
+  - brand/positioning.md (synthesizer reads, for comparison baseline)
+  - brand/audience.md (synthesizer reads, for overlap detection)
+  - brand/voice.md (synthesizer reads summary, for tone comparison)
+  - context/learnings.md (synthesizer appends)
 inputs:
-  - competitors (required: 3-5 URLs or company names)
+  - competitors (required: 3-8 URLs or company names)
   - focus (optional: messaging | pricing | features | audience | all, default: all)
   - our_url (optional: your own site for direct comparison)
 outputs:
-  - Competitor analysis in projects/research-competitors/
+  - projects/research-competitors/{date}-{slug}/analysis.md
+  - projects/research-competitors/{date}-{slug}/matrix.md
+  - projects/research-competitors/{date}-{slug}/raw/{competitor}.json
+  - data/skill-telemetry.ndjson (appended)
 ---
 
-# Step 1: Gather Competitor URLs
+# Output Discipline
 
-If the user provided company names instead of URLs, search for them:
+In transcriptul vizibil userului apare DOAR:
+1. Eventual confirmare URL-uri (daca user a dat nume in loc de URL-uri).
+2. Executive summary final (3-5 bullets) + path catre raport.
 
-- WebSearch: `{company name} official site`
-- Confirm the correct URL before proceeding
+**Reguli stricte:**
+- NU folosi TodoWrite.
+- NU anunta "Step 1: scrape", "Step 2: matrix", etc.
+- NU rula WebFetch direct din main thread — fiecare competitor primeste un agent dedicat.
+- Cele N invocari `Agent` pentru competitori TREBUIE SA FIE INTR-UN SINGUR mesaj de raspuns.
 
-Target pages to analyze per competitor:
-1. Homepage (messaging, hero, value proposition)
-2. About page (story, team, mission)
-3. Pricing page (model, tiers, anchoring)
-4. Product/features page (what they emphasize)
-5. Blog (topics covered, tone, frequency)
+---
 
-If a page doesn't exist, note it and move on.
+# Step 0: Resolve URLs (main thread, rapid)
 
-# Step 2: Scrape and Extract
+User-ul da N competitori (3-8). Pentru fiecare:
+- Daca e URL valid, foloseste-l.
+- Daca e nume de companie, ruleaza WebSearch o data: `{name} official site` si ia primul rezultat care arata oficial. Confirma scurt user-ului: "Confirmed: {name} → {url}".
 
-For each competitor, use WebFetch on the target pages. Extract:
+Daca user a dat <3 sau >8 competitori:
+- <3: spune "Vreau minim 3 competitori pentru o analiza relevanta. Adauga inca {N} sau confirma sa continui cu cei {N}."
+- >8: spune "Maxim 8 competitori per analiza (per cost cap-ul concurrency-ului). Aleg primii 8: {list}. OK?" — daca confirma, taie la 8.
 
-### Messaging
-- **Headline**: The main H1/hero text
-- **Value proposition**: The core promise in 1 sentence
-- **Supporting claims**: The 3-5 points they emphasize below the fold
-- **Social proof type**: Logos, testimonials, case studies, numbers
-- **CTA language**: What their buttons say
+Slug pentru output: `{date}-{first-competitor-slugified}`.
 
-### Audience Signals
-- **Who they address**: Pronouns used ("you" vs "your team"), job titles mentioned
-- **Pain points referenced**: What problems they name
-- **Sophistication level**: Technical jargon level, assumed knowledge
-- **Industry focus**: Verticals they call out
+---
 
-### Pricing
-- **Model**: Freemium, flat rate, per-seat, usage-based, custom
-- **Tiers**: Number and names
-- **Anchor price**: The most promoted tier
-- **Free trial or demo**: Yes/no, gated or ungated
+# Step 1: Concurrency check
 
-### Tone
-- **Formality**: Casual, professional, corporate, playful
-- **Personality markers**: Humor, urgency, authority, empathy
-- **Vocabulary patterns**: Repeated phrases, branded terms
-
-# Step 3: Build Comparison Matrix
-
-Create a table comparing all competitors (and your brand if `our_url` provided):
-
-| Dimension | Competitor A | Competitor B | Competitor C | You |
-|-----------|-------------|-------------|-------------|-----|
-| Headline | ... | ... | ... | ... |
-| Value prop | ... | ... | ... | ... |
-| Target audience | ... | ... | ... | ... |
-| Pricing model | ... | ... | ... | ... |
-| Key differentiator | ... | ... | ... | ... |
-| Tone | ... | ... | ... | ... |
-| Social proof | ... | ... | ... | ... |
-
-# Step 4: Identify Patterns and Gaps
-
-Analyze the matrix for:
-
-- **Messaging overlaps**: Where competitors say the same thing (the "sea of sameness" to avoid)
-- **Underserved angles**: Topics, audiences, or benefits no competitor emphasizes
-- **Pricing gaps**: Price points or models not covered, over-served or under-served segments
-- **Audience mismatches**: Disconnect between who they claim to serve vs actual content signals
-
-# Step 5: Recommend Differentiators
-
-Based on the gaps, suggest 3-5 positioning moves:
-
-For each recommendation:
-1. **The gap**: What's missing in the market
-2. **Evidence**: Why you believe this gap exists (data from the analysis)
-3. **How to claim it**: Specific messaging, positioning, or feature angle
-4. **Risk**: What could go wrong or why competitors might have avoided this angle
-
-Rank recommendations by impact (high/medium/low) and effort (high/medium/low).
-
-# Step 6: Write the Report
-
-Structure:
-
-```markdown
-# Competitor Analysis: {your brand vs competitors}
-**Date**: {date} | **Competitors analyzed**: {count}
-
-## Executive Summary
-3-5 bullets: the most important findings.
-
-## Competitor Matrix
-[The comparison table from Step 3]
-
-## Messaging Map
-How competitors position relative to each other on 2 key axes.
-
-## Key Findings
-Sea of sameness, gaps, pricing landscape, audience alignment.
-
-## Recommended Differentiators
-[Ranked recommendations from Step 5]
-
-## Per-Competitor Deep Dives
-Full extracted data per competitor with strengths and weaknesses.
-
-## Sources
-Full list of pages analyzed with URLs.
+```bash
+node scripts/parallel-budget.js check {N} 25
 ```
 
-# Step 7: Save and Log
+(N = numar competitori, 25s estimat per competitor pentru ca scrapeaza ~5 pagini)
 
-Save to `projects/research-competitors/{date}-{slug}/`: `analysis.md` (full report), `matrix.md` (comparison table), `raw/` (per-competitor data).
+- Returneaza `parallel` daca N >= 3.
+- `serial` daca N < 3 (rar — am gated la Step 0 sa fie min 3).
 
-Append to `context/learnings.md` under `## research-competitors`: competitors analyzed, key differentiator identified, gaps found, date completed.
+Marcheaza `start_time = Date.now()`.
+
+---
+
+# Step 2: Spawn N competitor agents IN PARALLEL
+
+**Critic:** intr-un SINGUR mesaj de raspuns, N invocari `Agent` simultane (una per competitor).
+
+Pentru fiecare competitor URL, spawn:
+
+```
+subagent_type: general-purpose
+description: "Competitor analysis: {competitor name}"
+prompt: """
+Esti agentul de analiza pentru competitor: {competitor name} ({competitor URL}).
+Focus: {focus} (sau "all" daca user n-a specificat).
+
+Ruleaza WebFetch pe urmatoarele pagini target. Daca o pagina nu exista (404, redirect ciudat), noteaza si continua:
+
+1. Homepage: {url}
+2. About: {url}/about, {url}/company, {url}/who-we-are (incearca pana gasesti)
+3. Pricing: {url}/pricing, {url}/plans (incearca pana gasesti)
+4. Product/Features: {url}/product, {url}/features
+5. Blog: {url}/blog (doar lista de titluri recente, nu scrape blog posts intregi)
+
+Pentru fiecare pagina accesibila, extrage:
+
+### Messaging
+- headline: H1/hero text
+- value_prop: core promise in 1 sentence
+- supporting_claims: 3-5 puncte sub the fold
+- social_proof_type: logos | testimonials | case studies | numbers | none
+- cta_language: ce zic butoanele
+
+### Audience signals
+- pronouns_used: "you" / "your team" / pluralism
+- job_titles_mentioned: ["..."]
+- pain_points_referenced: ["..."]
+- sophistication_level: technical | mid | accessible
+- industry_focus: ["..."]
+
+### Pricing (daca pricing accesibila)
+- model: freemium | flat | per-seat | usage | custom
+- tiers_count: N
+- tier_names: ["..."]
+- anchor_price: tier-ul cel mai promovat
+- free_trial: yes/no, gated/ungated
+
+### Tone
+- formality: casual | professional | corporate | playful
+- personality_markers: humor | urgency | authority | empathy | data-driven
+- vocabulary_patterns: phrases repetate, branded terms
+
+### Blog signal
+- recent_post_count: cate posts in ultimele 30 zile
+- topics_covered: ["..."]
+- content_format: long-form | short | mixed
+
+### Notes
+- strengths_observed: ce face bine
+- weaknesses_observed: ce face slab / gaps
+- pages_failed: ["..."] daca vreuna nu accesibila
+
+Returneaza DOAR JSON:
+{
+  "competitor": "{name}",
+  "url": "{url}",
+  "status": "ok" | "partial" | "failed",
+  "pages_analyzed": ["homepage","about",...],
+  "pages_failed": ["..."],
+  "messaging": {...},
+  "audience": {...},
+  "pricing": {...} | null,
+  "tone": {...},
+  "blog": {...} | null,
+  "strengths": ["..."],
+  "weaknesses": ["..."],
+  "notes": "scurt"
+}
+"""
+```
+
+Daca user a oferit `our_url`, spawn un agent IN ACELASI MESAJ pentru brand-ul propriu cu acelasi prompt.
+
+---
+
+# Step 3: Spawn synthesizer agent
+
+Dupa ce primesti N JSON-uri (sau marcat ca failed), spawn UN synthesizer:
+
+```
+subagent_type: general-purpose
+description: "Competitor synthesis: matrix + gaps + recommendations"
+prompt: """
+Esti synthesizer-ul pentru research-competitors. Slug: {slug}.
+
+Competitor JSONs (N paralele):
+{aici cele N JSON-uri primite — pentru cele failed, placeholder cu "status":"failed"}
+
+{Daca our_url a fost folosit: include si JSON-ul brand-ului propriu cu marker "is_self": true}
+
+Optional context:
+- brand/positioning.md — pentru comparison baseline (citeste daca exista)
+- brand/audience.md — pentru overlap detection
+- brand/voice.md — summary pentru tone comparison
+
+Tasks:
+
+1. **Comparison matrix**: tabel cu coloane = competitori (+ You daca our_url), randuri = dimensiuni (Headline, Value prop, Target audience, Pricing model, Key differentiator, Tone, Social proof). Markdown table.
+
+2. **Identify patterns**:
+   - Messaging overlaps: unde 3+ competitori spun acelasi lucru ("sea of sameness")
+   - Underserved angles: topics/audiences/benefits pe care nimeni nu le emphasizeaza
+   - Pricing gaps: price points sau modele neacoperite
+   - Audience mismatches: disconnect intre cine zic ca servesc vs content signals
+
+3. **Recommend differentiators** (3-5):
+   Pentru fiecare:
+   - The gap (ce e missing in market)
+   - Evidence (data din analiza care confirma)
+   - How to claim it (messaging / positioning / feature angle specific)
+   - Risk (de ce competitorii poate au evitat)
+   - Impact (high/medium/low) + Effort (high/medium/low)
+
+4. **Scrie 3 livrabile**:
+
+   `projects/research-competitors/{slug}/analysis.md`:
+   ```markdown
+   # Competitor Analysis: {brand} vs {N} competitors
+   **Date**: {date} | **Competitors analyzed**: {N_ok}/{N_total}{coverage_warning}
+
+   ## Executive Summary
+   3-5 bullets cu most important findings.
+
+   ## Competitor Matrix
+   {table de la step 1}
+
+   ## Messaging Map
+   {2-axis positioning visualization in text — ex. "Authority axis vs Approachability axis"}
+
+   ## Key Findings
+   ### Sea of Sameness
+   ### Gaps
+   ### Pricing Landscape
+   ### Audience Alignment
+
+   ## Recommended Differentiators
+   {ranked list de la step 3}
+
+   ## Per-Competitor Deep Dives
+   {Per competitor: strengths + weaknesses + key takeaways}
+
+   ## Coverage Notes
+   {Daca o sursa a esuat, mentioneaza scurt aici. Altfel "Coverage complete."}
+   ```
+
+   `projects/research-competitors/{slug}/matrix.md`: doar tabelul standalone, pentru re-use rapid.
+
+   `projects/research-competitors/{slug}/raw/{competitor-slug}.json`: cate un fisier pentru fiecare competitor cu JSON-ul complet primit de la agentul lui.
+
+5. **Append in context/learnings.md** sub `## research-competitors`:
+   ```
+   ### {date}
+   - Competitors: {names joined}
+   - Analyzed: {N_ok}/{N_total}
+   - Failed: {list daca exista, altfel "none"}
+   - Key differentiator identified: {top recommendation}
+   - Biggest gap: {gap description}
+   ```
+
+6. Returneaza DOAR JSON:
+{
+  "analysis_path": "projects/research-competitors/{slug}/analysis.md",
+  "matrix_path": "projects/research-competitors/{slug}/matrix.md",
+  "competitors_ok": N,
+  "competitors_failed": ["..."],
+  "executive_summary_bullets": ["3-5 bullets text"],
+  "top_recommendation": "o propozitie",
+  "biggest_gap": "o propozitie",
+  "coverage_complete": true/false
+}
+"""
+```
+
+---
+
+# Step 4: Output (main thread)
+
+`wall_clock_ms = Date.now() - start_time`.
+
+Output exact:
+
+```
+Analysis saved: {analysis_path}
+Matrix: {matrix_path}
+
+Executive summary:
+- {bullet 1}
+- {bullet 2}
+- {bullet 3}
+{eventual 4-5}
+
+Top recommendation: {top_recommendation}
+Biggest gap: {biggest_gap}
+{coverage_note}
+```
+
+`coverage_note`: "" daca coverage_complete=true. Altfel "\n⚠ Competitori esuati: {competitors_failed joined}. Ruleaza din nou cu doar acele URL-uri pentru retry." pe linie noua.
+
+STOP.
+
+---
+
+# Step 5: Telemetrie
+
+```bash
+node scripts/parallel-budget.js log research-competitors parallel {N+1} {agents_failed_count} {wall_clock_ms} {fallback_used}
+```
+
+- agents = N competitori + 1 synthesizer (+ 1 daca s-a inclus our_url)
+- agents_failed = numarul de competitori cu status="failed"
+- fallback_used = true daca coverage_complete=false
