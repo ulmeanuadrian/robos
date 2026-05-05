@@ -1,7 +1,7 @@
 {
-  "version": "1.2.0",
-  "updated": "2026-05-05",
-  "_note": "Acest catalog listeaza skill-urile disponibile pentru instalare. Statusul 'installed' se deriva din filesystem (skills/{name}/SKILL.md). Nu pune campul 'installed' aici. Campul 'concurrency_pattern' (optional) indica skill-uri paralelizate — vezi AGENTS.md > Concurrency Patterns.",
+  "version": "1.3.0",
+  "updated": "2026-05-06",
+  "_note": "Acest catalog listeaza skill-urile disponibile pentru instalare. Statusul 'installed' se deriva din filesystem (skills/{name}/SKILL.md). Nu pune campul 'installed' aici. Campul 'concurrency_pattern' (optional) indica skill-uri paralelizate — vezi AGENTS.md > Concurrency Patterns. Campul 'status: planned' marcheaza skills planificate dar fara source pe disk — add-skill.sh le respinge cu mesaj clar.",
   "skills": [
     {
       "name": "brand-voice",
@@ -83,7 +83,8 @@
       "name": "content-social-post",
       "category": "content",
       "description": "Posturi pentru retele sociale cu formatare specifica platformei",
-      "core": false
+      "core": false,
+      "status": "planned"
     },
     {
       "name": "content-repurpose",
@@ -96,7 +97,8 @@
       "name": "content-email-sequence",
       "category": "content",
       "description": "Secvente de email-uri (welcome, nurture, lansare, re-engagement)",
-      "core": false
+      "core": false,
+      "status": "planned"
     },
     {
       "name": "content-copywriting",
@@ -109,19 +111,22 @@
       "name": "content-newsletter",
       "category": "content",
       "description": "Editii de newsletter cu link-uri curate, comentariu si CTA-uri",
-      "core": false
+      "core": false,
+      "status": "planned"
     },
     {
       "name": "content-case-study",
       "category": "content",
       "description": "Studii de caz din note de interviu sau date brute",
-      "core": false
+      "core": false,
+      "status": "planned"
     },
     {
       "name": "content-landing-page",
       "category": "content",
       "description": "Copy de landing page cu hero, beneficii, social proof, CTA",
-      "core": false
+      "core": false,
+      "status": "planned"
     },
     {
       "name": "research-competitors",
@@ -141,13 +146,15 @@
       "name": "research-keyword",
       "category": "research",
       "description": "Keyword research cu clasificare intent + content gap analysis",
-      "core": false
+      "core": false,
+      "status": "planned"
     },
     {
       "name": "brand-style-guide",
       "category": "brand",
       "description": "Genereaza un brand style guide complet din voice, audience, positioning",
-      "core": false
+      "core": false,
+      "status": "planned"
     },
     {
       "name": "tool-humanizer",
@@ -171,25 +178,29 @@
       "name": "tool-wp-publisher",
       "category": "tool",
       "description": "Publica continut pe WordPress cu metadata SEO si imagini featured",
-      "core": false
+      "core": false,
+      "status": "planned"
     },
     {
       "name": "tool-social-scheduler",
       "category": "tool",
       "description": "Programeaza posturi pe retele sociale prin API extern",
-      "core": false
+      "core": false,
+      "status": "planned"
     },
     {
       "name": "sys-cron-manager",
       "category": "sys",
       "description": "Creeaza, editeaza si monitorizeaza job-uri cron recurente",
-      "core": false
+      "core": false,
+      "status": "planned"
     },
     {
       "name": "sys-client-onboard",
       "category": "sys",
       "description": "Configureaza un workspace nou de client cu fisiere brand, structura proiecte si context",
-      "core": false
+      "core": false,
+      "status": "planned"
     },
     {
       "name": "sys-archive-memory",
@@ -201,7 +212,8 @@
       "name": "sys-connections-scan",
       "category": "sys",
       "description": "Scaneaza .env si MCP config, identifica conexiunile active si actualizeaza connections.md",
-      "core": false
+      "core": false,
+      "status": "planned"
     }
   ],
   "starterPacks": [

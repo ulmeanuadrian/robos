@@ -38,6 +38,25 @@ SKILL_DST="$SKILLS_DIR/$SKILL_NAME"
 
 # Validare
 if [ ! -d "$SKILL_SRC" ]; then
+    # Distinguish "doesn't exist anywhere" from "declared as planned in catalog.json".
+    # If catalog.json declares it with "status": "planned", say so honestly.
+    if command -v node &>/dev/null; then
+        # Run node from $ROBOS_ROOT so relative path works on both Unix and Windows
+        # (bash on Windows reports CATALOG as /c/... which Node can't resolve directly).
+        STATUS=$(cd "$ROBOS_ROOT" && node -e "
+            const fs=require('fs');
+            const cat=JSON.parse(fs.readFileSync('skills/_catalog/catalog.json','utf-8'));
+            const s=(cat.skills||[]).find(x => x.name === '$SKILL_NAME');
+            console.log(s ? (s.status || 'available-but-no-source') : 'unknown');
+        " 2>/dev/null || echo "unknown")
+    else
+        STATUS="unknown"
+    fi
+    if [ "$STATUS" = "planned" ]; then
+        echo "Skill-ul '$SKILL_NAME' e PLANIFICAT dar nu are source pe disk inca."
+        echo "Vezi catalog.json — feature pe roadmap, nu instalabil acum."
+        exit 1
+    fi
     echo "EROARE: Skill-ul '$SKILL_NAME' nu exista in catalog."
     echo "Ruleaza: ./scripts/list-skills.sh ca sa vezi ce e disponibil."
     exit 1
