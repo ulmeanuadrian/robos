@@ -198,7 +198,7 @@
         <div class="script-item">
           <div class="script-info">
             <h4>Setup Wizard</h4>
-            <p>Run the RobOS setup process.</p>
+            <p>Ruleaza procesul de setup robOS.</p>
           </div>
           <code class="script-cmd">bash scripts/setup.sh</code>
         </div>

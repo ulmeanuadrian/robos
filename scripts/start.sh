@@ -5,21 +5,21 @@ ROBOS_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 PID_DIR="$ROBOS_ROOT/.command-centre"
 PID_FILE="$PID_DIR/server.pid"
 
-# Source .env if it exists (before setting PORT so .env can override)
+# Sursa .env (inainte de PORT, ca .env sa poata override-ui)
 if [ -f "$ROBOS_ROOT/.env" ]; then
     set -a
     source "$ROBOS_ROOT/.env"
     set +a
 fi
 
-# PORT: CLI env > .env > default 3000
-export PORT="${PORT:-3000}"
+# PORT: env CLI > .env > default 3001 (3000 e folosit de multe dev servers)
+export PORT="${PORT:-3001}"
 
-# Check if already running
+# Verifica daca ruleaza deja
 if [ -f "$PID_FILE" ]; then
     OLD_PID=$(cat "$PID_FILE")
     if kill -0 "$OLD_PID" 2>/dev/null; then
-        echo "Command Centre is already running (PID $OLD_PID)"
+        echo "Command Centre deja ruleaza (PID $OLD_PID)"
         echo "URL: http://localhost:${PORT}"
         exit 0
     else
@@ -27,30 +27,30 @@ if [ -f "$PID_FILE" ]; then
     fi
 fi
 
-# Check if centre exists
+# Verifica centre
 if [ ! -f "$ROBOS_ROOT/centre/server.js" ]; then
-    echo "ERROR: centre/server.js not found."
-    echo "Run ./scripts/setup.sh first."
+    echo "EROARE: centre/server.js lipseste."
+    echo "Ruleaza ./scripts/setup.sh inainte."
     exit 1
 fi
 
-# Build if dist/ is missing
+# Build daca dist/ lipseste
 if [ ! -d "$ROBOS_ROOT/centre/dist" ]; then
-    echo "Building dashboard (first run)..."
+    echo "Build dashboard (prima rulare)..."
     cd "$ROBOS_ROOT/centre" && npx astro build 2>/dev/null
     cd "$ROBOS_ROOT"
 fi
 
-# Start server
+# Porneste serverul
 mkdir -p "$PID_DIR"
 nohup node "$ROBOS_ROOT/centre/server.js" > "$PID_DIR/server.log" 2>&1 &
 SERVER_PID=$!
 echo "$SERVER_PID" > "$PID_FILE"
 
-echo "Command Centre starting (PID $SERVER_PID)..."
+echo "Command Centre porneste (PID $SERVER_PID)..."
 echo "Log: .command-centre/server.log"
 
-# Health check - wait for server to respond
+# Health check — astept serverul sa raspunda
 READY=0
 for i in $(seq 1 15); do
     if curl -s -o /dev/null -w '' "http://localhost:${PORT}" 2>/dev/null; then
@@ -61,18 +61,20 @@ for i in $(seq 1 15); do
 done
 
 if [ "$READY" -eq 1 ]; then
-    echo "[OK] Command Centre running at http://localhost:${PORT}"
-    # Open browser (best effort)
+    echo "[OK] Command Centre ruleaza la http://localhost:${PORT}"
+    # Deschide browser (best effort)
     if command -v xdg-open &>/dev/null; then
         xdg-open "http://localhost:${PORT}" 2>/dev/null || true
     elif command -v open &>/dev/null; then
         open "http://localhost:${PORT}" 2>/dev/null || true
+    elif command -v cmd.exe &>/dev/null; then
+        cmd.exe /c start "http://localhost:${PORT}" 2>/dev/null || true
     fi
 else
-    echo "WARNING: Server did not respond within 15 seconds."
-    echo "Check logs: cat .command-centre/server.log"
+    echo "ATENTIE: Serverul nu a raspuns in 15 secunde."
+    echo "Verifica logul: cat .command-centre/server.log"
     if ! kill -0 "$SERVER_PID" 2>/dev/null; then
-        echo "ERROR: Server process died. Last 10 lines:"
+        echo "EROARE: Procesul a murit. Ultimele 10 linii:"
         tail -10 "$PID_DIR/server.log" 2>/dev/null || true
         rm -f "$PID_FILE"
         exit 1
