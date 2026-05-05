@@ -1,5 +1,66 @@
 # Changelog
 
+## [0.4.0] - 2026-05-06
+
+### Concurrency framework — 5 patterns documentate + 8 skills paralelizate
+
+- **AGENTS.md > Concurrency Patterns** — 5 patterns standardizate cu invariants nenegociabile (prag, cost cap 8 agenti, timeout advisory, retry policy, idempotenta, no secrets in prompts, single-message spawn discipline, telemetrie obligatorie):
+  - **Pillar Fan-Out** — N dimensiuni independente de scoring; graceful degradation
+  - **MapReduce Research** — N surse paralele + synthesizer; graceful
+  - **Multi-Asset Generation** — N output formats; hard-fail (sau soft-fail variant pentru cost-de-Q&A)
+  - **Multi-Angle Creativity** — N stiluri pe acelasi brief; opt-in only, best-effort
+  - **Adversarial Synthesis** — PRO/CONTRA/ALT pentru decizii strategice; combats confirmation bias
+- **`scripts/parallel-budget.js`** — `shouldParallelize`, `logTelemetry`, `readStats`. Pragul: ≥3 unitati × ≥10s/unitate.
+- **`data/skill-telemetry.ndjson`** — fiecare skill paralelizat scrie un rand: `{ts, skill, mode, agents, agents_failed, wall_clock_ms, fallback_used}`.
+- **`scripts/smoke-parallel.js`** — validare structurala SKILL.md (Output Discipline, parallel-budget reference, single-message rule, AGENTS.md alignment).
+
+### Skills refactorizate
+
+- **sys-audit v3.0.0** — Pillar Fan-Out pe 4 piloni (Context/Connections/Capabilities/Cadence) + reducer; ~4× wall-clock vs v2.
+- **sys-onboard v2.0.0** — 3 brand-file agenti paraleli post-Q&A (voice/audience/positioning) — soft-fail variant pentru ca Q&A-ul de 15 min e cost-prohibitive de retry total.
+- **sys-level-up v2.0.0** — Adversarial Synthesis (PRO/CONTRA/ALT + synthesizer) inlocuieste single-pass ranking; combate confirmation bias.
+- **sys-session-close v2.0.0**, **sys-session-open v2.0.0**, **sys-daily-plan v2.0.0** — encapsulation pattern (mecanica routata prin sub-agent, main thread doar confirmation gates + final summary). Nu e paralelism, doar output discipline.
+- **content-repurpose v2.0.0** — Multi-Asset Generation: 1 agent per platforma (max 8 din 8 disponibile); hard-fail per Pattern 3.
+- **content-blog-post v2.0.0**, **content-copywriting v2.0.0** — Multi-Angle Creativity opt-in (mode=options); 3 stiluri paraleli per brief; ~3× tokens, opt-in only.
+- **research-trending v2.0.0**, **research-competitors v2.0.0** — MapReduce: 5 surse paralele (research-trending) sau 1-8 competitori paraleli + synthesizer.
+
+### Audit cross-perspective + remediation marathon
+
+Audit multi-agent (6 opus paraleli + synthesizer) a produs 95 findings. Batch-uri de remediation cu regression check sistemic dupa fiecare commit:
+
+**Batch 1 — Security critical (5 commits):**
+- **`centre/server.js`** — bind `127.0.0.1` default (era `0.0.0.0` cu zero auth → LAN compromise vector). `ROBOS_CENTRE_HOST=0.0.0.0` pentru opt-in LAN.
+- **`scripts/session-timeout-detector.js`** — fix regex `[^-]+\.json$` (excludea UUIDs cu dashes); subsystem complet mort, acum vede 15 markers.
+- **`centre/api/files.js`** — denylist pentru `.env`, `.mcp.json`, `.claude/`, `.command-centre/`, `data/`, `node_modules/`, `.git/`. Removed `.env` exception din file tree filter.
+- **`centre/api/settings.js`** — setMcp shape validation completa (command whitelist regex, args/env shell-safe, https-only urls, server name regex). setMcp returneaza `{ok, error}`, route handler raspunde 400 pe failure. maskValue intoarce intotdeauna `****` (era leak primii 3 chars).
+- **`scripts/lib/hook-error-sink.js`** nou — single error log la `data/hook-errors.ndjson`. Cablat in 3 hooks (UserPromptSubmit + 2x Stop). Closes systemic theme "silent failure as default".
+
+**Batch 2 — Stability sinks (4 commits):**
+- **`scripts/lib/ndjson-log.js`** — `appendFileSync` fast path + atomic rotation prin `.tmp + rename`. ~50× speedup pe activity-capture hot path; race window inchis.
+- **`scripts/parallel-budget.js`** — `SUBAGENT_TIMEOUT_MS` → `*_ADVISORY` rename + AGENTS.md rule #3 honest "NU enforced runtime". False promise eliminat.
+- **`scripts/rebuild-index.js`** — atomic write `_index.json` (.tmp + rename); partial-read race in hook loadIndex inchis.
+- **`scripts/hook-user-prompt.js`** + **`checkpoint-reminder.js`** — sanitize `session_id` din stdin JSON cu regex `[a-zA-Z0-9_-]{1,128}`; defense-in-depth path traversal.
+
+**Batch 3 — Architecture refactor (5 commits):**
+- **`scripts/lib/skill-frontmatter.js`** nou — single canonical YAML parser. 3 implementari (rebuild-index + centre/api/skills + smoke-parallel) consolidate. `PUBLIC_SKILL_FIELDS` whitelist pasase prin `concurrency_pattern`, `output_discipline`, `modes`, `multi_angle_triggers` (erau dropped silentios). smoke-parallel convertit la ESM.
+- **`scripts/lib/memory-format.js`** nou — `CLOSING_PATTERN`, `isClosed`, `extractOpenThreads`, `REQUIRED_SECTIONS`. 4 callers (hook-user-prompt, session-timeout-detector, audit-startup, lint-memory) de-duplicate.
+- **`scripts/audit-cache.js`** — `status --json` flag adaugat; sys-audit/SKILL.md foloseste helper-ul (nu inline 13-line node script).
+- **`skills/_catalog/catalog.json`** v1.3.0 — `status: "planned"` pe 12 phantoms (content-newsletter, brand-style-guide, sys-cron-manager, etc.). add-skill.sh respinge clean cu mesaj specific. Cross-platform fix pentru bash-on-Windows path resolution.
+- **AGENTS.md** rule despre catalog version comparison drop (era unimplementable, catalog n-are version per skill).
+
+### Hook system + activity log (surfaced retroactively)
+
+(Aceste schimbari au fost livrate pre-0.4.0 dar nu au fost mentionate in CHANGELOG anterior.)
+
+- **`.claude/settings.json`** — UserPromptSubmit hook pentru injection STARTUP CONTEXT + skill router; Stop hooks pentru checkpoint-reminder + activity-capture.
+- **`scripts/hook-user-prompt.js`** — STARTUP CONTEXT bundle (memorie zilei, recovery flags, skill router hints) injectat la primul prompt al fiecarei sesiuni.
+- **`scripts/skill-route.js`** — natural-language skill matching cu word-boundary pe triggere ≤4 chars + diacritic stripping.
+- **`scripts/activity-capture.js`** — Stop hook captureaza prompt user (300 chars) + tool actions + assistant summary in `data/activity-log.ndjson` (rotation 500 entries).
+- **`scripts/checkpoint-reminder.js`** — Stop hook ridica reminder cand memoria zilei nu a primit scriere recent; escalation in 3 trepte cu blocking dupa al 3-lea unheeded.
+- **`scripts/session-timeout-detector.js`** — cron job (15 min) detecteaza sesiuni abandoned, scrie `data/session-recovery/*.json` consumate la urmatorul session start.
+
+---
+
 ## [0.3.0] - 2026-05-05
 
 ### Cron — sistem complet refacut
