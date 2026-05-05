@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-05T22:02:40.303Z",
+  "generated_at": "2026-05-05T22:14:20.226Z",
   "count": 17,
   "by_category": {
     "brand": 3,
@@ -829,7 +829,7 @@
     },
     {
       "name": "sys-skill-builder",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "category": "sys",
       "description": "Creates new skills for robOS. Walks through purpose, triggers, reference materials, drafts SKILL.md with proper frontmatter, creates directory structure, and validates with a test run.",
       "triggers": [
@@ -866,7 +866,7 @@
         "Updated skills/_catalog/catalog.json"
       ],
       "modes": [],
-      "last_modified": "2026-05-05T05:19:03.228Z"
+      "last_modified": "2026-05-05T22:13:58.454Z"
     },
     {
       "name": "tool-humanizer",

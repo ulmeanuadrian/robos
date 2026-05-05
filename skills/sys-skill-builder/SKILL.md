@@ -1,6 +1,6 @@
 ---
 name: sys-skill-builder
-version: 1.0.0
+version: 1.1.0
 category: sys
 description: "Creates new skills for robOS. Walks through purpose, triggers, reference materials, drafts SKILL.md with proper frontmatter, creates directory structure, and validates with a test run."
 triggers:
@@ -101,11 +101,31 @@ Write all files to disk.
 
 # Step 6: Register the Skill
 
-Update `skills/_catalog/catalog.json`:
-- Add the new skill entry with `"core": false, "installed": true`
+The skill is now on disk at `skills/{name}/SKILL.md`. Two things make it
+discoverable:
 
-Update the Skill Registry table in `AGENTS.md`:
-- Add a row: `| {name} | {version} | {category} | {one-line description} |`
+1. **Regenerate the index** (single source of truth):
+   ```bash
+   node scripts/rebuild-index.js
+   ```
+   This rebuilds `skills/_index.json` from the filesystem. The dashboard
+   and the UserPromptSubmit hook (skill-route.js) read from this file.
+
+2. **Optionally add to catalog** (if this skill should be installable
+   on other workspaces). Edit `skills/_catalog/catalog.json` and append:
+   ```json
+   {
+     "name": "{name}",
+     "category": "{category}",
+     "description": "{one-line description}",
+     "core": false
+   }
+   ```
+   Do NOT add `"installed": true` — that field is derived from the
+   filesystem (the catalog `_note` explicitly forbids it). Do NOT add
+   a row to AGENTS.md (no such table exists; the registry is _index.json).
+
+If the skill is local-only and you don't need it shareable, skip step 2.
 
 # Step 7: Test Run
 
