@@ -1,219 +1,367 @@
 # robOS
 
-Transforma Claude Code in sistemul tau operativ agentic.
+Sistem de operare agentic pentru Claude Code. Da unui singur operator AI memorie persistenta, skills instalabile, context de brand, scheduler cron si workspace-uri multi-client izolate.
 
-robOS da lui Claude Code memorie persistenta de brand, metodologii de skill-uri testate, automatizare programata si un centru de comanda vizual. Functioneaza ca un partener de business care iti cunoaste vocea, audienta si fluxul de lucru -- din prima zi.
+**Versiune actuala:** 0.3.0
+**Status:** alpha — folosibil pentru content/automation, in dezvoltare activa.
 
 ---
 
-## Start rapid
+## Cuprins
+
+1. [Instalare](#instalare)
+2. [Structura](#structura)
+3. [Skills](#skills)
+4. [Memorie zilnica](#memorie-zilnica)
+5. [Cron / joburi programate](#cron--joburi-programate)
+6. [Multi-client](#multi-client)
+7. [Dashboard (Command Centre)](#dashboard-command-centre)
+8. [Update](#update)
+9. [Configuratie](#configuratie)
+10. [Troubleshooting](#troubleshooting)
+11. [Stack tehnic](#stack-tehnic)
+
+---
+
+## Instalare
+
+**Cerinte**: Node >= 20, Claude Code CLI ([install](https://docs.anthropic.com/en/docs/claude-code)), git.
 
 ```bash
-git clone https://<TOKEN>@github.com/your-org/robos.git
+git clone <repo-url> robos
 cd robos
 bash scripts/setup.sh
 bash scripts/start.sh
 ```
 
-Setup-ul verifica sistemul, instaleaza dependentele (~30 secunde) si pune doua intrebari: numele tau si business-ul tau. Apoi deschide `http://localhost:3000` -- esti gata.
+Setup-ul:
+1. Verifica Node si Claude CLI
+2. Instaleaza dependentele Centre (`npm install`)
+3. Build dashboard (Astro static)
+4. Initializeaza SQLite (`data/robos.db`)
+5. Genereaza `skills/_index.json`
+6. Cere numele tau si business-ul, scrie `context/USER.md`
 
-La prima pornire, dashboard-ul detecteaza ca esti nou si te ghideaza prin construirea fundatiei de brand: voce, audienta si pozitionare.
-
----
-
-## Ce primesti
-
-### 1. Memorie de brand care te urmareste peste tot
-
-Claude Projects functioneaza doar pe claude.ai. Contextul de brand robOS functioneaza pe orice suprafata Claude -- CLI, VS Code, Desktop, Web. Profilul de voce, audienta si pozitionarea se incarca automat in fiecare sesiune.
-
-### 2. Metodologii de skill-uri testate
-
-Claude Code are infrastructura de skill-uri. robOS o umple cu procese testate. Skill-ul de copywriting nu doar "scrie copy" -- urmeaza un framework, incarca vocea de brand, noteaza output-ul pe 7 dimensiuni si elimina pattern-urile AI automat.
-
-**16 skill-uri pre-instalate:**
-
-| Skill | Ce face |
-|-------|---------|
-| `sys-onboard` | Onboarding interactiv in 15 min (starter pack + interviu + first win) |
-| `sys-audit` | Scor 4C (Context/Connections/Capabilities/Cadence) din 100 |
-| `sys-daily-plan` | Planificare zilnica din memorie + prioritati |
-| `sys-level-up` | 5 intrebari ca sa gasesti ce sa automatizezi |
-| `brand-voice` | Extrage sau construieste vocea de brand (4 moduri) |
-| `brand-audience` | Defineste clientul ideal prin interviu sau research |
-| `brand-positioning` | Gaseste unghiul care te diferentiaza |
-| `content-blog-post` | Articole SEO cu keyword research si humanizer |
-| `content-copywriting` | Copy persuasiv cu scoring pe 7 dimensiuni |
-| `content-repurpose` | Un continut -> posturi native pt 8 platforme |
-| `research-trending` | Trenduri din Reddit, X, HN, YouTube (ultimele 30 zile) |
-| `research-competitors` | Analiza competitori: mesaje, preturi, diferentiere |
-| `tool-humanizer` | Sterge 10 tipuri de pattern-uri AI din text |
-| `sys-skill-builder` | Creeaza skill-uri custom pentru business-ul tau |
-| `sys-session-close` | Captura de memorie si feedback la sfarsit de sesiune |
-| `sys-goal-breakdown` | Sparge obiective in task-uri pe 3 nivele de complexitate |
-
-**11 skill-uri aditionale** disponibile in catalog (email sequences, newsletter, keyword research, case study, landing page si altele).
-
-### 3. Invatare per skill
-
-Feedback-ul se acumuleaza per skill, nu intr-un blob generic. Corectiile la output-ul de copywriting nu polueaza skill-ul de SEO. Dupa 30 de zile, fiecare skill e masurabil mai bun decat in prima zi.
-
-### 4. Centru de comanda vizual
-
-Un dashboard lightweight (Astro + Svelte, < 80KB JS) care iti arata totul dintr-o privire:
-
-| Tab | Ce arata |
-|-----|----------|
-| **Home** | Task-uri active, coada de review, activitate recenta, sanatatea sistemului |
-| **Tasks** | Board Kanban (Backlog, Active, Review, Done) cu detalii slide-out |
-| **Schedule** | Job-uri cron cu istoric rulari, cost per rulare, pauza/reluare |
-| **Skills** | Skill-uri instalate + catalog cu cele disponibile |
-| **Files** | Browse context/, brand/, projects/ -- citeste orice fisier |
-| **Settings** | Variabile de mediu, config MCP, setari Claude |
-
-Cold start: sub 300ms. Fara dev server -- asset-uri statice built pentru productie.
-
-### 5. Automatizare programata
-
-Defineste job-uri ca fisiere JSON in `cron/jobs/`. Scheduler-ul le ruleaza headless prin `claude -p` si urmareste rezultatele in dashboard.
-
-```json
-{
-  "name": "daily-research",
-  "schedule": "0 9 * * 1-5",
-  "skill": "research-trending",
-  "args": {"topic": "AI automation"},
-  "enabled": true
-}
-```
-
-Gestioneaza din dashboard sau CLI:
-```bash
-bash scripts/start-crons.sh    # porneste scheduler-ul
-bash scripts/status-crons.sh   # verifica ce ruleaza
-bash scripts/stop-crons.sh     # opreste programarea
-```
-
-### 6. Clienti multipli
-
-Fiecare client primeste context de brand izolat, memorie, proiecte si job-uri programate. Zero contaminare incrucisata.
-
-```bash
-bash scripts/add-client.sh "Acme Corp"
-cd clients/acme-corp && claude
-```
-
-Schimba clientul din dropdown-ul dashboard-ului sau navigand in alt director.
+Dashboard la `http://localhost:3001`.
 
 ---
 
-## Cum functioneaza
-
-**Claude Code e unde lucrezi. Dashboard-ul e unde vezi si controlezi.**
-
-```
-Tu (terminal)               Dashboard (browser)
-     |                           |
-     v                           v
-  claude                   localhost:3000
-     |                           |
-     +--- citeste CLAUDE.md -----+--- arata status
-     |    citeste brand/         |    arata task-uri
-     |    foloseste skills/      |    gestioneaza cron
-     |    scrie in projects/     |    browse fisiere
-     |    scrie in memory/       |    editeaza setari
-     |                           |
-     +------ filesystem comun ---+
-```
-
-Dashboard-ul urmareste filesystem-ul pentru schimbari. Cand Claude scrie un fisier, dashboard-ul il preia. Cand creezi un job cron in dashboard, scheduler-ul il ruleaza prin Claude CLI.
-
----
-
-## Structura fisierelor
+## Structura
 
 ```
 robos/
+  AGENTS.md           Reguli partajate (limba, output, categorii skills)
+  CLAUDE.md           Instructiuni Claude Code (lifecycle sesiune)
+  VERSION             Versiunea curenta
+  CHANGELOG.md        Istoric schimbari
+
+  brand/              Context de brand (citit de skills)
+    voice.md          Profil voce (6 dimensiuni)
+    audience.md       Profil ICP
+    positioning.md    Unghiuri de diferentiere
+    samples.md        Exemple de continut
+
   context/
-    SOUL.md              Personalitatea agentului
-    USER.md              Profilul tau (generat la setup)
-    priorities.md        Prioritati trimestriale
-    learnings.md         Acumulare feedback per skill
-    audits/              Istoric scoruri 4C
-    memory/              Jurnale zilnice de sesiune
-  brand/
-    voice.md             Profil voce de brand (6 dimensiuni)
-    audience.md          Profil client ideal
-    positioning.md       Unghiuri de diferentiere
-    samples.md           Exemple de continut
-  connections.md         Inventar tool-uri conectate (7 domenii)
-  skills/                Pachete de skill-uri instalate
-  projects/              Tot output-ul generat
-  cron/jobs/             Definitii job-uri programate
-  clients/               Workspace-uri multi-client
-  centre/                Aplicatia dashboard (Astro + Svelte)
-  scripts/               Setup, start, update, management
-  CLAUDE.md              Instructiuni pentru Claude Code
-  AGENTS.md              Reguli comune ale proiectului
+    SOUL.md           Personalitatea agentului
+    USER.md           Profilul tau (generat la setup)
+    priorities.md     Prioritati trimestriale
+    learnings.md      Acumulare feedback per skill
+    audits/           Istoric scoruri 4C
+    memory/           Jurnale zilnice (YYYY-MM-DD.md)
+      _archive/       Arhive lunare (rollup automat)
+
+  connections.md      Inventar tool-uri conectate (7 domenii)
+
+  skills/             Skills instalate (citite la sesiune)
+    _index.json       Generated: registry single-source-of-truth
+    _catalog/         Catalog skills disponibile pentru instalare
+      catalog.json    Manifest catalog
+      starter-packs/  Template-uri brand (consultant, agency, etc.)
+
+  projects/           Output din skills
+  clients/            Workspace-uri per client (izolate)
+  cron/
+    jobs/             Definitii joburi JSON (optional, importate in DB)
+    logs/             Loguri executie
+    status/           PID daemon, status fisiere
+
+  centre/             Command Centre (Astro + Svelte + SQLite)
+  scripts/            Setup, start, update, management skills + clients
+  data/               SQLite + cache-uri (audit cache, etc.)
+  .env                Chei API (gitignored)
 ```
 
 ---
 
-## Gestionare skill-uri
+## Skills
+
+Skills sunt unitati de comportament cu instructiuni step-by-step. Fiecare are un `SKILL.md` cu:
+- **Frontmatter YAML** (nume, versiune, categorie, triggers, context_loads, inputs, outputs)
+- **Body markdown** cu pasi numerotati pe care Claude ii urmeaza
+
+### Categorii
+
+| Prefix | Scop |
+|--------|------|
+| `brand-` | Voce, audienta, pozitionare |
+| `content-` | Articole, copy, repurpose |
+| `research-` | Trenduri, competitori |
+| `sys-` | Onboard, audit, plan, close, skill builder |
+| `tool-` | Integrari externe (humanizer, WhatsApp, Drive) |
+
+### Listare
 
 ```bash
-bash scripts/list-skills.sh                    # vezi instalate + disponibile
-bash scripts/add-skill.sh content-copywriting  # instaleaza din catalog
-bash scripts/remove-skill.sh content-seo       # sterge un skill
+bash scripts/list-skills.sh              # vezi instalate + disponibile
+bash scripts/add-skill.sh <nume>          # instaleaza din catalog
+bash scripts/remove-skill.sh <nume>       # sterge (cu confirmare)
+node scripts/rebuild-index.js             # regenereaza _index.json manual
 ```
 
-Sau din dashboard: tab-ul Skills > catalog > Instaleaza.
+Skills se activeaza prin limbaj natural, exemple:
+
+| Spune | Ruleaza |
+|-------|---------|
+| "ajuta-ma sa incep" | sys-onboard |
+| "audit" / "cum stau" | sys-audit |
+| "plan de zi" | sys-daily-plan |
+| "level up" | sys-level-up |
+| "scrie un articol despre X" | content-blog-post |
+| "scrie copy pentru landing X" | content-copywriting |
+| "fa posturi din asta" | content-repurpose |
+| "umanizeaza textul" | tool-humanizer |
+| "analiza competitori" | research-competitors |
+| "ce e trend in X" | research-trending |
+| "creeaza un skill" | sys-skill-builder |
+| "gata" / "merci, gata" | sys-session-close |
+
+### Cum se construieste un skill nou
+
+```bash
+# In Claude Code:
+"Creeaza un skill care face X"
+# -> sys-skill-builder porneste
+```
+
+Sau manual: `mkdir skills/my-skill && touch skills/my-skill/SKILL.md`, completeaza frontmatter conform [AGENTS.md](AGENTS.md), apoi `node scripts/rebuild-index.js`.
 
 ---
 
-## Actualizare
+## Memorie zilnica
+
+Fiecare zi primeste un fisier: `context/memory/YYYY-MM-DD.md` cu sectiunile:
+
+```markdown
+## Session N
+
+### Goal
+(Ce voia userul sa faca)
+
+### Deliverables
+(Fisiere create, lucruri publicate)
+
+### Decisions
+(Alegeri facute si de ce)
+
+### Open Threads
+(Lucruri incepute si neterminate)
+```
+
+**Auto-tracking** (tacit, fara anunt):
+- Cand un goal devine clar → `### Goal`
+- Cand creezi/modifici un fisier → `### Deliverables`
+- Cand iei o decizie → `### Decisions`
+- Cand amani ceva → `### Open Threads`
+
+**Rollup lunar** (cu skill-ul `sys-archive-memory`): la sfarsit de luna, fisierele zilnice sunt mutate in `_archive/{YYYY-MM}/` si un sumar e generat la `_archive/{YYYY-MM}.md`. Pastreaza directorul principal mic.
+
+---
+
+## Cron / joburi programate
+
+**Arhitectura (v0.3.0)**: scheduler-ul ruleaza **in-process in dashboard-ul Centre**. Cand pornesti `bash scripts/start.sh`, cron-ul porneste cu el. **Sursa de adevar**: tabela SQLite `cron_jobs`.
+
+### Trei cai sa creezi joburi
+
+1. **Dashboard** (recomandat): tab Schedule → buton "+ Job nou" → completezi formul → submit. Validare instant.
+2. **Fisier JSON** (pentru git tracking): pune `cron/jobs/{nume}.json` cu formatul de mai jos. Scheduler-ul il importa in DB la pornire (idempotent).
+3. **API direct**: `POST /api/cron` cu JSON body.
+
+Format JSON:
+```json
+{
+  "name": "daily-blog-post",
+  "schedule": "0 9 * * 1-5",
+  "skill": "content-blog-post",
+  "args": {"topic": "auto"},
+  "enabled": true,
+  "timeout": "30m",
+  "retries": 2,
+  "clientId": "acme-corp"
+}
+```
+
+### Comenzi
+
+```bash
+bash scripts/start.sh           # porneste dashboard + scheduler in-process
+bash scripts/status-crons.sh    # vezi joburi + ultima rulare
+bash scripts/stop.sh            # opreste tot
+
+bash scripts/start-crons.sh     # OPTIONAL: daemon standalone (numai daca nu vrei dashboard)
+bash scripts/stop-crons.sh      # opreste daemon standalone
+```
+
+### Features cron
+
+- **Run Now** din dashboard lanseaza `claude -p` instant
+- **Validare schedule** la POST/PATCH (cron string invalid → 400)
+- **Retry policy**: 30s/2min/8min backoff exponential pentru rulari programate
+- **Cwd per-client**: jobul cu `clientId` ruleaza in `clients/{clientId}/`
+- **Notificari live**: SSE catre dashboard (toast la start/completed)
+- **Vezi log per run**: tabela istoric → buton "Vezi"
+- **Edit/Delete** din UI
+
+Test end-to-end: `bash tests/cron-e2e.sh` (cu serverul pornit).
+
+---
+
+## Multi-client
+
+Fiecare client e un sub-workspace izolat:
+
+```bash
+bash scripts/add-client.sh acme-corp "Acme Corp"
+cd clients/acme-corp && claude
+```
+
+Creeaza:
+```
+clients/acme-corp/
+  brand/        # Voce, audienta, positioning specifice clientului
+  context/      # USER.md, learnings, memorie izolata
+  projects/     # Livrabile pentru acest client
+  cron/jobs/    # Joburi specifice clientului
+  CLAUDE.md     # Instructiuni: incarca brand/ si context/ de aici, nu din root
+```
+
+Schimbare client: `cd clients/{slug}` — Claude detecteaza automat din `CLAUDE.md` ca lucreaza in scope-ul clientului.
+
+---
+
+## Dashboard (Command Centre)
+
+Aplicatie statica Astro + Svelte servita de Node, ruleaza la `localhost:3001`.
+
+| Tab | Ce arata |
+|-----|----------|
+| **Home** | Task-uri active, coada review, sanatate sistem |
+| **Tasks** | Kanban (Backlog, Active, Review, Done) |
+| **Schedule** | Joburi cron + istoric rulari (in dezvoltare) |
+| **Skills** | Skills instalate + catalog disponibil |
+| **Files** | Browser pentru `context/`, `brand/`, `projects/` |
+| **Settings** | Variabile env, config MCP, setari Claude |
+
+Cold start sub 300ms. Build static (nu dev server). Update live prin Server-Sent Events.
+
+---
+
+## Update
 
 ```bash
 bash scripts/update.sh
 ```
 
-Descarca cele mai noi skill-uri, metodologii si imbunatatiri ale dashboard-ului. Contextul de brand, memoria, proiectele si cheile API nu sunt niciodata suprascrise.
+Face:
+1. Backup `data/robos.db`
+2. `git pull --ff-only`
+3. Re-instaleaza dependinte daca `centre/` s-a schimbat
+4. Regenereaza `skills/_index.json`
+5. Listeaza skills noi in catalog
 
-Daca un skill pe care l-ai personalizat are schimbari upstream, vei vedea un diff si alegi per-skill: accepti upstream sau pastrezi al tau.
-
----
-
-## Chei API
-
-Majoritatea skill-urilor functioneaza fara chei API. Unele sunt imbunatatite cu servicii externe. Toate cheile merg in `.env`.
-
-```bash
-cat .env.example    # vezi cheile disponibile cu descrieri
-```
-
-Skill-urile iti spun cand ar putea folosi o cheie si ofera intotdeauna un fallback.
+**Fisiere protejate** (nu sunt rescrise niciodata): `context/USER.md`, `context/learnings.md`, `context/memory/*`, `brand/*`, `clients/*`, `projects/*`, `cron/jobs/*`, `data/*`, `.env`.
 
 ---
 
-## Datele tale sunt in siguranta
+## Configuratie
 
-Nu sunt niciodata suprascrise de update-uri:
-- `brand/` -- vocea, audienta, pozitionarea ta
-- `context/` -- memoria, learnings, istoricul sesiunilor
-- `projects/` -- tot ce a fost generat pentru tine
-- `clients/` -- toate workspace-urile de client
-- `.env` -- cheile tale API (gitignored)
+### Chei API (`.env`)
+
+Vezi `.env.example` pentru lista completa. Skills functioneaza fara chei (cu degradare gratiata) — cheile imbunatatesc capabilitatile.
+
+**Importante:**
+- `PORT` — portul dashboard (default 3001)
+- `FIRECRAWL_API_KEY` — research web (research-trending, brand-voice auto-scrape)
+- `OPENAI_API_KEY` / `XAI_API_KEY` — research social (Reddit, X)
+- `WHATSAPP_ACCESS_TOKEN` + `WHATSAPP_PHONE_NUMBER_ID` — skill `tool-whatsapp`
+- `GOOGLE_DRIVE_SERVICE_ACCOUNT_JSON` — skill `tool-drive`
+
+### Limba
+
+robOS e configurat in romana (vezi politica completa in [AGENTS.md](AGENTS.md)). Triggers skills sunt bilingv (RO + EN), output catre operator e in romana, output catre audienta straina respecta limba audientei.
+
+### Configurare brand
+
+Dupa instalare, fie:
+- Spune "ajuta-ma sa incep" → `sys-onboard` ruleaza un interviu de 15 min
+- Sau editeaza manual `brand/voice.md`, `brand/audience.md`, `brand/positioning.md`
+
+`brand-voice` are 4 moduri: `import` (paste guidelines), `extract` (din continut existent), `build` (interviu), `auto-scrape` (din URL).
+
+---
+
+## Troubleshooting
+
+**Dashboard nu porneste / "site can't be reached"**
+- Verifica portul: `cat .command-centre/server.log` — prima linie zice ce port asculta
+- Default e 3001. Daca `.env` are alt port, dashboard-ul deschide acel port.
+- Conflict de port: `PORT=3002 bash scripts/start.sh`
+
+**Skill nu se declanseaza pe trigger**
+- `cat skills/_index.json | jq '.triggers'` — vezi mapping-ul
+- Daca trigger-ul nu apare, regenereaza: `node scripts/rebuild-index.js`
+- Triggers sunt advisory pentru Claude — nu sunt routare hard. Daca continua sa nu mearga, foloseste numele explicit: "ruleaza skill-ul X"
+
+**Cron daemon nu ruleaza joburile**
+- `bash scripts/status-crons.sh` — vezi daemon status si joburi din DB
+- `tail -50 cron/logs/daemon-$(date +%Y-%m-%d).log` — log daemon
+- Joburile JSON din `cron/jobs/` sunt importate in DB la pornire. Daca dashboard-ul si daemon-ul vad joburi diferite, restarteaza daemon-ul: `bash scripts/stop-crons.sh && bash scripts/start-crons.sh`
+
+**"Skill X is in catalog but not installed"**
+- `bash scripts/add-skill.sh X` — instaleaza
+- Daca esueaza cu "not found in catalog", catalogul a fost editat manual. Verifica `skills/_catalog/X/SKILL.md` exista.
+
+**Audit lent (>5s)**
+- Cache-ul foloseste mtime hash. Verifica: `node scripts/audit-cache.js status`
+- Daca returneaza MISS la fiecare rulare, vezi de ce: probabil un fisier de input se modifica (auto-save din alt proces).
+- Force refresh: `node scripts/audit-cache.js clear` apoi runeaza din nou.
+
+**Memorie balooneaza (multe fisiere in `context/memory/`)**
+- Ruleaza `sys-archive-memory` (instaleaza din catalog daca nu e deja)
+- Sau cron lunar: vezi exemplul in skill-ul `sys-archive-memory`
 
 ---
 
 ## Stack tehnic
 
-- **Dashboard**: Astro 5 + Svelte 5 islands + Tailwind 4
-- **Baza de date**: SQLite (better-sqlite3, WAL mode)
-- **Server**: Node.js production server (nu dev server)
-- **Programare**: croner library
-- **Update-uri live**: Server-Sent Events (SSE)
+- **Dashboard**: Astro 6 + Svelte 5 islands + Tailwind 4
+- **Backend**: Node.js 20+, http nativ (fara framework)
+- **DB**: SQLite (better-sqlite3, WAL mode, busy_timeout 5s)
+- **Cron**: croner library, daemon Node separat
+- **Update live**: Server-Sent Events (SSE)
+- **Static build**: Astro produce `dist/`, server-ul Node il serveste
 
 ---
 
-Construit de RoboMarketing
+## Note de design
+
+- **Filesystem ca sursa de adevar**: skills, brand, memorie sunt fisiere markdown editabile manual. SQLite are doar tasks, cron jobs si runs (efemere).
+- **Single source of truth pentru registry**: `skills/_index.json` generat din `skills/*/SKILL.md`. NU edita manual.
+- **Degradare gratiata**: skills functioneaza fara brand, fara connections, fara API keys — outputul scade in calitate dar nu pica.
+- **Limba**: romana peste tot (operator, docs, scripturi). Bilingv unde util (skill triggers).
+
+---
+
+## Licenta
+
+Privat. Construit de RoboMarketing.
