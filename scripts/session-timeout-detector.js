@@ -95,8 +95,11 @@ async function main() {
   ensureDir(STATE_DIR);
   ensureDir(DATA_DIR);
 
+  // Match any *.json marker except -checkpoint.json companions.
+  // Earlier regex /^[^-]+\.json$/ excluded UUIDs (which always contain dashes),
+  // so the detector silently never matched a real session marker.
   const markers = existsSync(STATE_DIR)
-    ? readdirSync(STATE_DIR).filter(f => /^[^-]+\.json$/.test(f) && !f.endsWith('-checkpoint.json'))
+    ? readdirSync(STATE_DIR).filter(f => f.endsWith('.json') && !f.endsWith('-checkpoint.json'))
     : [];
 
   const abandoned = [];
