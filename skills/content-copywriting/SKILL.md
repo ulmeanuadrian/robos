@@ -48,6 +48,21 @@ outputs:
   - data/skill-telemetry.ndjson (appended in mode=options)
 ---
 
+# Output Discipline
+
+In transcriptul vizibil userului apare:
+1. (Ambele moduri) Confirmari interactive: format clarification (daca ambiguu), awareness level confirmation, multi-angle cost confirmation (~3x).
+2. (Default mode) Mesaj final cu path + framework + score + headline + CTA.
+3. (Mode=options) 3 variante prezentate cu framework per variant + headline + characteristic.
+
+**Reguli stricte:**
+- NU folosi TodoWrite.
+- NU anunta "Step 1: load brand", "Step 2: awareness", etc.
+- NU rula generarea de copy direct din main thread — totul prin sub-agent (default sau multi-angle).
+- In multi-angle: cele 3 invocari `Agent` TREBUIE SA FIE INTR-UN SINGUR mesaj.
+
+---
+
 # Mode selection (main thread, first decision)
 
 Verifica daca user a cerut multi-angle:

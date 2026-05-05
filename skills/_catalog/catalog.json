@@ -1,7 +1,7 @@
 {
-  "version": "1.1.0",
+  "version": "1.2.0",
   "updated": "2026-05-05",
-  "_note": "Acest catalog listeaza skill-urile disponibile pentru instalare. Statusul 'installed' se deriva din filesystem (skills/{name}/SKILL.md). Nu pune campul 'installed' aici.",
+  "_note": "Acest catalog listeaza skill-urile disponibile pentru instalare. Statusul 'installed' se deriva din filesystem (skills/{name}/SKILL.md). Nu pune campul 'installed' aici. Campul 'concurrency_pattern' (optional) indica skill-uri paralelizate — vezi AGENTS.md > Concurrency Patterns.",
   "skills": [
     {
       "name": "brand-voice",
@@ -25,19 +25,22 @@
       "name": "sys-onboard",
       "category": "sys",
       "description": "Onboarding interactiv: starter pack, interviu in 5 intrebari, personalizare brand, rulare prima skill",
-      "core": true
+      "core": true,
+      "concurrency_pattern": "multi-asset-generation"
     },
     {
       "name": "sys-audit",
       "category": "sys",
       "description": "Scor 4C (Context, Connections, Capabilities, Cadence) din 100 cu loop de revizie automata",
-      "core": true
+      "core": true,
+      "concurrency_pattern": "pillar-fan-out"
     },
     {
       "name": "sys-level-up",
       "category": "sys",
       "description": "5 intrebari de descoperire pentru a gasi urmatoarea oportunitate de automatizare",
-      "core": true
+      "core": true,
+      "concurrency_pattern": "adversarial-synthesis"
     },
     {
       "name": "sys-daily-plan",
@@ -72,8 +75,9 @@
     {
       "name": "content-blog-post",
       "category": "content",
-      "description": "Articole blog optimizate SEO, aliniate la voce si audienta",
-      "core": false
+      "description": "Articole blog optimizate SEO, aliniate la voce si audienta. Mode=options pentru 3 variante stilistice paralele.",
+      "core": false,
+      "concurrency_pattern": "multi-angle-creativity"
     },
     {
       "name": "content-social-post",
@@ -84,8 +88,9 @@
     {
       "name": "content-repurpose",
       "category": "content",
-      "description": "Transforma un singur continut in posturi native pentru 8 platforme sociale",
-      "core": false
+      "description": "Transforma un singur continut in posturi native pentru 8 platforme sociale. Generare paralela per platforma.",
+      "core": false,
+      "concurrency_pattern": "multi-asset-generation"
     },
     {
       "name": "content-email-sequence",
@@ -96,8 +101,9 @@
     {
       "name": "content-copywriting",
       "category": "content",
-      "description": "Copy persuasiv cu scoring pe 7 dimensiuni pentru landing pages, ads, emails",
-      "core": false
+      "description": "Copy persuasiv cu scoring pe 7 dimensiuni pentru landing pages, ads, emails. Mode=options pentru 3 variante stilistice paralele.",
+      "core": false,
+      "concurrency_pattern": "multi-angle-creativity"
     },
     {
       "name": "content-newsletter",
@@ -120,14 +126,16 @@
     {
       "name": "research-competitors",
       "category": "research",
-      "description": "Analiza competitori cu mesaj, preturi, feature comparison si gap detection",
-      "core": false
+      "description": "Analiza competitori cu mesaj, preturi, feature comparison si gap detection. 1 agent per competitor in paralel.",
+      "core": false,
+      "concurrency_pattern": "mapreduce-research"
     },
     {
       "name": "research-trending",
       "category": "research",
-      "description": "Scaneaza web, social, news pentru trenduri emergente intr-o nisa",
-      "core": false
+      "description": "Scaneaza web, social, news pentru trenduri emergente intr-o nisa. 5 surse paralele + synthesizer.",
+      "core": false,
+      "concurrency_pattern": "mapreduce-research"
     },
     {
       "name": "research-keyword",

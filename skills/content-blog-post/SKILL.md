@@ -45,6 +45,21 @@ outputs:
   - data/skill-telemetry.ndjson (appended in mode=options)
 ---
 
+# Output Discipline
+
+In transcriptul vizibil userului apare:
+1. (Ambele moduri) Confirmari interactive necesare: keywords (daca auto-researched), outline (default mode), confirmation pentru multi-angle (~3x cost).
+2. (Default mode) Mesaj final cu path + word count + score + headline + meta.
+3. (Mode=options) 3 variante prezentate side-by-side cu characteristic + score per variant.
+
+**Reguli stricte:**
+- NU folosi TodoWrite.
+- NU anunta "Step 1: load brand", "Step 2: keywords", etc.
+- NU rula WebSearch direct din main thread — research delegat in sub-agent.
+- In multi-angle: cele 3 invocari `Agent` TREBUIE SA FIE INTR-UN SINGUR mesaj.
+
+---
+
 # Mode selection (main thread, first decision)
 
 Verifica daca user a cerut explicit multi-angle:
