@@ -4,18 +4,21 @@ version: 1.0.0
 category: content
 description: "Write SEO-optimized blog posts matched to brand voice. Includes keyword research, competitive gap analysis, structured outline, humanizer pass, and full meta tag generation."
 triggers:
+  - "scrie un articol"
+  - "blog despre"
+  - "articol SEO"
+  - "draft blog"
   - "write a blog post"
-  - "draft a post about"
-  - "SEO article"
-  - "blog about"
-  - "write an article"
   - "blog post about"
+  - "SEO article"
+  - "write an article"
 negative_triggers:
-  - "social post"
+  - "post social"
   - "landing page"
   - "email"
   - "ad copy"
   - "repurpose"
+  - "social post"
 context_loads:
   - brand/voice.md (reads)
   - brand/audience.md (reads)

@@ -4,18 +4,18 @@ version: 1.0.0
 category: research
 description: "Analyze competitor messaging, positioning, and pricing. Scrapes competitor sites, builds a comparison matrix, identifies market gaps, and recommends differentiators."
 triggers:
+  - "analiza competitori"
+  - "ce zic concurentii"
   - "competitor analysis"
-  - "analyze competitors"
-  - "what are they saying"
+  - "cum se pozitioneaza ei"
+  - "compara-ne cu"
   - "competitive landscape"
-  - "how do they position"
-  - "compare us to"
   - "competitor research"
 negative_triggers:
   - "trending"
-  - "what's hot"
-  - "brand voice"
-  - "write copy"
+  - "trend"
+  - "voce de brand"
+  - "scrie copy"
 context_loads:
   - brand/positioning.md (reads, for comparison baseline)
   - brand/audience.md (reads, for overlap detection)

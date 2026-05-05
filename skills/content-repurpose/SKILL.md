@@ -4,18 +4,20 @@ version: 1.0.0
 category: content
 description: "Turn one piece of content into platform-native posts for LinkedIn, Twitter/X, Instagram, TikTok, YouTube, Threads, Bluesky, and Reddit. Extracts core atoms and adapts format, tone, and hooks per platform."
 triggers:
+  - "transforma in social"
+  - "fa posturi din asta"
+  - "calendar content"
+  - "fa un thread"
+  - "post LinkedIn din"
+  - "adapteaza pentru"
   - "repurpose this"
   - "turn this into social posts"
-  - "create social content from"
-  - "LinkedIn post from this"
-  - "content calendar"
-  - "make this a thread"
   - "social posts from"
-  - "adapt this for"
 negative_triggers:
-  - "write copy"
+  - "scrie copy"
   - "landing page"
   - "sales page"
+  - "articol"
   - "blog post"
   - "SEO article"
 context_loads:

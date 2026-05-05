@@ -4,17 +4,18 @@ version: 1.0.0
 category: brand
 description: "Build an Ideal Customer Profile through founder interview or competitor/market research. Outputs a structured audience document with demographics, psychographics, pain points, and buying triggers."
 triggers:
-  - "target audience"
-  - "buyer persona"
-  - "ideal customer"
+  - "audienta"
+  - "client ideal"
   - "ICP"
-  - "who am I selling to"
-  - "customer avatar"
+  - "cui ii vand"
+  - "buyer persona"
+  - "avatar client"
+  - "target audience"
   - "audience research"
-  - "who is my customer"
 negative_triggers:
+  - "voce de brand"
+  - "pozitionare"
   - "brand voice"
-  - "tone of voice"
   - "positioning"
   - "competitor landscape"
 context_loads:

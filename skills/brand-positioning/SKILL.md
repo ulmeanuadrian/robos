@@ -4,18 +4,20 @@ version: 1.0.0
 category: brand
 description: "Find the angle that makes a product or brand stand out. Researches competitors, maps the messaging landscape, generates positioning angles, and recommends the strongest one."
 triggers:
+  - "pozitionare"
+  - "diferentiere"
+  - "ce e hook-ul"
+  - "USP"
+  - "cum ma pozitionez"
+  - "fa-l sa iasa in evidenta"
+  - "unghi unic"
   - "positioning"
   - "differentiation"
-  - "what's the hook"
-  - "USP"
-  - "how should I position"
   - "make this stand out"
-  - "unique angle"
-  - "competitive positioning"
 negative_triggers:
+  - "voce de brand"
+  - "audienta"
   - "brand voice"
-  - "tone of voice"
-  - "audience research"
   - "buyer persona"
 context_loads:
   - brand/positioning.md (writes)

@@ -4,15 +4,19 @@ version: 1.0.0
 category: tool
 description: "Strip AI writing patterns from text. Detects and fixes 10 pattern categories across 3 modes: quick (obvious fixes), standard (full scan with scoring), and deep (voice-matched rewrite)."
 triggers:
+  - "umanizeaza"
+  - "fa-l natural"
+  - "sterge pattern AI"
+  - "suna prea AI"
+  - "curata textul"
   - "humanize this"
-  - "de-AI this"
   - "make this sound human"
   - "remove AI patterns"
-  - "clean up this copy"
   - "AI detection"
-  - "sounds too AI"
-  - "make it natural"
 negative_triggers:
+  - "voce de brand"
+  - "pozitionare"
+  - "tradu"
   - "brand voice"
   - "positioning"
   - "translate"

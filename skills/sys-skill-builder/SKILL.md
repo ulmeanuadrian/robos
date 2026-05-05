@@ -4,13 +4,19 @@ version: 1.0.0
 category: sys
 description: "Creates new skills for robOS. Walks through purpose, triggers, reference materials, drafts SKILL.md with proper frontmatter, creates directory structure, and validates with a test run."
 triggers:
+  - "creeaza un skill"
+  - "construieste un skill"
+  - "skill nou"
+  - "fa un skill"
+  - "adauga un skill"
+  - "skill builder"
   - "create a skill"
   - "build a skill"
   - "new skill"
-  - "make a skill"
-  - "add a skill"
-  - "skill builder"
 negative_triggers:
+  - "instaleaza un skill"
+  - "actualizeaza un skill"
+  - "sterge un skill"
   - "install a skill"
   - "update a skill"
   - "remove a skill"

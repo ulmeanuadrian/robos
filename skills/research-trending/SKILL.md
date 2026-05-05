@@ -4,20 +4,20 @@ version: 1.0.0
 category: research
 description: "Research what is trending in the last 30 days across Reddit, Twitter/X, Hacker News, YouTube, and industry blogs. Extracts discussions, pain points, opinions, and content gaps."
 triggers:
+  - "ce e trend"
+  - "ce se discuta despre"
+  - "trending in"
+  - "ultimele 30 zile"
+  - "dig into"
+  - "ce e hot in"
   - "research"
   - "what's trending"
-  - "what are people saying about"
-  - "trending in"
-  - "last 30 days"
-  - "dig into"
-  - "what's hot in"
   - "pulse check on"
 negative_triggers:
-  - "brand voice"
-  - "positioning"
-  - "write copy"
+  - "voce de brand"
+  - "pozitionare"
   - "competitor analysis"
-  - "analyze competitors"
+  - "analiza competitori"
 context_loads:
   - brand/audience.md (summary, for relevance filtering)
   - context/learnings.md (section research-trending)

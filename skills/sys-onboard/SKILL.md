@@ -4,15 +4,15 @@ version: 1.0.0
 category: sys
 description: "Interactive onboarding that populates all brand and context files in under 15 minutes. Selects a starter pack, personalizes it through a 5-question interview, and runs one skill live so the user sees real output on day one."
 triggers:
-  - "onboard me"
   - "ajuta-ma sa incep"
   - "configurare"
   - "pornire"
+  - "onboard me"
+  - "onboarding"
   - "set up my AIOS"
   - "get started"
   - "I just cloned this"
   - "help me set up"
-  - "onboarding"
   - "first time setup"
 negative_triggers:
   - "onboard a client"

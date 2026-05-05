@@ -4,19 +4,21 @@ version: 1.0.0
 category: brand
 description: "Extract or build a brand voice profile through 4 modes: import existing guidelines, extract from content, build via interview, or auto-scrape from URL."
 triggers:
+  - "voce de brand"
+  - "stil de scris"
+  - "ton brand"
+  - "analizeaza continutul meu"
+  - "ghid voce"
+  - "defineste vocea"
   - "brand voice"
-  - "writing style"
-  - "how should we sound"
   - "tone of voice"
-  - "analyze my content"
-  - "voice guide"
-  - "define our voice"
-  - "brand tone"
+  - "writing style"
 negative_triggers:
-  - "positioning"
-  - "audience research"
+  - "pozitionare"
+  - "audienta"
   - "keyword"
   - "competitor analysis"
+  - "positioning"
 context_loads:
   - brand/voice.md (writes)
   - brand/samples.md (writes)

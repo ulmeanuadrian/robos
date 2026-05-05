@@ -4,17 +4,22 @@ version: 1.0.0
 category: sys
 description: "Breaks a goal into actionable tasks. Classifies into 3 levels (single task, planned project, multi-phase GSD), creates briefs, and tracks tasks."
 triggers:
+  - "sparge in pasi"
+  - "planifica asta"
+  - "breakdown task"
+  - "ce pasi am"
+  - "din ce e format"
+  - "descompune"
   - "break this down"
   - "plan this out"
   - "scope this work"
-  - "task breakdown"
-  - "turn this into tasks"
   - "decompose this"
   - "what are the steps"
 negative_triggers:
+  - "analiza date"
   - "break down analytics"
-  - "break down the data"
   - "plan a blog post"
+  - "planifica un articol"
 context_loads:
   - projects/briefs/ (reads directory)
   - context/memory/YYYY-MM-DD.md (writes)
