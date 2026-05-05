@@ -7,7 +7,7 @@ import { dirname } from 'path';
 import { listTasks, createTask, getTask, updateTask, deleteTask } from './api/tasks.js';
 import { listJobs, createJob, updateJob, deleteJob, triggerRun, getHistory, getRunLog, getStatus as getCronStatus } from './api/cron.js';
 import { listSkills, listCatalog } from './api/skills.js';
-import { getAuditHistory, listMemory, getMemoryFile, saveMemoryFile, getLearnings, getConnectionHealth, runSkill } from './api/system.js';
+import { getAuditHistory, listMemory, getMemoryFile, saveMemoryFile, getLearnings, getConnectionHealth, runSkill, getActivity } from './api/system.js';
 import { listFiles, readFile } from './api/files.js';
 import { getEnv, setEnv, getMcp, setMcp } from './api/settings.js';
 import { getSummary, getHealth } from './api/dashboard.js';
@@ -230,6 +230,9 @@ async function handleApi(req, res, pathname, query) {
     }
     if (pathname === '/api/system/connections-health' && method === 'GET') {
       return json(res, await getConnectionHealth());
+    }
+    if (pathname === '/api/system/activity' && method === 'GET') {
+      return json(res, getActivity(query));
     }
 
     // Files

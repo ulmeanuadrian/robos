@@ -22,7 +22,21 @@
     mtime: string;
   };
 
-  let activeSection = $state<'audits' | 'memory' | 'learnings' | 'connections'>('audits');
+  let activeSection = $state<'activity' | 'audits' | 'memory' | 'learnings' | 'connections'>('activity');
+
+  // Activity log
+  type ActivityEntry = {
+    ts: string;
+    session: string;
+    user_prompt?: string;
+    assistant_summary?: string;
+    tool_actions?: string[];
+    cwd?: string;
+    git_branch?: string;
+  };
+  let activity = $state<{ count: number; entries: ActivityEntry[] }>({ count: 0, entries: [] });
+  let activityLoading = $state(true);
+  let activityFilter = $state('');
 
   // Audit history
   let audits = $state<{ startup: AuditEntry[]; session_timeouts: AuditEntry[]; learnings_reviews: AuditEntry[] }>({
@@ -50,6 +64,16 @@
   // Connection health
   let connHealth = $state<{ checked_at: string; results: ConnectionResult } | null>(null);
   let connLoading = $state(false);
+
+  async function loadActivity() {
+    activityLoading = true;
+    try {
+      const res = await fetch('/api/system/activity?limit=100');
+      if (res.ok) activity = await res.json();
+    } finally {
+      activityLoading = false;
+    }
+  }
 
   async function loadAudits() {
     auditsLoading = true;
@@ -129,6 +153,7 @@
 
   function selectSection(s: typeof activeSection) {
     activeSection = s;
+    if (s === 'activity' && activity.entries.length === 0) loadActivity();
     if (s === 'audits' && audits.startup.length === 0) loadAudits();
     if (s === 'memory' && memoryFiles.length === 0) loadMemoryList();
     if (s === 'learnings' && !learningsData.content) loadLearnings();
@@ -143,12 +168,15 @@
   }
 
   $effect(() => {
-    loadAudits();
+    loadActivity();
   });
 </script>
 
 <div class="system-panel">
   <nav class="section-nav">
+    <button class="nav-btn" class:active={activeSection === 'activity'} onclick={() => selectSection('activity')}>
+      Activitate
+    </button>
     <button class="nav-btn" class:active={activeSection === 'audits'} onclick={() => selectSection('audits')}>
       Audituri
     </button>
@@ -162,6 +190,51 @@
       Conexiuni
     </button>
   </nav>
+
+  {#if activeSection === 'activity'}
+    <div class="card section-card">
+      <h3>Activitate cross-session ({activity.count} entries)</h3>
+      <div class="activity-toolbar">
+        <input
+          class="activity-filter"
+          type="text"
+          placeholder="Filtreaza dupa text in user prompt..."
+          bind:value={activityFilter}
+        />
+        <button class="btn-primary" onclick={loadActivity} disabled={activityLoading}>
+          {activityLoading ? 'Se incarca...' : 'Refresh'}
+        </button>
+      </div>
+      {#if activity.entries.length === 0 && !activityLoading}
+        <p class="muted">Niciun entry inregistrat inca. Stop hook-ul activity-capture va popula acest log automat.</p>
+      {:else}
+        <div class="activity-list">
+          {#each activity.entries.filter(e => !activityFilter || (e.user_prompt || '').toLowerCase().includes(activityFilter.toLowerCase())) as entry}
+            <div class="activity-entry">
+              <div class="activity-header">
+                <span class="activity-time">{(entry.ts || '').slice(0, 16).replace('T', ' ')}</span>
+                <span class="activity-session">{(entry.session || '????').slice(0, 8)}</span>
+                {#if entry.git_branch}<span class="activity-branch">{entry.git_branch}</span>{/if}
+              </div>
+              {#if entry.user_prompt}
+                <div class="activity-user">{entry.user_prompt}</div>
+              {/if}
+              {#if entry.tool_actions && entry.tool_actions.length}
+                <div class="activity-tools">
+                  {#each entry.tool_actions as t}
+                    <span class="tool-chip">{t}</span>
+                  {/each}
+                </div>
+              {/if}
+              {#if entry.assistant_summary}
+                <div class="activity-assistant">{entry.assistant_summary}</div>
+              {/if}
+            </div>
+          {/each}
+        </div>
+      {/if}
+    </div>
+  {/if}
 
   {#if activeSection === 'audits'}
     <div class="card section-card">
@@ -482,6 +555,84 @@
     align-items: center;
     gap: var(--space-3);
     margin-bottom: var(--space-3);
+  }
+
+  .activity-toolbar {
+    display: flex;
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
+  }
+
+  .activity-filter {
+    flex: 1;
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    color: var(--color-text);
+    font-size: var(--text-sm);
+  }
+
+  .activity-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    max-height: 700px;
+    overflow-y: auto;
+  }
+
+  .activity-entry {
+    padding: var(--space-3) var(--space-4);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .activity-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+  }
+
+  .activity-time { font-weight: 600; }
+  .activity-session { font-family: ui-monospace, monospace; }
+  .activity-branch {
+    background: var(--color-surface-hover);
+    padding: 2px 6px;
+    border-radius: var(--radius-sm);
+  }
+
+  .activity-user {
+    font-size: var(--text-sm);
+    color: var(--color-text);
+    font-weight: 500;
+  }
+
+  .activity-assistant {
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+    border-left: 2px solid var(--color-border);
+    padding-left: var(--space-3);
+  }
+
+  .activity-tools {
+    display: flex;
+    gap: var(--space-1);
+    flex-wrap: wrap;
+  }
+
+  .tool-chip {
+    padding: 2px 8px;
+    background: var(--color-surface-hover);
+    border-radius: var(--radius-sm);
+    font-size: var(--text-xs);
+    font-family: ui-monospace, monospace;
+    color: var(--color-text);
   }
 
   .muted { color: var(--color-muted); }

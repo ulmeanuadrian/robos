@@ -164,6 +164,24 @@ function consumeRecoveryFile() {
 }
 
 /**
+ * Citeste ultimele N entries din activity-log.ndjson (cross-session activity).
+ * Returneaza un array (cele mai recente primele) sau [] daca lipseste.
+ */
+function readRecentActivity(limit = 5) {
+  const path = join(ROBOS_ROOT, 'data', 'activity-log.ndjson');
+  if (!existsSync(path)) return [];
+  try {
+    const content = readFileSync(path, 'utf-8');
+    const lines = content.split('\n').filter(l => l.trim()).slice(-limit).reverse();
+    return lines.map(l => {
+      try { return JSON.parse(l); } catch { return null; }
+    }).filter(Boolean);
+  } catch {
+    return [];
+  }
+}
+
+/**
  * Construieste bundle-ul de startup pentru primul prompt al sesiunii.
  */
 function buildStartupBundle() {
@@ -171,6 +189,7 @@ function buildStartupBundle() {
   const todayMem = readTodayMemory();
   const latest = findLatestMemoryFile();
   const recovery = consumeRecoveryFile();
+  const recentActivity = readRecentActivity(5);
 
   const lines = [];
   lines.push(`[STARTUP CONTEXT — primul prompt al sesiunii ${today}]`);
@@ -228,6 +247,22 @@ function buildStartupBundle() {
     }
   } else {
     lines.push('Niciun fisier de memorie existent — sesiune complet noua.');
+  }
+
+  // Recent cross-session activity (din data/activity-log.ndjson, alimentat de Stop hook)
+  if (recentActivity.length > 0) {
+    lines.push('');
+    lines.push(`Activitate recenta cross-session (ultimele ${recentActivity.length} actiuni):`);
+    for (const a of recentActivity) {
+      const when = (a.ts || '').slice(0, 16).replace('T', ' ');
+      const sess = (a.session || '????').slice(0, 8);
+      const userPreview = (a.user_prompt || '').slice(0, 80);
+      const tools = Array.isArray(a.tool_actions) && a.tool_actions.length
+        ? ` [${a.tool_actions.slice(0, 3).join(', ')}]`
+        : '';
+      lines.push(`  - ${when} (${sess}): "${userPreview}"${tools}`);
+    }
+    lines.push('Daca userul intreaba "ce am facut?" sau "ce s-a discutat in alta fereastra?", citeste data/activity-log.ndjson pentru mai multe detalii.');
   }
 
   lines.push('');

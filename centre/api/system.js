@@ -9,6 +9,7 @@ const LEARNINGS_FILE = join(workspaceRoot, 'context', 'learnings.md');
 const AUDIT_LOG = join(DATA_DIR, 'startup-audit.log');
 const TIMEOUT_LOG = join(DATA_DIR, 'session-timeout.log');
 const LEARNINGS_LOG = join(DATA_DIR, 'learnings-aggregate.log');
+const ACTIVITY_LOG = join(DATA_DIR, 'activity-log.ndjson');
 
 /**
  * Citeste un fisier NDJSON. Returneaza array de obiecte (cele mai recente primele).
@@ -37,6 +38,21 @@ export function getAuditHistory() {
     session_timeouts: readNdjson(TIMEOUT_LOG, 50),
     learnings_reviews: readNdjson(LEARNINGS_LOG, 20),
   };
+}
+
+/**
+ * GET /api/system/activity — recent cross-session activity (from activity-log.ndjson).
+ * Query: ?limit=N (default 50, max 500), ?since=YYYY-MM-DD (optional date filter)
+ */
+export function getActivity(query = {}) {
+  const limit = Math.min(parseInt(query.limit, 10) || 50, 500);
+  const since = query.since && /^\d{4}-\d{2}-\d{2}$/.test(query.since) ? query.since : null;
+
+  const entries = readNdjson(ACTIVITY_LOG, limit);
+  if (!since) return { count: entries.length, entries };
+
+  const filtered = entries.filter(e => (e.ts || '').slice(0, 10) >= since);
+  return { count: filtered.length, entries: filtered, since };
 }
 
 /**
