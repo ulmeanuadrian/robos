@@ -2,7 +2,7 @@
 
 Sistem de operare agentic pentru Claude Code. Da unui singur operator AI memorie persistenta, skills instalabile, context de brand, scheduler cron si workspace-uri multi-client izolate.
 
-**Versiune actuala:** 0.3.0
+**Versiune actuala:** 0.4.0
 **Status:** alpha — folosibil pentru content/automation, in dezvoltare activa.
 
 ---
@@ -12,14 +12,16 @@ Sistem de operare agentic pentru Claude Code. Da unui singur operator AI memorie
 1. [Instalare](#instalare)
 2. [Structura](#structura)
 3. [Skills](#skills)
-4. [Memorie zilnica](#memorie-zilnica)
-5. [Cron / joburi programate](#cron--joburi-programate)
-6. [Multi-client](#multi-client)
-7. [Dashboard (Command Centre)](#dashboard-command-centre)
-8. [Update](#update)
-9. [Configuratie](#configuratie)
-10. [Troubleshooting](#troubleshooting)
-11. [Stack tehnic](#stack-tehnic)
+4. [Hooks & enforcement layer](#hooks--enforcement-layer)
+5. [Concurrency framework](#concurrency-framework)
+6. [Memorie zilnica](#memorie-zilnica)
+7. [Cron / joburi programate](#cron--joburi-programate)
+8. [Multi-client](#multi-client)
+9. [Dashboard (Command Centre)](#dashboard-command-centre)
+10. [Update](#update)
+11. [Configuratie](#configuratie)
+12. [Troubleshooting](#troubleshooting)
+13. [Stack tehnic](#stack-tehnic)
 
 > **Pentru utilizare zilnica**, citeste **[docs/operator-handbook.md](docs/operator-handbook.md)** — cum se porneste/inchide o sesiune, cum functioneaza memoria si activity log, ce skill triggers exista, bune practici si troubleshooting.
 >
@@ -151,6 +153,42 @@ Sau manual: `mkdir skills/my-skill && touch skills/my-skill/SKILL.md`, completea
 
 ---
 
+## Hooks & enforcement layer
+
+Claude Code expune doua hook events pe care robOS le foloseste pentru a impune comportamentul, **nu doar a-l recomanda**:
+
+| Hook | Fisier | Ce face |
+|------|--------|---------|
+| **UserPromptSubmit** | [scripts/hook-user-prompt.js](scripts/hook-user-prompt.js) | La PRIMUL prompt al sesiunii: injecteaza STARTUP CONTEXT (memorie azi, recovery flags, open threads) ca system-reminder imposibil de ignorat. La fiecare prompt: ruleaza skill-route.js si injecteaza SKILL ROUTER hint daca matcheaza un trigger. |
+| **Stop** | [scripts/checkpoint-reminder.js](scripts/checkpoint-reminder.js) + [scripts/activity-capture.js](scripts/activity-capture.js) | Checkpoint-reminder ridica reminder cand memoria zilei n-a primit scriere recent (escalation in 3 trepte cu blocking dupa al 3-lea). Activity-capture scrie cross-session log la `data/activity-log.ndjson`. |
+
+Configurarea live in [.claude/settings.json](.claude/settings.json). Erori de hook ajung in `data/hook-errors.ndjson` (rotated 500 entries) — operator scaneaza cu `cat data/hook-errors.ndjson` daca ceva pare iesit din schema.
+
+**Cron complementar:**
+- `audit-startup` (zilnic 8:00): scaneaza memoria din ultimele 7 zile, raporteaza sesiuni abandoned
+- `session-timeout-detector` (15 min): detecteaza sesiuni abandoned > 2h, scrie recovery flag pentru next session
+- `learnings-aggregator` (saptamanal lunea): genereaza review din `context/learnings.md`
+
+---
+
+## Concurrency framework
+
+8 skills paralelizeaza intern prin sub-agenti opus paraleli pentru castig 3-5× wall-clock + calitate per-felie. 5 patterns documentate in [AGENTS.md > Concurrency Patterns](AGENTS.md#concurrency-patterns):
+
+| Pattern | Skill exemplu | Failure mode |
+|---------|---------------|--------------|
+| **Pillar Fan-Out** | sys-audit (4 piloni) | Graceful degradation |
+| **MapReduce Research** | research-trending (5 surse), research-competitors (1 per competitor) | Graceful |
+| **Multi-Asset Generation** | content-repurpose (8 platforms) | Hard-fail |
+| **Multi-Angle Creativity** | content-blog-post, content-copywriting (mode=options, 3 stiluri) | Best-effort, opt-in only |
+| **Adversarial Synthesis** | sys-level-up (PRO/CONTRA/ALT) | Hard-fail |
+
+Reguli globale (nenegociabile): prag ≥3 unitati × ≥10s, cost cap 8 agenti paraleli, single-message spawn discipline (mesaje separate = secvential = pierzi castigul), telemetrie obligatorie in `data/skill-telemetry.ndjson`.
+
+Helper: `node scripts/parallel-budget.js {check|log|stats}`. Smoke validare structurala: `node scripts/smoke-parallel.js`.
+
+---
+
 ## Memorie zilnica
 
 Fiecare zi primeste un fisier: `context/memory/YYYY-MM-DD.md` cu sectiunile:
@@ -177,7 +215,7 @@ Fiecare zi primeste un fisier: `context/memory/YYYY-MM-DD.md` cu sectiunile:
 - Cand iei o decizie → `### Decisions`
 - Cand amani ceva → `### Open Threads`
 
-**Rollup lunar** (cu skill-ul `sys-archive-memory`): la sfarsit de luna, fisierele zilnice sunt mutate in `_archive/{YYYY-MM}/` si un sumar e generat la `_archive/{YYYY-MM}.md`. Pastreaza directorul principal mic.
+**Rollup lunar** (cu skill-ul `sys-archive-memory`, optional — instaleaza din catalog cu `bash scripts/add-skill.sh sys-archive-memory`): la sfarsit de luna, fisierele zilnice sunt mutate in `_archive/{YYYY-MM}/` si un sumar e generat la `_archive/{YYYY-MM}.md`. Pastreaza directorul principal mic.
 
 ---
 
@@ -261,12 +299,16 @@ Aplicatie statica Astro + Svelte servita de Node, ruleaza la `localhost:3001`.
 |-----|----------|
 | **Home** | Task-uri active, coada review, sanatate sistem |
 | **Tasks** | Kanban (Backlog, Active, Review, Done) |
-| **Schedule** | Joburi cron + istoric rulari (in dezvoltare) |
-| **Skills** | Skills instalate + catalog disponibil |
-| **Files** | Browser pentru `context/`, `brand/`, `projects/` |
-| **Settings** | Variabile env, config MCP, setari Claude |
+| **Schedule** | Joburi cron + istoric rulari, modal CRUD complet, butoane Run/Edit/Sterge/Vezi log |
+| **Skills** | Skills instalate + catalog disponibil (cu `status: planned` pentru cele neimplementate inca) |
+| **Analytics** | Run history, cost timeline, skill performance |
+| **Files** | Browser pentru `context/`, `brand/`, `projects/` (cu denylist pentru `.env`, `.mcp.json`, `data/`, `.claude/`) |
+| **Sistem** | Activitate cross-session, auditori, memorie editor, learnings viewer, conexiuni health-check |
+| **Settings** | Variabile env (mascate cu `****`), config MCP (cu shape validation), setari Claude |
 
 Cold start sub 300ms. Build static (nu dev server). Update live prin Server-Sent Events.
+
+**Bind default**: `127.0.0.1` (loopback only). Pentru expunere LAN intentionata, seteaza `ROBOS_CENTRE_HOST=0.0.0.0` in `.env` — dar adauga auth inainte (token-based prin `Authorization: Bearer ...` e in roadmap).
 
 ---
 
