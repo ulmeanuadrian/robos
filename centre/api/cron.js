@@ -4,6 +4,7 @@ import { workspaceRoot } from '../lib/config.js';
 import { getDb } from '../lib/db.js';
 import { executeJobAsync } from '../lib/cron-runner.js';
 import { isValidSchedule, reloadJobs, getStatus as getSchedulerStatus } from '../lib/cron-scheduler.js';
+import { once } from '../lib/event-bus.js';
 
 const LOGS_DIR = join(workspaceRoot, 'cron', 'logs');
 
@@ -193,34 +194,38 @@ export function deleteJob(slug) {
  * Insereaza randul cron_runs SI lanseaza efectiv claude CLI in background.
  * Raspunde imediat cu run-ul (cu result='running').
  */
-export function triggerRun(slug) {
+export async function triggerRun(slug) {
   const db = getDb();
   const job = db.prepare('SELECT * FROM cron_jobs WHERE slug = ?').get(slug);
   if (!job) return null;
 
-  // Lanseaza fire-and-forget — runner-ul scrie cron_runs si emite evenimente
+  // Subscribe la cron:run:started INAINTE sa pornim — evita race condition.
+  // Filtru: doar evenimentul pentru acest slug + trigger=manual.
+  const eventPromise = once('cron:run:started', {
+    timeout: 1500,
+    filter: (data) => data.slug === slug && data.trigger === 'manual',
+  });
+
+  // Lanseaza fire-and-forget — runner-ul insereaza cron_runs si emite cron:run:started
   executeJobAsync(job, { trigger: 'manual', attempt: 1 });
 
-  // Returnam un placeholder: ultimul run pentru acest slug (cel pe care tocmai l-am inserat)
-  // Mic delay de race-condition: runner-ul a inserat deja sincron in INSERT
-  // (vezi cron-runner.js: insert se face inainte de spawn).
-  // Asteptam tick-ul evenimentului.
-  return new Promise((resolve) => {
-    // Polling scurt — max 500ms — pentru run-ul nou inserat
-    let attempts = 0;
-    const tick = () => {
-      const run = db.prepare(`
-        SELECT * FROM cron_runs WHERE jobSlug = ? AND trigger = 'manual'
-        ORDER BY startedAt DESC LIMIT 1
-      `).get(slug);
-      if (run && (Date.now() - new Date(run.startedAt).getTime()) < 5000) {
-        return resolve(run);
-      }
-      if (attempts++ > 50) return resolve(null);
-      setTimeout(tick, 10);
-    };
-    tick();
-  });
+  const event = await eventPromise;
+
+  if (event && event.runId) {
+    // Returneaza randul cron_runs efectiv inserat
+    const run = db.prepare('SELECT * FROM cron_runs WHERE id = ?').get(event.runId);
+    if (run) return run;
+  }
+
+  // Edge case: spawn-ul a fost respins (max concurrent atins) sau eroare interna.
+  // Returnam un placeholder ca sa nu spamim DB cu polling.
+  return {
+    jobSlug: slug,
+    trigger: 'manual',
+    result: 'queued_or_failed',
+    startedAt: new Date().toISOString(),
+    note: 'Spawn-ul nu a inserat run row in <1.5s. Verifica scheduler logs sau atinge MAX_CONCURRENT.',
+  };
 }
 
 /**

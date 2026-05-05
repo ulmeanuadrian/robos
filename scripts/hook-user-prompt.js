@@ -115,23 +115,52 @@ function extractOpenThreads(content) {
 }
 
 /**
- * Citeste si consuma data/session-recovery.json daca exista (creat de session-timeout-detector).
- * Returneaza payload-ul sau null. Sterge fisierul dupa citire (one-shot).
+ * Citeste si consuma toate fisierele recovery din data/session-recovery/ (create de session-timeout-detector).
+ * Per-batch storage evita race condition cand mai multe instante de detector scriu simultan.
+ * Returneaza un payload aggregat sau null daca niciun fisier neconsumat.
+ * Marcheaza fiecare consumed in-place (pastreaza istoric in loc sa stearga).
  */
 function consumeRecoveryFile() {
-  const recoveryPath = join(ROBOS_ROOT, 'data', 'session-recovery.json');
-  if (!existsSync(recoveryPath)) return null;
+  const recoveryDir = join(ROBOS_ROOT, 'data', 'session-recovery');
+  if (!existsSync(recoveryDir)) return null;
+
+  let files;
   try {
-    const data = JSON.parse(readFileSync(recoveryPath, 'utf-8'));
-    if (data.consumed) return null;
-    // Marcheaza consumed (in loc sa stergem, pastram istoric)
-    data.consumed = true;
-    data.consumed_at = new Date().toISOString();
-    writeFileSync(recoveryPath, JSON.stringify(data, null, 2));
-    return data;
+    files = readdirSync(recoveryDir).filter(f => f.endsWith('.json'));
   } catch {
     return null;
   }
+  if (files.length === 0) return null;
+
+  const allAbandoned = [];
+  const consumedNow = [];
+
+  for (const f of files) {
+    const path = join(recoveryDir, f);
+    try {
+      const data = JSON.parse(readFileSync(path, 'utf-8'));
+      if (data.consumed) continue;
+
+      data.consumed = true;
+      data.consumed_at = new Date().toISOString();
+      writeFileSync(path, JSON.stringify(data, null, 2));
+
+      if (Array.isArray(data.abandoned_sessions)) {
+        allAbandoned.push(...data.abandoned_sessions);
+      }
+      consumedNow.push(f);
+    } catch {
+      /* skip corrupt file */
+    }
+  }
+
+  if (allAbandoned.length === 0) return null;
+
+  return {
+    detected_at: new Date().toISOString(),
+    abandoned_sessions: allAbandoned,
+    files_consumed: consumedNow,
+  };
 }
 
 /**

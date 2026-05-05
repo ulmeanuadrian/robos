@@ -33,7 +33,7 @@ const STATE_DIR = join(ROBOS_ROOT, 'data', 'session-state');
 const MEMORY_DIR = join(ROBOS_ROOT, 'context', 'memory');
 const DATA_DIR = join(ROBOS_ROOT, 'data');
 const TIMEOUT_LOG = join(DATA_DIR, 'session-timeout.log');
-const RECOVERY_FILE = join(DATA_DIR, 'session-recovery.json');
+const RECOVERY_DIR = join(DATA_DIR, 'session-recovery');
 
 const CLOSING_PATTERN = /Session:\s*\d+\s*deliverables/i;
 
@@ -155,9 +155,14 @@ async function main() {
 
   appendNdjson(TIMEOUT_LOG, entry);
 
-  // Daca am detectat sesiuni abandonate, scriem un recovery file pentru sesiunea urmatoare
+  // Daca am detectat sesiuni abandonate, scriem un recovery file timestampat (per batch).
+  // Hook-ul UserPromptSubmit aduna toate fisierele neconsumate la urmatoarea sesiune.
+  // Per-batch evita race-conditions cand mai multe instante de detector ruleaza concurent.
   if (abandoned.length > 0) {
-    writeFileSync(RECOVERY_FILE, JSON.stringify({
+    ensureDir(RECOVERY_DIR);
+    const ts = new Date().toISOString().replace(/[:.]/g, '-');
+    const recoveryFile = join(RECOVERY_DIR, `${ts}.json`);
+    writeFileSync(recoveryFile, JSON.stringify({
       detected_at: new Date().toISOString(),
       abandoned_sessions: abandoned,
       consumed: false,
@@ -178,7 +183,7 @@ async function main() {
     }
     console.log(`  Verdict: ${verdict}`);
     console.log(`  Log: ${TIMEOUT_LOG}`);
-    if (abandoned.length > 0) console.log(`  Recovery file: ${RECOVERY_FILE}`);
+    if (abandoned.length > 0) console.log(`  Recovery file: ${RECOVERY_DIR}/<timestamp>.json`);
   }
 
   process.exit(abandoned.length > 0 ? 1 : 0);

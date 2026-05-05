@@ -3,6 +3,39 @@ import { EventEmitter } from 'events';
 const emitter = new EventEmitter();
 emitter.setMaxListeners(100);
 
+/**
+ * Subscribe la un eveniment intern (nu SSE). Returneaza un unsubscribe.
+ */
+export function on(event, handler) {
+  emitter.on(event, handler);
+  return () => emitter.off(event, handler);
+}
+
+/**
+ * Asteapta un eveniment intern cu timeout. Returneaza data evenimentului sau null la timeout.
+ * Filter optional: doar primul eveniment care matches predicate.
+ */
+export function once(event, { timeout = 2000, filter = null } = {}) {
+  return new Promise((resolve) => {
+    let done = false;
+    const handler = (data) => {
+      if (filter && !filter(data)) return;
+      if (done) return;
+      done = true;
+      emitter.off(event, handler);
+      clearTimeout(timer);
+      resolve(data);
+    };
+    const timer = setTimeout(() => {
+      if (done) return;
+      done = true;
+      emitter.off(event, handler);
+      resolve(null);
+    }, timeout);
+    emitter.on(event, handler);
+  });
+}
+
 /** @type {Set<import('http').ServerResponse>} */
 const sseClients = new Set();
 

@@ -25,7 +25,7 @@
  *  }
  */
 
-import { readFileSync, existsSync } from 'fs';
+import { readFileSync, existsSync, statSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -43,14 +43,36 @@ function normalize(s) {
     .trim();
 }
 
+// Cache pe proces — _index.json se schimba doar cand rebuild-index.js ruleaza.
+// Verifica mtime la fiecare apel; reload doar daca s-a schimbat.
+// NOTA: hook-ul UserPromptSubmit spawn-uieste un proces nou per prompt, deci cache-ul
+// nu persista intre prompts. Beneficiul real e doar pentru consumerii in-process
+// (ex: server-ul centre care apeleaza routePrompt din runSkill sau alte API endpoints).
+let cachedIndex = null;
+let cachedMtimeMs = 0;
+
 function loadIndex() {
   if (!existsSync(INDEX_FILE)) {
     return { skills: [], triggers: {} };
   }
+
+  let mtime;
   try {
-    return JSON.parse(readFileSync(INDEX_FILE, 'utf-8'));
+    mtime = statSync(INDEX_FILE).mtimeMs;
   } catch {
-    return { skills: [], triggers: {} };
+    return cachedIndex || { skills: [], triggers: {} };
+  }
+
+  if (cachedIndex && mtime === cachedMtimeMs) {
+    return cachedIndex;
+  }
+
+  try {
+    cachedIndex = JSON.parse(readFileSync(INDEX_FILE, 'utf-8'));
+    cachedMtimeMs = mtime;
+    return cachedIndex;
+  } catch {
+    return cachedIndex || { skills: [], triggers: {} };
   }
 }
 
@@ -110,9 +132,12 @@ export function routePrompt(prompt) {
   };
 }
 
-// CLI mode
-const isMain = import.meta.url === `file://${process.argv[1]}` ||
-               import.meta.url.endsWith(process.argv[1].replace(/\\/g, '/'));
+// CLI mode (cand fisierul e executat direct, nu importat ca modul)
+const argv1 = process.argv[1] || '';
+const isMain = argv1 && (
+  import.meta.url === `file://${argv1}` ||
+  import.meta.url.endsWith(argv1.replace(/\\/g, '/'))
+);
 
 if (isMain) {
   let prompt = '';

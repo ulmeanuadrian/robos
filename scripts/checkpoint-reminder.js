@@ -53,25 +53,24 @@ function lastMemoryWriteMs() {
 }
 
 /**
- * Citeste timpul ultimului checkpoint reminder pentru aceasta sesiune.
+ * Citeste starea de checkpoint pentru aceasta sesiune.
  * Stocat in data/session-state/{session_id}-checkpoint.json.
- * Folosit ca sa nu spam-am reminders la fiecare turn.
+ * Tracks: ultimul reminder + counter pentru escaladare progresiva.
  */
-function readLastReminderMs(sessionId) {
+function readCheckpointState(sessionId) {
   const path = join(STATE_DIR, `${sessionId}-checkpoint.json`);
-  if (!existsSync(path)) return 0;
+  if (!existsSync(path)) return { last_reminder_ms: 0, unheeded_count: 0, last_memory_write_ms: 0 };
   try {
-    const data = JSON.parse(readFileSync(path, 'utf-8'));
-    return data.last_reminder_ms || 0;
+    return JSON.parse(readFileSync(path, 'utf-8'));
   } catch {
-    return 0;
+    return { last_reminder_ms: 0, unheeded_count: 0, last_memory_write_ms: 0 };
   }
 }
 
-function writeLastReminderMs(sessionId, ms) {
+function writeCheckpointState(sessionId, state) {
   ensureDir(STATE_DIR);
   const path = join(STATE_DIR, `${sessionId}-checkpoint.json`);
-  writeFileSync(path, JSON.stringify({ last_reminder_ms: ms }, null, 2));
+  writeFileSync(path, JSON.stringify(state, null, 2));
 }
 
 async function main() {
@@ -92,18 +91,28 @@ async function main() {
   const thresholdMs = DEFAULT_THRESHOLD_MIN * 60 * 1000;
 
   const lastWrite = lastMemoryWriteMs();
-  const lastReminder = readLastReminderMs(sessionId);
+  const state = readCheckpointState(sessionId);
+
+  // Daca memoria a fost scrisa dupa ultimul reminder, RESET counter (model a respectat).
+  if (lastWrite && lastWrite > state.last_reminder_ms) {
+    if (state.unheeded_count > 0) {
+      writeCheckpointState(sessionId, {
+        ...state,
+        unheeded_count: 0,
+        last_memory_write_ms: lastWrite,
+      });
+    }
+  }
 
   // Caz 1: nu exista memorie pentru azi → reminder daca sesiunea a inceput de >threshold
-  // (ne uitam la session marker)
   if (!lastWrite) {
     const sessionMarker = join(STATE_DIR, `${sessionId}.json`);
     if (existsSync(sessionMarker)) {
       try {
         const data = JSON.parse(readFileSync(sessionMarker, 'utf-8'));
         const startedMs = new Date(data.started_at).getTime();
-        if ((now - startedMs) > thresholdMs && (now - lastReminder) > thresholdMs) {
-          emitReminder(sessionId, now, 'no_memory_file_yet', null);
+        if ((now - startedMs) > thresholdMs && (now - state.last_reminder_ms) > thresholdMs) {
+          emitReminder(sessionId, now, 'no_memory_file_yet', null, state);
           return;
         }
       } catch { /* noop */ }
@@ -113,34 +122,60 @@ async function main() {
 
   // Caz 2: memorie exista, dar nu a fost atinsa de >threshold
   const sinceWrite = now - lastWrite;
-  if (sinceWrite > thresholdMs && (now - lastReminder) > thresholdMs) {
-    emitReminder(sessionId, now, 'memory_stale', sinceWrite);
+  if (sinceWrite > thresholdMs && (now - state.last_reminder_ms) > thresholdMs) {
+    emitReminder(sessionId, now, 'memory_stale', sinceWrite, state);
     return;
   }
 
   process.exit(0);
 }
 
-function emitReminder(sessionId, now, reason, sinceWriteMs) {
-  writeLastReminderMs(sessionId, now);
+function emitReminder(sessionId, now, reason, sinceWriteMs, state) {
+  const newCount = (state.unheeded_count || 0) + 1;
+  writeCheckpointState(sessionId, {
+    ...state,
+    last_reminder_ms: now,
+    unheeded_count: newCount,
+  });
 
   const minSince = sinceWriteMs ? Math.floor(sinceWriteMs / 60000) : null;
   const reasonText = reason === 'no_memory_file_yet'
     ? 'Sesiunea ruleaza de mai mult de pragul de checkpoint si memoria zilei nu a fost creata inca.'
     : `Memoria zilei nu a fost actualizata de ${minSince} minute.`;
 
+  // Escaladare in 3 trepte:
+  //  Level 1 (count=1): nudge soft
+  //  Level 2 (count=2): URGENT, language stricter
+  //  Level 3+ (count>=3): block decision — forteaza model sa continue lucrul
+  if (newCount >= 3) {
+    // Block decision — Claude Code va impiedica modelul sa termine
+    const output = {
+      decision: 'block',
+      reason: `${reasonText} Asta e al ${newCount}-lea reminder unheeded — am blocat stop-ul ca sa scrii memoria zilei ACUM. Adauga sectiunile Goal/Deliverables/Decisions/Open Threads in context/memory/${todayISO()}.md, apoi continua. Acest block se ridica automat dupa ce memoria primeste o scriere.`,
+    };
+    process.stdout.write(JSON.stringify(output));
+    process.exit(0);
+  }
+
+  const urgency = newCount === 1 ? 'CHECKPOINT REMINDER' : 'CHECKPOINT URGENT (al 2-lea reminder)';
   const lines = [
-    '[CHECKPOINT REMINDER]',
+    `[${urgency}]`,
     reasonText,
     '',
-    'Inainte de urmatorul turn, scrie un mini-checkpoint in `context/memory/YYYY-MM-DD.md`:',
+    'Inainte de urmatorul turn, scrie un mini-checkpoint in `context/memory/' + todayISO() + '.md`:',
     '  - Adauga la `### Deliverables` ce ai produs (fisiere atinse, decizii)',
     '  - Adauga la `### Open Threads` ce e neterminat',
     '  - Daca nu exista fisier, creeaza-l cu structura standard (## Session N → Goal/Deliverables/Decisions/Open Threads)',
     '',
-    'Asta protejeaza contra crash-urilor de context si pierderii de munca. Nu e vizibil userului — e operational.',
-    '[/CHECKPOINT REMINDER]',
   ];
+
+  if (newCount === 2) {
+    lines.push('AVERTISMENT: dupa al treilea reminder unheeded, blochez stop-ul pana scrii memoria. Scrie acum.');
+  } else {
+    lines.push('Asta protejeaza contra crash-urilor de context si pierderii de munca. Nu e vizibil userului — e operational.');
+  }
+
+  lines.push(`[/${urgency}]`);
 
   const output = {
     hookSpecificOutput: {
