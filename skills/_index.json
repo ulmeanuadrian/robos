@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-05T20:19:35.580Z",
+  "generated_at": "2026-05-05T20:21:50.498Z",
   "count": 17,
   "by_category": {
     "brand": 3,
@@ -648,9 +648,9 @@
     },
     {
       "name": "sys-onboard",
-      "version": "1.0.0",
+      "version": "2.0.0",
       "category": "sys",
-      "description": "Interactive onboarding that populates all brand and context files in under 15 minutes. Selects a starter pack, personalizes it through a 5-question interview, and runs one skill live so the user sees real output on day one.",
+      "description": "Interactive onboarding that populates brand and context files in under 15 minutes. Q&A interactive, then 3 parallel agents craft brand/voice.md, brand/audience.md, brand/positioning.md from collected inputs — saves ~2x at the moment user is most tired.",
       "triggers": [
         "ajuta-ma sa incep",
         "configurare",
@@ -670,25 +670,24 @@
       ],
       "context_loads": [
         "context/USER.md (writes)",
-        "brand/voice.md (writes)",
-        "brand/audience.md (writes)",
-        "brand/positioning.md (writes)",
-        "brand/samples.md (writes)",
-        "context/priorities.md (writes, new file)",
-        "connections.md (writes, new file in root)",
+        "brand/voice.md (parallel agent writes)",
+        "brand/audience.md (parallel agent writes)",
+        "brand/positioning.md (parallel agent writes)",
+        "brand/samples.md (writes raw)",
+        "context/priorities.md (writes)",
+        "connections.md (writes)",
         "context/learnings.md (section sys-onboard)"
       ],
       "inputs": [
-        "starter_pack (optional: consultant, agency, ecommerce, creator)"
+        "starter_pack (optional: consultant, agency, ecommerce, creator, other)"
       ],
       "outputs": [
-        "Populated brand/ files (voice.md, audience.md, positioning.md)",
-        "context/USER.md with real profile",
-        "context/priorities.md with current goals",
-        "connections.md with tool inventory",
-        "One completed skill run in projects/"
+        "Populated brand/ files",
+        "context/USER.md, context/priorities.md, connections.md",
+        "One completed skill run in projects/",
+        "data/skill-telemetry.ndjson (appended)"
       ],
-      "last_modified": "2026-05-05T05:18:30.752Z"
+      "last_modified": "2026-05-05T20:21:29.825Z"
     },
     {
       "name": "sys-session-close",

@@ -1,8 +1,8 @@
 ---
 name: sys-onboard
-version: 1.0.0
+version: 2.0.0
 category: sys
-description: "Interactive onboarding that populates all brand and context files in under 15 minutes. Selects a starter pack, personalizes it through a 5-question interview, and runs one skill live so the user sees real output on day one."
+description: "Interactive onboarding that populates brand and context files in under 15 minutes. Q&A interactive, then 3 parallel agents craft brand/voice.md, brand/audience.md, brand/positioning.md from collected inputs — saves ~2x at the moment user is most tired."
 triggers:
   - "ajuta-ma sa incep"
   - "configurare"
@@ -18,64 +18,66 @@ negative_triggers:
   - "onboard a client"
   - "client onboarding"
   - "set up a new client"
+concurrency_pattern: multi-asset-generation (soft-fail variant)
 context_loads:
   - context/USER.md (writes)
-  - brand/voice.md (writes)
-  - brand/audience.md (writes)
-  - brand/positioning.md (writes)
-  - brand/samples.md (writes)
-  - context/priorities.md (writes, new file)
-  - connections.md (writes, new file in root)
+  - brand/voice.md (parallel agent writes)
+  - brand/audience.md (parallel agent writes)
+  - brand/positioning.md (parallel agent writes)
+  - brand/samples.md (writes raw)
+  - context/priorities.md (writes)
+  - connections.md (writes)
   - context/learnings.md (section sys-onboard)
 inputs:
-  - starter_pack (optional: consultant, agency, ecommerce, creator)
+  - starter_pack (optional: consultant, agency, ecommerce, creator, other)
 outputs:
-  - Populated brand/ files (voice.md, audience.md, positioning.md)
-  - context/USER.md with real profile
-  - context/priorities.md with current goals
-  - connections.md with tool inventory
+  - Populated brand/ files
+  - context/USER.md, context/priorities.md, connections.md
   - One completed skill run in projects/
+  - data/skill-telemetry.ndjson (appended)
 ---
 
-# Step 0: Check If Already Onboarded
+# Step 0: Check if already onboarded
 
-Read `brand/voice.md`. If it contains real content (not just template comments), say:
+Read `brand/voice.md`. Daca contine continut real (nu doar template comments):
 
-"Looks like you've already been onboarded -- brand/voice.md has content. Want to re-run onboarding from scratch (will overwrite brand/ files), or would you rather run /audit to see where to improve?"
+"Looks like you've already been onboarded — brand/voice.md has content. Want to re-run from scratch (will overwrite brand/) sau prefer /audit pentru a vedea unde sa imbunatatesti?"
 
-If the user wants to continue, proceed. Otherwise, stop.
+Daca user accepta re-run, continua. Altfel stop.
 
-# Step 1: Starter Pack Selection
+---
 
-Say:
-
-"Let's get you set up. First -- what type of work do you do? Pick the closest match:"
+# Step 1: Starter pack selection (main thread, interactive)
 
 ```
-1. Consultant / Coach  -- solo expert selling knowledge and services
-2. Agency              -- team of 2-10 doing client work (marketing, dev, creative)
-3. E-commerce          -- selling physical or digital products online
-4. Creator             -- content-first business (YouTube, newsletter, courses)
-5. Other               -- I'll describe it
+Hai sa te configuram. Ce tip de munca faci?
+
+1. Consultant / Coach  — solo expert, vinzi cunostinte si servicii
+2. Agency              — echipa de 2-10 face client work
+3. E-commerce          — vinzi produse fizice / digitale online
+4. Creator             — content-first business (YouTube, newsletter, courses)
+5. Other               — descriu eu
 ```
 
-**If 1-4:** Copy the matching starter pack files from `skills/_catalog/starter-packs/{type}/` to `brand/`:
-- `voice.md` -> `brand/voice.md`
-- `audience.md` -> `brand/audience.md`
-- `positioning.md` -> `brand/positioning.md`
+**Optiunile 1-4:** Copy starter pack files din `skills/_catalog/starter-packs/{type}/` → `brand/`:
+- `voice.md` → `brand/voice.md`
+- `audience.md` → `brand/audience.md`
+- `positioning.md` → `brand/positioning.md`
 
-Tell the user: "Loaded the {type} starter pack into brand/. We'll personalize it now."
+Spune: "Loaded {type} starter pack into brand/. Personalizam acum."
 
-**If 5 (Other):** Ask "Describe your business in 2-3 sentences" and create minimal brand files from that description. Use the consultant pack as the structural template but rewrite content to match their description.
+**Optiunea 5:** Intreaba "Descrie business-ul in 2-3 propozitii" si foloseste consultant pack ca template structural, dar continutul rescris dupa descriere.
 
-# Step 2: Personalization Interview
+---
 
-Ask these 5 questions one at a time. Wait for each answer before asking the next.
+# Step 2: 5-question interview (main thread, interactiv, secvential)
 
-**Q1: Identity**
-"What's your name, your business name, and what do you do in one sentence?"
+Acest pas e inerent secvential — user-blocking, nu paralelizezi.
 
--> Write answer to `context/USER.md`:
+**Q1 — Identity:**
+"Numele tau, numele business-ului, si ce faci intr-o singura propozitie?"
+
+→ Write `context/USER.md`:
 ```markdown
 # User Profile
 
@@ -83,20 +85,18 @@ Name: {name}
 Business: {business_name}
 Role: {what they do}
 Onboarded: {YYYY-MM-DD}
-Starter pack: {type selected}
+Starter pack: {type}
 ```
 
-**Q2: Voice calibration**
-"Paste one or two things you've written recently -- an email, a post, anything. Don't edit them. I need your real voice."
+**Q2 — Voice samples:**
+"Lipeste 1-2 lucruri pe care le-ai scris recent — un email, un post, orice. Nu edita. Vreau vocea ta reala."
 
--> Analyze the samples for: sentence length, vocabulary level, formality, personality markers, favorite phrases.
--> Update `brand/voice.md`: adjust Tone, Vocabulary (add their actual preferred phrases), Sentence Rhythm, and Personality Traits sections based on what you observe. Keep the starter pack structure but merge their real patterns in.
--> Save the raw samples to `brand/samples.md`.
+→ Save raw samples to `brand/samples.md` (NO analysis yet — analiza se face paralel la Step 3).
 
-**Q3: Priorities**
-"What are your 2-3 biggest priorities for the next 90 days?"
+**Q3 — Priorities:**
+"Care sunt 2-3 prioritati majore pentru urmatoarele 90 zile?"
 
--> Create `context/priorities.md`:
+→ Write `context/priorities.md`:
 ```markdown
 # Current Priorities
 
@@ -112,86 +112,223 @@ Quarter: {current quarter}
 (Things that matter but not this quarter)
 ```
 
-**Q4: Tools**
-"What tools do you use daily for work? Think: email, project management, calendar, CRM, social media, analytics, file storage."
+**Q4 — Tools:**
+"Ce tools folosesti zilnic? Email, project management, calendar, CRM, social, analytics, file storage."
 
--> Create `connections.md` in the project root:
+→ Write `connections.md` la radacina proiectului. Mapeaza fiecare tool la unul din 7 tier-1 domains: revenue, customer, calendar, comms, tasks, meetings, knowledge.
+
 ```markdown
 # Connections
 
 Last updated: {YYYY-MM-DD}
 
 ## Connected
-(None yet -- set up API keys in .env and integrations below)
+(None yet — set up API keys in .env)
 
 ## Planned
 | Tool | Domain | Connection type | Status |
 |------|--------|----------------|--------|
-| {tool1} | {comms/tasks/calendar/revenue/customer/meetings/knowledge} | API / MCP / CLI | not connected |
-| {tool2} | ... | ... | ... |
+| {tool1} | {domain} | API / MCP / CLI | not connected |
+| ...
 ```
 
-Map each tool to one of the 7 tier-1 domains: revenue, customer, calendar, comms, tasks, meetings, knowledge.
+**Q5 — First automation target:**
+"O sarcina pe care o faci repetat si pare manuala — ai vrea s-o predai cuiva?"
 
-**Q5: First automation target**
-"What's one task you do repeatedly that feels boring or manual? Something you'd love to hand off."
+→ Cache answer pentru Step 4.
 
--> Save the answer. You'll use this in Step 4.
+---
 
-# Step 3: Refine Brand Context
+# Step 3: Parallel brand-file generation
 
-Now that you have their voice samples and business description, review the brand files:
+Aici e schimbarea v2: in loc de scrierea secventiala a brand/voice.md + brand/audience.md + brand/positioning.md, le facem in paralel.
 
-1. Re-read `brand/audience.md` -- update Demographics, Pain Points, and Aspirations sections to match their specific business (not the generic starter pack version).
-2. Re-read `brand/positioning.md` -- update One-Liner and Value Proposition to reflect what they actually said about their business.
-3. Do NOT run full web research or competitor analysis here -- that's what brand-positioning and research-competitors skills are for. Just personalize the starter pack content.
+## Step 3a: Concurrency check
 
-# Step 4: First Win
+```bash
+node scripts/parallel-budget.js check 3 25
+```
 
-Based on the starter pack type and Q5 answer, run ONE skill live:
+Returneaza `parallel`. Marcheaza `start_time`.
+
+## Step 3b: Spawn 3 brand-file agents IN PARALLEL
+
+**Critic:** intr-un SINGUR mesaj de raspuns, 3 invocari `Agent` simultane. Toate primesc context-ul colectat la Step 2.
+
+### Agent VOICE
+
+```
+subagent_type: general-purpose
+description: "Onboard: brand/voice.md from samples"
+prompt: """
+Genereaza brand/voice.md personalizat pentru user.
+
+Context:
+- USER.md content: {USER.md scris la Q1}
+- Voice samples (raw): {samples scrise la Q2}
+- Starter pack template: citeste brand/voice.md curent (acela e template-ul de starter pack incarcat la Step 1)
+- Business type: {starter_pack chosen}
+
+Tasks:
+1. Analizeaza samples-urile pentru: sentence length, vocabulary level, formality, personality markers, favorite phrases.
+2. Suprascrie brand/voice.md mentinand structura starter pack-ului dar cu:
+   - Tone section: rescris cu tonul observat in samples
+   - Vocabulary section: adauga phrases preferate / vocab caracteristic
+   - Sentence Rhythm section: ajustat la pattern observat (long/short mix, comma usage, etc.)
+   - Personality Traits: ajustate la energy + attitude din samples
+   - Never-do list: pastreaza din starter pack daca e generic, adauga specific daca samples revela aversiuni
+3. NU sterge structura starter pack — merge cu observatiile reale.
+4. Save direct la brand/voice.md.
+
+Returneaza DOAR JSON:
+{
+  "file": "brand/voice.md",
+  "status": "ok" | "failed",
+  "characteristics_observed": ["lista scurta cu cele mai distinctive trasaturi voice-ului user-ului"],
+  "starter_pack_used": "{type}",
+  "notes": "scurt"
+}
+"""
+```
+
+### Agent AUDIENCE
+
+```
+subagent_type: general-purpose
+description: "Onboard: brand/audience.md personalized"
+prompt: """
+Genereaza brand/audience.md personalizat.
+
+Context:
+- USER.md: {Q1 raspuns}
+- Voice samples: {samples} (te ajuta sa intelegi cui vorbeste)
+- Starter pack: citeste brand/audience.md curent (template)
+- Q3 priorities: {priorities scrise}
+
+Tasks:
+1. Pe baza Q1 (cine sunt, ce fac) si samples (cui vorbesc), updateaza brand/audience.md:
+   - Demographics: cine e audienta tinta concreta (nu generic)
+   - Pain Points: ce probleme rezolva user-ul lor
+   - Aspirations: ce vor sa atinga audienta lor
+   - Anti-audience: cine NU e audienta (la fel de important)
+2. Pastreaza structura starter pack — dar continut specific la business-ul lor.
+3. NU rula web research / surveys — doar inferi din ce ai.
+4. Save direct la brand/audience.md.
+
+Returneaza DOAR JSON:
+{
+  "file": "brand/audience.md",
+  "status": "ok" | "failed",
+  "primary_audience": "scurt",
+  "notes": "scurt"
+}
+"""
+```
+
+### Agent POSITIONING
+
+```
+subagent_type: general-purpose
+description: "Onboard: brand/positioning.md personalized"
+prompt: """
+Genereaza brand/positioning.md personalizat.
+
+Context:
+- USER.md: {Q1 raspuns}
+- Q3 priorities: {priorities}
+- Starter pack: citeste brand/positioning.md curent (template)
+- Voice samples: pentru tone consistency
+
+Tasks:
+1. Pe baza Q1 (one-line description) si Q3 priorities (unde se duc), updateaza:
+   - One-Liner: cum se pozitioneaza (1 propozitie crisp)
+   - Value Proposition: ce ofera + cui + de ce conteaza
+   - Differentiators: 3-5 lucruri specifice care-i face diferit
+   - Anti-positioning: ce NU sunt (clarifica boundaries)
+2. NU rula competitor research — doar inferi din ce ai.
+3. Save direct la brand/positioning.md.
+
+Returneaza DOAR JSON:
+{
+  "file": "brand/positioning.md",
+  "status": "ok" | "failed",
+  "one_liner": "...",
+  "top_differentiator": "...",
+  "notes": "scurt"
+}
+"""
+```
+
+## Step 3c: Failure handling (soft-fail variant)
+
+`wall_clock_ms = Date.now() - start_time`. Aceasta e o varianta soft-fail a Multi-Asset Generation — onboarding e cost mare (15 min Q&A) deci nu vrem hard-fail care sa-l forteze sa reia tot.
+
+**Daca toate 3 OK:** continua la Step 4.
+
+**Daca 1 esueaza:**
+Spune user-ului: "{file} a esuat de generat. Le-am pastrat pe celelalte. Vrei sa retry pentru {file} acum, sau continui cu starter pack-ul existent pentru fisierul ala?"
+
+Daca retry: respawn JUST acel agent. Daca skip: lasa starter pack-ul intact pentru acel fisier.
+
+**Daca 2+ esueaza:** "Generarea brand-ului a esuat partial ({N}/3 OK). Probabil intermitenta. Vrei sa rulez Step 3 din nou? Inputurile tale (USER.md, samples) sunt salvate."
+
+---
+
+# Step 4: First win (main thread)
+
+Pe baza starter pack + Q5, ruleaza un skill live:
 
 | Pack | Default skill | Why |
 |------|--------------|-----|
-| consultant | brand-positioning | They need to articulate their angle |
-| agency | research-competitors | They need to know their market |
-| ecommerce | content-copywriting | They need product copy |
-| creator | content-repurpose | They have content to atomize |
+| consultant | brand-positioning | Trebuie sa-si articuleze unghiul |
+| agency | research-competitors | Trebuie sa stie market-ul |
+| ecommerce | content-copywriting | Trebuie product copy |
+| creator | content-repurpose | Are content de atomizat |
 | other | sys-goal-breakdown | Universal value |
 
-Tell the user: "Let's put this to work right now. I'm going to run {skill} with your real context."
+Spune: "Sa punem asta la treaba. Rulez {skill} cu contextul tau real."
 
-Execute the skill. Save output to `projects/`.
+Ruleaza skill-ul. Save output to `projects/`.
 
-This is the moment the user sees robOS produce real, personalized value.
+Acest pas e momentul cand user-ul vede robOS produce valoare reala personalizata pentru el.
 
-# Step 5: Score and Next Steps
+---
 
-Calculate a rough 4C score:
+# Step 5: 4C score + next steps
 
-- **Context**: USER.md filled (5) + voice.md personalized (5) + audience.md customized (5) + positioning.md customized (5) + priorities.md created (5) = /25
-- **Connections**: count planned connections from connections.md. Score = min(count * 4, 25). If zero tools listed: 0/25.
-- **Capabilities**: count installed skills in `skills/` (not _catalog). Score = min(count * 2, 25).
-- **Cadence**: any cron jobs active? Any memory files from previous days? Score starts at 0/25 for new users.
+Calculeaza scor rapid (NU rulezi /audit complet — e prea greu pentru un new user):
 
-Report:
+- **Context**: USER.md (5) + voice.md (5) + audience.md (5) + positioning.md (5) + priorities.md (5) = /25
+- **Connections**: count tools planned in connections.md. Score = min(count * 4, 25). 0 daca lipsa.
+- **Capabilities**: count installed skills (exclud _catalog). Score = min(count * 2, 25).
+- **Cadence**: 0 pentru new user (no cron, no memory yet).
 
 ```
 robOS Score: {total}/100
 
-Context:     {score}/25  {status}
+Context:     {score}/25  ✓ filled
 Connections: {score}/25  {status}
-Capabilities:{score}/25  {status}
-Cadence:     {score}/25  {status}
+Capabilities:{score}/25  {N skills installed}
+Cadence:     0/25         (build up over time)
 
-Next steps to level up:
-1. {highest-leverage gap}
+Next steps:
+1. {highest-leverage gap — usually Connections or Cadence}
 2. {second gap}
-3. Run /audit anytime to see your updated score
+3. /audit anytime pentru scor refresh
 ```
 
-# Step 6: Log
+---
 
-Append to `context/learnings.md` under `## sys-onboard`:
+# Step 6: Telemetrie + log
+
+```bash
+node scripts/parallel-budget.js log sys-onboard parallel 3 {failed_count} {wall_clock_ms} {fallback_used}
+```
+
+`fallback_used` = true daca >=1 brand-file agent failed (chiar daca s-a recuperat prin retry sau skip).
+
+Append in `context/learnings.md` sub `## sys-onboard`:
 - Date, starter pack chosen, 4C score at completion
 - First skill run result (which skill, output location)
 - User's automation target from Q5 (for future skill building)
+- Brand generation status (ok/partial)
