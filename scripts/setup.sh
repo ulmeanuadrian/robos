@@ -3,115 +3,122 @@ set -euo pipefail
 
 ROBOS_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 
-echo "=== RobOS Setup ==="
+echo "=== robOS Setup ==="
 echo ""
 
-# Check Node.js version
+# Verifica Node.js
 if ! command -v node &>/dev/null; then
-    echo "ERROR: Node.js is not installed. RobOS requires Node >= 20."
-    echo "Install it from https://nodejs.org or via nvm."
+    echo "EROARE: Node.js nu e instalat. robOS necesita Node >= 20."
+    echo "Instaleaza de la https://nodejs.org sau prin nvm."
     exit 1
 fi
 
 NODE_MAJOR=$(node -v | sed 's/^v//' | cut -d. -f1)
 if [ "$NODE_MAJOR" -lt 20 ]; then
-    echo "ERROR: Node.js $(node -v) detected. RobOS requires Node >= 20."
-    echo "Upgrade via: nvm install 20 && nvm use 20"
+    echo "EROARE: Detectat Node.js $(node -v). robOS necesita Node >= 20."
+    echo "Upgrade prin: nvm install 20 && nvm use 20"
     exit 1
 fi
 
 echo "[OK] Node.js $(node -v)"
 
-# Check Claude CLI
+# Verifica Claude CLI
 if command -v claude &>/dev/null; then
-    echo "[OK] Claude CLI found"
+    echo "[OK] Claude CLI gasit"
 else
     echo ""
-    echo "WARNING: Claude CLI not found in PATH."
-    echo "  RobOS works best with Claude Code installed."
-    echo "  Install: https://docs.anthropic.com/en/docs/claude-code"
-    echo "  Cron scheduling will not work without it."
+    echo "ATENTIE: Claude CLI nu e in PATH."
+    echo "  robOS functioneaza optim cu Claude Code instalat."
+    echo "  Instalare: https://docs.anthropic.com/en/docs/claude-code"
+    echo "  Cron-ul nu va functiona fara el."
     echo ""
 fi
 
-# Install dependencies
+# Instaleaza dependintele
 if [ -d "$ROBOS_ROOT/centre" ] && [ -f "$ROBOS_ROOT/centre/package.json" ]; then
     echo ""
-    echo "Installing Command Centre dependencies..."
+    echo "Instalez dependintele Command Centre..."
     cd "$ROBOS_ROOT/centre"
     npm install --silent
-    echo "[OK] Dependencies installed"
+    echo "[OK] Dependinte instalate"
 
     # Build dashboard
     echo ""
-    echo "Building dashboard..."
+    echo "Build dashboard..."
     npx astro build --silent 2>/dev/null || npx astro build
     echo "[OK] Dashboard built"
 
-    # Initialize database
+    # Initializare DB
     if [ -f "$ROBOS_ROOT/centre/scripts/init-db.js" ]; then
         echo ""
-        echo "Initializing database..."
+        echo "Initializez baza de date..."
         if ! node "$ROBOS_ROOT/centre/scripts/init-db.js"; then
-            echo "ERROR: Database initialization failed."
+            echo "EROARE: Initializarea DB-ului a esuat."
             exit 1
         fi
         DB_PATH="$ROBOS_ROOT/data/robos.db"
         if [ ! -f "$DB_PATH" ]; then
-            echo "ERROR: Database file not created at $DB_PATH"
+            echo "EROARE: Fisierul DB nu s-a creat la $DB_PATH"
             exit 1
         fi
-        echo "[OK] Database ready"
+        echo "[OK] DB gata"
     fi
 else
     echo ""
-    echo "[SKIP] centre/ not found -- Command Centre will be set up separately"
+    echo "[SKIP] centre/ nu exista — Command Centre se va seta separat"
 fi
 
-# Copy .env if needed
+# Genereaza skills/_index.json
+if [ -f "$ROBOS_ROOT/scripts/rebuild-index.js" ]; then
+    echo ""
+    echo "Generez skills/_index.json..."
+    node "$ROBOS_ROOT/scripts/rebuild-index.js"
+fi
+
+# Copiaza .env daca lipseste
 if [ ! -f "$ROBOS_ROOT/.env" ]; then
     cp "$ROBOS_ROOT/.env.example" "$ROBOS_ROOT/.env"
-    echo "[OK] Created .env from template (edit it to add your API keys)"
+    echo "[OK] Creat .env din template (editeaza-l pentru chei API)"
 else
-    echo "[OK] .env already exists"
+    echo "[OK] .env deja exista"
 fi
 
-# Collect user info
+# Strange info user
 echo ""
-echo "--- User Profile ---"
+echo "--- Profilul userului ---"
 echo ""
 
-read -rp "Your name: " user_name
-read -rp "Your business/project: " user_business
+read -rp "Numele tau: " user_name
+read -rp "Business / proiect: " user_business
 
 if [ -n "$user_name" ]; then
     cat > "$ROBOS_ROOT/context/USER.md" <<USEREOF
-# User Profile
+# Profil User
 
-Name: ${user_name}
+Nume: ${user_name}
 Business: ${user_business}
 
-## Preferences
-(Claude will learn your preferences as you work together)
+## Preferinte
+(Claude isi va invata preferintele tale pe masura ce lucrati impreuna)
 USEREOF
     echo ""
-    echo "[OK] Wrote context/USER.md"
+    echo "[OK] Scris context/USER.md"
 else
     echo ""
-    echo "[SKIP] No name provided -- edit context/USER.md manually"
+    echo "[SKIP] Fara nume — editeaza context/USER.md manual"
 fi
 
-# Ensure memory directory exists
+# Asigura directorul de memorie
 mkdir -p "$ROBOS_ROOT/context/memory"
 
 # Done
 echo ""
 echo "==================================="
-echo " RobOS is ready."
+echo " robOS e gata."
 echo ""
-echo " Next steps:"
-echo "   1. Edit .env with your API keys"
-echo "   2. Fill in brand/ files for better output"
-echo "   3. Run: ./scripts/start.sh"
-echo "   4. Or just open Claude Code in this directory"
+echo " Pasi urmatori:"
+echo "   1. Editeaza .env cu cheile tale API"
+echo "   2. Completeaza brand/ pentru output mai bun"
+echo "   3. Ruleaza: ./scripts/start.sh"
+echo "   4. Sau deschide Claude Code in acest director"
 echo "==================================="

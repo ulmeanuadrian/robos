@@ -4,10 +4,10 @@ set -euo pipefail
 ROBOS_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROBOS_ROOT"
 
-echo "=== RobOS Update ==="
+echo "=== robOS Update ==="
 echo ""
 
-# Protected files/dirs that must never be overwritten
+# Fisiere/dir protejate care nu se rescriu niciodata
 PROTECTED=(
     "context/USER.md"
     "context/learnings.md"
@@ -16,10 +16,11 @@ PROTECTED=(
     "clients"
     "projects"
     "cron/jobs"
+    "data"
     ".env"
 )
 
-# Check for uncommitted user changes in protected paths
+# Verifica modificari ne-comise in fisierele protejate
 HAS_CHANGES=0
 for p in "${PROTECTED[@]}"; do
     if [ -e "$p" ] && ! git diff --quiet -- "$p" 2>/dev/null; then
@@ -28,36 +29,36 @@ for p in "${PROTECTED[@]}"; do
 done
 
 if [ "$HAS_CHANGES" -eq 1 ]; then
-    echo "[INFO] You have local changes in protected files (this is normal)."
-    echo "       These will NOT be overwritten by the update."
+    echo "[INFO] Ai modificari locale in fisiere protejate (e normal)."
+    echo "       NU vor fi suprascrise de update."
     echo ""
 fi
 
-# Store current centre hash to detect changes
+# Stocheaza hash-ul curent al centre/ pentru detectie schimbari
 CENTRE_HASH_BEFORE=""
 if [ -d "centre" ]; then
     CENTRE_HASH_BEFORE=$(git log -1 --format="%H" -- centre/ 2>/dev/null || echo "")
 fi
 
-# Backup database before update
-DB_FILE="$ROBOS_ROOT/.command-centre/robos.db"
+# Backup DB inainte de update
+DB_FILE="$ROBOS_ROOT/data/robos.db"
 if [ -f "$DB_FILE" ]; then
     cp "$DB_FILE" "${DB_FILE}.bak-$(date +%Y%m%d-%H%M%S)"
-    echo "[OK] Database backed up"
+    echo "[OK] DB backup facut"
 fi
 
-# Pull latest
-echo "Pulling latest changes..."
+# Pull
+echo "Trag ultimele modificari..."
 git pull --ff-only || {
     echo ""
-    echo "ERROR: Could not fast-forward. You may have local commits."
-    echo "Resolve manually with: git rebase origin/main"
+    echo "EROARE: Nu pot face fast-forward. Probabil ai commit-uri locale."
+    echo "Rezolva manual cu: git rebase origin/main"
     exit 1
 }
 
-echo "[OK] Code updated"
+echo "[OK] Cod actualizat"
 
-# Check if centre changed
+# Verifica daca centre/ s-a schimbat
 CENTRE_HASH_AFTER=""
 if [ -d "centre" ]; then
     CENTRE_HASH_AFTER=$(git log -1 --format="%H" -- centre/ 2>/dev/null || echo "")
@@ -65,26 +66,32 @@ fi
 
 if [ "$CENTRE_HASH_BEFORE" != "$CENTRE_HASH_AFTER" ] && [ -d "centre" ]; then
     echo ""
-    echo "Command Centre was updated. Reinstalling dependencies..."
+    echo "Command Centre s-a actualizat. Reinstalare dependinte..."
     cd "$ROBOS_ROOT/centre"
     npm install --production --silent
     cd "$ROBOS_ROOT"
-    echo "[OK] Dependencies updated"
+    echo "[OK] Dependinte actualizate"
 
-    # Check if server is running and needs restart
+    # Verifica daca serverul ruleaza si trebuie restartat
     PID_FILE="$ROBOS_ROOT/.command-centre/server.pid"
     if [ -f "$PID_FILE" ] && kill -0 "$(cat "$PID_FILE")" 2>/dev/null; then
         echo ""
-        echo "[NOTE] Command Centre is running. Restart it to pick up changes:"
+        echo "[NOTE] Command Centre ruleaza. Restarteaza-l pentru noile modificari:"
         echo "       ./scripts/stop.sh && ./scripts/start.sh"
     fi
 fi
 
-# Detect new skills in catalog
+# Regenereaza skills/_index.json (in caz ca s-au schimbat skills)
+if [ -f "$ROBOS_ROOT/scripts/rebuild-index.js" ]; then
+    node "$ROBOS_ROOT/scripts/rebuild-index.js"
+fi
+
+# Detecteaza skills noi in catalog
 if [ -d "skills/_catalog" ]; then
     NEW_SKILLS=()
     for skill_dir in skills/_catalog/*/; do
         skill_name=$(basename "$skill_dir")
+        [ "$skill_name" = "starter-packs" ] && continue
         if [ ! -d "skills/$skill_name" ]; then
             NEW_SKILLS+=("$skill_name")
         fi
@@ -92,18 +99,18 @@ if [ -d "skills/_catalog" ]; then
 
     if [ ${#NEW_SKILLS[@]} -gt 0 ]; then
         echo ""
-        echo "New skills available in catalog:"
+        echo "Skills noi in catalog:"
         for s in "${NEW_SKILLS[@]}"; do
             desc=""
             if [ -f "skills/_catalog/$s/SKILL.md" ]; then
-                desc=$(grep -m1 "^description:" "skills/_catalog/$s/SKILL.md" 2>/dev/null | sed 's/^description: *//' || echo "")
+                desc=$(grep -m1 "^description:" "skills/_catalog/$s/SKILL.md" 2>/dev/null | sed 's/^description: *//;s/^"//;s/"$//' || echo "")
             fi
             echo "  - $s${desc:+ -- $desc}"
         done
         echo ""
-        echo "Install with: ./scripts/add-skill.sh <skill-name>"
+        echo "Instalare: ./scripts/add-skill.sh <nume>"
     fi
 fi
 
 echo ""
-echo "=== Update complete ==="
+echo "=== Update gata ==="

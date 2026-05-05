@@ -5,11 +5,11 @@ ROBOS_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 CATALOG="$ROBOS_ROOT/skills/_catalog"
 SKILLS_DIR="$ROBOS_ROOT/skills"
 
-echo "=== RobOS Skills ==="
+echo "=== robOS Skills ==="
 echo ""
 
-# List installed skills
-echo "INSTALLED:"
+# Skills instalate
+echo "INSTALATE:"
 installed_count=0
 for d in "$SKILLS_DIR"/*/; do
     [ -d "$d" ] || continue
@@ -21,27 +21,28 @@ for d in "$SKILLS_DIR"/*/; do
     desc=""
     if [ -f "$d/SKILL.md" ]; then
         version=$(grep -m1 "^version:" "$d/SKILL.md" 2>/dev/null | sed 's/^version: *//' || echo "")
-        desc=$(grep -m1 "^description:" "$d/SKILL.md" 2>/dev/null | sed 's/^description: *//' || echo "")
+        desc=$(grep -m1 "^description:" "$d/SKILL.md" 2>/dev/null | sed 's/^description: *//;s/^"//;s/"$//' || echo "")
     fi
 
     echo "  $name${version:+ v$version}${desc:+ -- $desc}"
 done
 
 if [ "$installed_count" -eq 0 ]; then
-    echo "  (none)"
+    echo "  (niciuna)"
 fi
 
 echo ""
 
-# List available (not installed) from catalog
-echo "AVAILABLE (not installed):"
+# Skills disponibile (in catalog dar neinstalate)
+echo "DISPONIBILE (neinstalate):"
 available_count=0
 if [ -d "$CATALOG" ]; then
     for d in "$CATALOG"/*/; do
         [ -d "$d" ] || continue
         name=$(basename "$d")
+        [ "$name" = "starter-packs" ] && continue
 
-        # Skip if already installed
+        # Sari peste cele deja instalate
         [ -d "$SKILLS_DIR/$name" ] && continue
         available_count=$((available_count + 1))
 
@@ -49,7 +50,7 @@ if [ -d "$CATALOG" ]; then
         desc=""
         if [ -f "$d/SKILL.md" ]; then
             version=$(grep -m1 "^version:" "$d/SKILL.md" 2>/dev/null | sed 's/^version: *//' || echo "")
-            desc=$(grep -m1 "^description:" "$d/SKILL.md" 2>/dev/null | sed 's/^description: *//' || echo "")
+            desc=$(grep -m1 "^description:" "$d/SKILL.md" 2>/dev/null | sed 's/^description: *//;s/^"//;s/"$//' || echo "")
         fi
 
         echo "  $name${version:+ v$version}${desc:+ -- $desc}"
@@ -57,9 +58,9 @@ if [ -d "$CATALOG" ]; then
 fi
 
 if [ "$available_count" -eq 0 ]; then
-    echo "  (none)"
+    echo "  (niciuna)"
 fi
 
 echo ""
-echo "Install: ./scripts/add-skill.sh <name>"
-echo "Remove:  ./scripts/remove-skill.sh <name>"
+echo "Instalare: ./scripts/add-skill.sh <nume>"
+echo "Stergere:  ./scripts/remove-skill.sh <nume>"

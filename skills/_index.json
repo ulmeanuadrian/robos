@@ -1,0 +1,798 @@
+{
+  "generated_at": "2026-05-05T05:23:23.793Z",
+  "count": 16,
+  "by_category": {
+    "brand": 3,
+    "content": 3,
+    "research": 2,
+    "sys": 7,
+    "tool": 1
+  },
+  "triggers": {
+    "audienta": "brand-audience",
+    "client ideal": "brand-audience",
+    "icp": "brand-audience",
+    "cui ii vand": "brand-audience",
+    "buyer persona": "brand-audience",
+    "avatar client": "brand-audience",
+    "target audience": "brand-audience",
+    "audience research": "brand-audience",
+    "pozitionare": "brand-positioning",
+    "diferentiere": "brand-positioning",
+    "ce e hook-ul": "brand-positioning",
+    "usp": "brand-positioning",
+    "cum ma pozitionez": "brand-positioning",
+    "fa-l sa iasa in evidenta": "brand-positioning",
+    "unghi unic": "brand-positioning",
+    "positioning": "brand-positioning",
+    "differentiation": "brand-positioning",
+    "make this stand out": "brand-positioning",
+    "voce de brand": "brand-voice",
+    "stil de scris": "brand-voice",
+    "ton brand": "brand-voice",
+    "analizeaza continutul meu": "brand-voice",
+    "ghid voce": "brand-voice",
+    "defineste vocea": "brand-voice",
+    "brand voice": "brand-voice",
+    "tone of voice": "brand-voice",
+    "writing style": "brand-voice",
+    "scrie un articol": "content-blog-post",
+    "blog despre": "content-blog-post",
+    "articol seo": "content-blog-post",
+    "draft blog": "content-blog-post",
+    "write a blog post": "content-blog-post",
+    "blog post about": "content-blog-post",
+    "seo article": "content-blog-post",
+    "write an article": "content-blog-post",
+    "scrie copy": "content-copywriting",
+    "copy pentru landing": "content-copywriting",
+    "ajuta-ma sa vand": "content-copywriting",
+    "sa converteasca": "content-copywriting",
+    "headline": "content-copywriting",
+    "tagline": "content-copywriting",
+    "cta": "content-copywriting",
+    "copy email": "content-copywriting",
+    "copy ad": "content-copywriting",
+    "write copy": "content-copywriting",
+    "landing page copy": "content-copywriting",
+    "sales page": "content-copywriting",
+    "ad copy": "content-copywriting",
+    "transforma in social": "content-repurpose",
+    "fa posturi din asta": "content-repurpose",
+    "calendar content": "content-repurpose",
+    "fa un thread": "content-repurpose",
+    "post linkedin din": "content-repurpose",
+    "adapteaza pentru": "content-repurpose",
+    "repurpose this": "content-repurpose",
+    "turn this into social posts": "content-repurpose",
+    "social posts from": "content-repurpose",
+    "analiza competitori": "research-competitors",
+    "ce zic concurentii": "research-competitors",
+    "competitor analysis": "research-competitors",
+    "cum se pozitioneaza ei": "research-competitors",
+    "compara-ne cu": "research-competitors",
+    "competitive landscape": "research-competitors",
+    "competitor research": "research-competitors",
+    "ce e trend": "research-trending",
+    "ce se discuta despre": "research-trending",
+    "trending in": "research-trending",
+    "ultimele 30 zile": "research-trending",
+    "dig into": "research-trending",
+    "ce e hot in": "research-trending",
+    "research": "research-trending",
+    "what's trending": "research-trending",
+    "pulse check on": "research-trending",
+    "audit": "sys-audit",
+    "verifica setup-ul": "sys-audit",
+    "cum stau": "sys-audit",
+    "scor 4c": "sys-audit",
+    "run an audit": "sys-audit",
+    "how's my setup": "sys-audit",
+    "what am i missing": "sys-audit",
+    "4c score": "sys-audit",
+    "check my aios": "sys-audit",
+    "plan my day": "sys-daily-plan",
+    "planifica-mi ziua": "sys-daily-plan",
+    "plan de zi": "sys-daily-plan",
+    "morning coffee": "sys-daily-plan",
+    "daily plan": "sys-daily-plan",
+    "what should i focus on": "sys-daily-plan",
+    "what's on my plate": "sys-daily-plan",
+    "ce am de facut azi": "sys-daily-plan",
+    "sparge in pasi": "sys-goal-breakdown",
+    "planifica asta": "sys-goal-breakdown",
+    "breakdown task": "sys-goal-breakdown",
+    "ce pasi am": "sys-goal-breakdown",
+    "din ce e format": "sys-goal-breakdown",
+    "descompune": "sys-goal-breakdown",
+    "break this down": "sys-goal-breakdown",
+    "plan this out": "sys-goal-breakdown",
+    "scope this work": "sys-goal-breakdown",
+    "decompose this": "sys-goal-breakdown",
+    "what are the steps": "sys-goal-breakdown",
+    "level up": "sys-level-up",
+    "ce sa automatizez": "sys-level-up",
+    "imbunatateste": "sys-level-up",
+    "urmatorul pas": "sys-level-up",
+    "what should i automate": "sys-level-up",
+    "what's next": "sys-level-up",
+    "help me improve": "sys-level-up",
+    "find automation opportunities": "sys-level-up",
+    "ajuta-ma sa incep": "sys-onboard",
+    "configurare": "sys-onboard",
+    "pornire": "sys-onboard",
+    "onboard me": "sys-onboard",
+    "onboarding": "sys-onboard",
+    "set up my aios": "sys-onboard",
+    "get started": "sys-onboard",
+    "i just cloned this": "sys-onboard",
+    "help me set up": "sys-onboard",
+    "first time setup": "sys-onboard",
+    "gata": "sys-session-close",
+    "am terminat": "sys-session-close",
+    "inchidem": "sys-session-close",
+    "inchid sesiunea": "sys-session-close",
+    "ma opresc aici": "sys-session-close",
+    "pa": "sys-session-close",
+    "merci, gata": "sys-session-close",
+    "thanks": "sys-session-close",
+    "that's it": "sys-session-close",
+    "done for today": "sys-session-close",
+    "bye": "sys-session-close",
+    "wrap up": "sys-session-close",
+    "close session": "sys-session-close",
+    "session done": "sys-session-close",
+    "signing off": "sys-session-close",
+    "i'm done": "sys-session-close",
+    "creeaza un skill": "sys-skill-builder",
+    "construieste un skill": "sys-skill-builder",
+    "skill nou": "sys-skill-builder",
+    "fa un skill": "sys-skill-builder",
+    "adauga un skill": "sys-skill-builder",
+    "skill builder": "sys-skill-builder",
+    "create a skill": "sys-skill-builder",
+    "build a skill": "sys-skill-builder",
+    "new skill": "sys-skill-builder",
+    "umanizeaza": "tool-humanizer",
+    "fa-l natural": "tool-humanizer",
+    "sterge pattern ai": "tool-humanizer",
+    "suna prea ai": "tool-humanizer",
+    "curata textul": "tool-humanizer",
+    "humanize this": "tool-humanizer",
+    "make this sound human": "tool-humanizer",
+    "remove ai patterns": "tool-humanizer",
+    "ai detection": "tool-humanizer"
+  },
+  "skills": [
+    {
+      "name": "brand-audience",
+      "version": "1.0.0",
+      "category": "brand",
+      "description": "Build an Ideal Customer Profile through founder interview or competitor/market research. Outputs a structured audience document with demographics, psychographics, pain points, and buying triggers.",
+      "triggers": [
+        "audienta",
+        "client ideal",
+        "ICP",
+        "cui ii vand",
+        "buyer persona",
+        "avatar client",
+        "target audience",
+        "audience research"
+      ],
+      "negative_triggers": [
+        "voce de brand",
+        "pozitionare",
+        "brand voice",
+        "positioning",
+        "competitor landscape"
+      ],
+      "context_loads": [
+        "brand/audience.md (writes)",
+        "brand/positioning.md (summary)",
+        "brand/voice.md (summary)",
+        "context/learnings.md (section brand-audience)"
+      ],
+      "inputs": [
+        "mode (optional: interview | research -- auto-detected if not specified)",
+        "source_urls (optional: competitor sites, review pages, social links for research mode)",
+        "product_description (optional: what the business sells)"
+      ],
+      "outputs": [
+        "brand/audience.md (structured ICP document)"
+      ],
+      "last_modified": "2026-05-05T05:19:36.416Z"
+    },
+    {
+      "name": "brand-positioning",
+      "version": "1.0.0",
+      "category": "brand",
+      "description": "Find the angle that makes a product or brand stand out. Researches competitors, maps the messaging landscape, generates positioning angles, and recommends the strongest one.",
+      "triggers": [
+        "pozitionare",
+        "diferentiere",
+        "ce e hook-ul",
+        "USP",
+        "cum ma pozitionez",
+        "fa-l sa iasa in evidenta",
+        "unghi unic",
+        "positioning",
+        "differentiation",
+        "make this stand out"
+      ],
+      "negative_triggers": [
+        "voce de brand",
+        "audienta",
+        "brand voice",
+        "buyer persona"
+      ],
+      "context_loads": [
+        "brand/positioning.md (writes)",
+        "brand/voice.md (summary)",
+        "brand/audience.md (summary)",
+        "context/learnings.md (section brand-positioning)"
+      ],
+      "inputs": [
+        "product_description (required: what the business sells)",
+        "competitors (optional: known competitor names or URLs)",
+        "constraints (optional: what's off the table for positioning)"
+      ],
+      "outputs": [
+        "brand/positioning.md (complete positioning document)"
+      ],
+      "last_modified": "2026-05-05T05:19:44.258Z"
+    },
+    {
+      "name": "brand-voice",
+      "version": "1.0.0",
+      "category": "brand",
+      "description": "Extract or build a brand voice profile through 4 modes: import existing guidelines, extract from content, build via interview, or auto-scrape from URL.",
+      "triggers": [
+        "voce de brand",
+        "stil de scris",
+        "ton brand",
+        "analizeaza continutul meu",
+        "ghid voce",
+        "defineste vocea",
+        "brand voice",
+        "tone of voice",
+        "writing style"
+      ],
+      "negative_triggers": [
+        "pozitionare",
+        "audienta",
+        "keyword",
+        "competitor analysis",
+        "positioning"
+      ],
+      "context_loads": [
+        "brand/voice.md (writes)",
+        "brand/samples.md (writes)",
+        "brand/positioning.md (summary)",
+        "brand/audience.md (summary)",
+        "context/learnings.md (section brand-voice)"
+      ],
+      "inputs": [
+        "mode (optional: import | extract | build | auto-scrape -- auto-detected if not specified)",
+        "source_urls (optional: URLs for extract/auto-scrape modes)",
+        "guidelines_doc (optional: path or pasted text for import mode)"
+      ],
+      "outputs": [
+        "brand/voice.md (6-dimension voice profile)",
+        "brand/samples.md (3-5 example outputs)"
+      ],
+      "last_modified": "2026-05-05T05:18:55.977Z"
+    },
+    {
+      "name": "content-blog-post",
+      "version": "1.0.0",
+      "category": "content",
+      "description": "Write SEO-optimized blog posts matched to brand voice. Includes keyword research, competitive gap analysis, structured outline, humanizer pass, and full meta tag generation.",
+      "triggers": [
+        "scrie un articol",
+        "blog despre",
+        "articol SEO",
+        "draft blog",
+        "write a blog post",
+        "blog post about",
+        "SEO article",
+        "write an article"
+      ],
+      "negative_triggers": [
+        "post social",
+        "landing page",
+        "email",
+        "ad copy",
+        "repurpose",
+        "social post"
+      ],
+      "context_loads": [
+        "brand/voice.md (reads)",
+        "brand/audience.md (reads)",
+        "brand/positioning.md (summary)",
+        "context/learnings.md (section content-blog-post)"
+      ],
+      "inputs": [
+        "topic (required)",
+        "keywords (optional: target keywords, auto-researched if not provided)",
+        "target_length (optional: word count, default 1200)",
+        "intent (optional: informational | commercial | transactional | navigational)"
+      ],
+      "outputs": [
+        "Blog post draft in projects/content-blog-post/",
+        "SEO metadata (title tag, meta description, slug)"
+      ],
+      "last_modified": "2026-05-05T05:18:38.923Z"
+    },
+    {
+      "name": "content-copywriting",
+      "version": "1.0.0",
+      "category": "content",
+      "description": "Persuasive copy for landing pages, sales pages, emails, ads, and social posts. Picks framework based on format and audience awareness level, scores on 7 dimensions, and runs humanizer pass.",
+      "triggers": [
+        "scrie copy",
+        "copy pentru landing",
+        "ajuta-ma sa vand",
+        "sa converteasca",
+        "headline",
+        "tagline",
+        "CTA",
+        "copy email",
+        "copy ad",
+        "write copy",
+        "landing page copy",
+        "sales page",
+        "ad copy"
+      ],
+      "negative_triggers": [
+        "articol",
+        "blog post",
+        "SEO article",
+        "repurpose",
+        "social posts from"
+      ],
+      "context_loads": [
+        "brand/voice.md (reads)",
+        "brand/audience.md (reads)",
+        "brand/positioning.md (reads)",
+        "context/learnings.md (section content-copywriting)"
+      ],
+      "inputs": [
+        "format (required: landing-page | sales-page | email | ad | social | headline)",
+        "product_or_offer (required: what we're selling)",
+        "audience (optional: overrides brand/audience.md if provided)",
+        "awareness_level (optional: 1-5, auto-detected if not specified)"
+      ],
+      "outputs": [
+        "Copy draft in projects/content-copywriting/",
+        "Score card (7 dimensions)"
+      ],
+      "last_modified": "2026-05-05T05:18:47.978Z"
+    },
+    {
+      "name": "content-repurpose",
+      "version": "1.0.0",
+      "category": "content",
+      "description": "Turn one piece of content into platform-native posts for LinkedIn, Twitter/X, Instagram, TikTok, YouTube, Threads, Bluesky, and Reddit. Extracts core atoms and adapts format, tone, and hooks per platform.",
+      "triggers": [
+        "transforma in social",
+        "fa posturi din asta",
+        "calendar content",
+        "fa un thread",
+        "post LinkedIn din",
+        "adapteaza pentru",
+        "repurpose this",
+        "turn this into social posts",
+        "social posts from"
+      ],
+      "negative_triggers": [
+        "scrie copy",
+        "landing page",
+        "sales page",
+        "articol",
+        "blog post",
+        "SEO article"
+      ],
+      "context_loads": [
+        "brand/voice.md (reads)",
+        "brand/audience.md (summary)",
+        "context/learnings.md (section content-repurpose)"
+      ],
+      "inputs": [
+        "source (required: URL, file path, or pasted text)",
+        "platforms (optional: comma-separated list, defaults to all)",
+        "angle (optional: specific angle or hook to emphasize)"
+      ],
+      "outputs": [
+        "Per-platform files in projects/content-repurpose/"
+      ],
+      "last_modified": "2026-05-05T05:19:52.836Z"
+    },
+    {
+      "name": "research-competitors",
+      "version": "1.0.0",
+      "category": "research",
+      "description": "Analyze competitor messaging, positioning, and pricing. Scrapes competitor sites, builds a comparison matrix, identifies market gaps, and recommends differentiators.",
+      "triggers": [
+        "analiza competitori",
+        "ce zic concurentii",
+        "competitor analysis",
+        "cum se pozitioneaza ei",
+        "compara-ne cu",
+        "competitive landscape",
+        "competitor research"
+      ],
+      "negative_triggers": [
+        "trending",
+        "trend",
+        "voce de brand",
+        "scrie copy"
+      ],
+      "context_loads": [
+        "brand/positioning.md (reads, for comparison baseline)",
+        "brand/audience.md (reads, for overlap detection)",
+        "brand/voice.md (summary, for tone comparison)",
+        "context/learnings.md (section research-competitors)"
+      ],
+      "inputs": [
+        "competitors (required: 3-5 URLs or company names)",
+        "focus (optional: messaging | pricing | features | audience | all, default: all)",
+        "our_url (optional: your own site for direct comparison)"
+      ],
+      "outputs": [
+        "Competitor analysis in projects/research-competitors/"
+      ],
+      "last_modified": "2026-05-05T05:20:09.867Z"
+    },
+    {
+      "name": "research-trending",
+      "version": "1.0.0",
+      "category": "research",
+      "description": "Research what is trending in the last 30 days across Reddit, Twitter/X, Hacker News, YouTube, and industry blogs. Extracts discussions, pain points, opinions, and content gaps.",
+      "triggers": [
+        "ce e trend",
+        "ce se discuta despre",
+        "trending in",
+        "ultimele 30 zile",
+        "dig into",
+        "ce e hot in",
+        "research",
+        "what's trending",
+        "pulse check on"
+      ],
+      "negative_triggers": [
+        "voce de brand",
+        "pozitionare",
+        "competitor analysis",
+        "analiza competitori"
+      ],
+      "context_loads": [
+        "brand/audience.md (summary, for relevance filtering)",
+        "context/learnings.md (section research-trending)"
+      ],
+      "inputs": [
+        "topic (required: niche, keyword, or industry)",
+        "timeframe (optional: defaults to 30 days)",
+        "focus (optional: pain points | opportunities | opinions | all)"
+      ],
+      "outputs": [
+        "Research brief in projects/research-trending/"
+      ],
+      "last_modified": "2026-05-05T05:20:01.620Z"
+    },
+    {
+      "name": "sys-audit",
+      "version": "1.2.0",
+      "category": "sys",
+      "description": "Scor 4C (Context, Connections, Capabilities, Cadence) din 100. Identifica top gaps, sugereaza fix-uri, poate auto-repara gap-urile intr-un loop bounded. Cache pe baza mtime hash pentru re-run-uri rapide.",
+      "triggers": [
+        "audit",
+        "verifica setup-ul",
+        "cum stau",
+        "scor 4C",
+        "run an audit",
+        "how's my setup",
+        "what am I missing",
+        "4C score",
+        "check my AIOS"
+      ],
+      "negative_triggers": [
+        "audit a client",
+        "security audit",
+        "code audit"
+      ],
+      "context_loads": [
+        "context/USER.md (reads)",
+        "brand/voice.md (reads)",
+        "brand/audience.md (reads)",
+        "brand/positioning.md (reads)",
+        "brand/samples.md (reads)",
+        "context/priorities.md (reads)",
+        "connections.md (reads)",
+        "context/learnings.md (reads)",
+        "data/audit-cache.json (reads, writes)"
+      ],
+      "inputs": [
+        "mode (optional: \"full\" | \"quick\" | \"force\", default \"full\")"
+      ],
+      "outputs": [
+        "context/audits/{YYYY-MM-DD}.md",
+        "data/audit-cache.json (cache cu mtime hash)",
+        "Terminal report cu scor si recomandari"
+      ],
+      "last_modified": "2026-05-04T21:56:41.022Z"
+    },
+    {
+      "name": "sys-daily-plan",
+      "version": "1.0.0",
+      "category": "sys",
+      "description": "Morning planning skill. Reads recent memory, priorities, and open threads to produce a focused daily plan with 3 priorities and skill suggestions.",
+      "triggers": [
+        "plan my day",
+        "planifica-mi ziua",
+        "plan de zi",
+        "morning coffee",
+        "daily plan",
+        "what should I focus on",
+        "what's on my plate",
+        "ce am de facut azi"
+      ],
+      "negative_triggers": [
+        "plan a project",
+        "plan a campaign",
+        "quarterly plan"
+      ],
+      "context_loads": [
+        "context/priorities.md (reads)",
+        "context/memory/ (reads last 3 days)",
+        "connections.md (reads, summary only)",
+        "context/learnings.md (reads, summary only)"
+      ],
+      "inputs": [
+        "date (optional, defaults to today)"
+      ],
+      "outputs": [
+        "Daily plan written to today's memory file"
+      ],
+      "last_modified": "2026-05-04T20:54:25.568Z"
+    },
+    {
+      "name": "sys-goal-breakdown",
+      "version": "1.0.0",
+      "category": "sys",
+      "description": "Breaks a goal into actionable tasks. Classifies into 3 levels (single task, planned project, multi-phase GSD), creates briefs, and tracks tasks.",
+      "triggers": [
+        "sparge in pasi",
+        "planifica asta",
+        "breakdown task",
+        "ce pasi am",
+        "din ce e format",
+        "descompune",
+        "break this down",
+        "plan this out",
+        "scope this work",
+        "decompose this",
+        "what are the steps"
+      ],
+      "negative_triggers": [
+        "analiza date",
+        "break down analytics",
+        "plan a blog post",
+        "planifica un articol"
+      ],
+      "context_loads": [
+        "projects/briefs/ (reads directory)",
+        "context/memory/YYYY-MM-DD.md (writes)",
+        "context/learnings.md (section sys-goal-breakdown)"
+      ],
+      "inputs": [
+        "goal (required: what the user wants to accomplish)",
+        "deadline (optional: when it needs to be done)",
+        "constraints (optional: budget, tools, team size)"
+      ],
+      "outputs": [
+        "Task list (Level 1)",
+        "projects/briefs/{slug}/brief.md (Level 2+)",
+        "projects/briefs/{slug}/.planning/ (Level 3)"
+      ],
+      "last_modified": "2026-05-05T05:19:12.132Z"
+    },
+    {
+      "name": "sys-level-up",
+      "version": "1.1.0",
+      "category": "sys",
+      "description": "Asks 5 targeted questions to discover what to automate next. Filters through feasibility gate to only suggest what robOS can actually deliver.",
+      "triggers": [
+        "level up",
+        "ce sa automatizez",
+        "imbunatateste",
+        "urmatorul pas",
+        "what should I automate",
+        "what's next",
+        "help me improve",
+        "find automation opportunities"
+      ],
+      "negative_triggers": [
+        "level up a skill",
+        "upgrade",
+        "update"
+      ],
+      "context_loads": [
+        "context/USER.md (reads)",
+        "context/priorities.md (reads)",
+        "connections.md (reads)",
+        "context/learnings.md (reads)",
+        "skills/_catalog/catalog.json (reads)"
+      ],
+      "inputs": [],
+      "outputs": [
+        "3 concrete suggestions (skill to build, skill to install, or connection to add)",
+        "Optionally: new skill created via sys-skill-builder"
+      ],
+      "last_modified": "2026-05-04T20:54:25.569Z"
+    },
+    {
+      "name": "sys-onboard",
+      "version": "1.0.0",
+      "category": "sys",
+      "description": "Interactive onboarding that populates all brand and context files in under 15 minutes. Selects a starter pack, personalizes it through a 5-question interview, and runs one skill live so the user sees real output on day one.",
+      "triggers": [
+        "ajuta-ma sa incep",
+        "configurare",
+        "pornire",
+        "onboard me",
+        "onboarding",
+        "set up my AIOS",
+        "get started",
+        "I just cloned this",
+        "help me set up",
+        "first time setup"
+      ],
+      "negative_triggers": [
+        "onboard a client",
+        "client onboarding",
+        "set up a new client"
+      ],
+      "context_loads": [
+        "context/USER.md (writes)",
+        "brand/voice.md (writes)",
+        "brand/audience.md (writes)",
+        "brand/positioning.md (writes)",
+        "brand/samples.md (writes)",
+        "context/priorities.md (writes, new file)",
+        "connections.md (writes, new file in root)",
+        "context/learnings.md (section sys-onboard)"
+      ],
+      "inputs": [
+        "starter_pack (optional: consultant, agency, ecommerce, creator)"
+      ],
+      "outputs": [
+        "Populated brand/ files (voice.md, audience.md, positioning.md)",
+        "context/USER.md with real profile",
+        "context/priorities.md with current goals",
+        "connections.md with tool inventory",
+        "One completed skill run in projects/"
+      ],
+      "last_modified": "2026-05-05T05:18:30.752Z"
+    },
+    {
+      "name": "sys-session-close",
+      "version": "1.2.0",
+      "category": "sys",
+      "description": "Inchidere de sesiune cu poarta de confirmare. Verifica deliverables, plan alignment, colecteaza feedback, loghez learnings, finalizeaza memoria zilei si verifica modificari git ne-comise.",
+      "triggers": [
+        "gata",
+        "am terminat",
+        "inchidem",
+        "inchid sesiunea",
+        "ma opresc aici",
+        "pa",
+        "merci, gata",
+        "thanks",
+        "that's it",
+        "done for today",
+        "bye",
+        "wrap up",
+        "close session",
+        "session done",
+        "signing off",
+        "I'm done"
+      ],
+      "negative_triggers": [
+        "thanks, now",
+        "thanks, also",
+        "thanks, can you",
+        "thanks for that, next",
+        "merci, acum",
+        "merci, mai am",
+        "gata cu asta, urmatorul"
+      ],
+      "context_loads": [
+        "context/memory/YYYY-MM-DD.md (writes)",
+        "context/learnings.md (appends if feedback given)"
+      ],
+      "inputs": [],
+      "outputs": [
+        "context/memory/YYYY-MM-DD.md actualizat",
+        "context/learnings.md actualizat (daca s-a dat feedback)"
+      ],
+      "last_modified": "2026-05-05T05:16:14.349Z"
+    },
+    {
+      "name": "sys-skill-builder",
+      "version": "1.0.0",
+      "category": "sys",
+      "description": "Creates new skills for robOS. Walks through purpose, triggers, reference materials, drafts SKILL.md with proper frontmatter, creates directory structure, and validates with a test run.",
+      "triggers": [
+        "creeaza un skill",
+        "construieste un skill",
+        "skill nou",
+        "fa un skill",
+        "adauga un skill",
+        "skill builder",
+        "create a skill",
+        "build a skill",
+        "new skill"
+      ],
+      "negative_triggers": [
+        "instaleaza un skill",
+        "actualizeaza un skill",
+        "sterge un skill",
+        "install a skill",
+        "update a skill",
+        "remove a skill"
+      ],
+      "context_loads": [
+        "skills/_catalog/catalog.json (reads)",
+        "context/learnings.md (section sys-skill-builder)"
+      ],
+      "inputs": [
+        "skill_idea (required: what the skill should do)",
+        "references (optional: URLs, docs, or example outputs)"
+      ],
+      "outputs": [
+        "skills/{skill-name}/SKILL.md",
+        "skills/{skill-name}/references/ (if reference materials provided)",
+        "Updated skills/_catalog/catalog.json"
+      ],
+      "last_modified": "2026-05-05T05:19:03.228Z"
+    },
+    {
+      "name": "tool-humanizer",
+      "version": "1.0.0",
+      "category": "tool",
+      "description": "Strip AI writing patterns from text. Detects and fixes 10 pattern categories across 3 modes: quick (obvious fixes), standard (full scan with scoring), and deep (voice-matched rewrite).",
+      "triggers": [
+        "umanizeaza",
+        "fa-l natural",
+        "sterge pattern AI",
+        "suna prea AI",
+        "curata textul",
+        "humanize this",
+        "make this sound human",
+        "remove AI patterns",
+        "AI detection"
+      ],
+      "negative_triggers": [
+        "voce de brand",
+        "pozitionare",
+        "tradu",
+        "brand voice",
+        "positioning",
+        "translate"
+      ],
+      "context_loads": [
+        "brand/voice.md (reads, only in deep mode)",
+        "context/learnings.md (section tool-humanizer)"
+      ],
+      "inputs": [
+        "text (required: the text to humanize, pasted or file path)",
+        "mode (optional: quick | standard | deep, default: standard)"
+      ],
+      "outputs": [
+        "Cleaned text (returned inline or saved to original file)",
+        "Pattern report (standard and deep modes)"
+      ],
+      "last_modified": "2026-05-05T05:19:21.281Z"
+    }
+  ]
+}

@@ -4,28 +4,28 @@ set -euo pipefail
 ROBOS_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 CATALOG="$ROBOS_ROOT/skills/_catalog"
 SKILLS_DIR="$ROBOS_ROOT/skills"
-AGENTS_FILE="$ROBOS_ROOT/AGENTS.md"
 
 usage() {
-    echo "Usage: add-skill.sh <skill-name>"
+    echo "Folosire: add-skill.sh <skill-name>"
     echo ""
-    echo "Install a skill from the catalog into active skills."
+    echo "Instaleaza un skill din catalog in skills/."
     echo ""
-    echo "Available skills:"
+    echo "Skills disponibile:"
     if [ -d "$CATALOG" ]; then
         for d in "$CATALOG"/*/; do
             [ -d "$d" ] || continue
             name=$(basename "$d")
+            [ "$name" = "starter-packs" ] && continue
             desc=""
             if [ -f "$d/SKILL.md" ]; then
-                desc=$(grep -m1 "^description:" "$d/SKILL.md" 2>/dev/null | sed 's/^description: *//' || echo "")
+                desc=$(grep -m1 "^description:" "$d/SKILL.md" 2>/dev/null | sed 's/^description: *//;s/^"//;s/"$//' || echo "")
             fi
             installed=""
-            [ -d "$SKILLS_DIR/$name" ] && installed=" [installed]"
+            [ -d "$SKILLS_DIR/$name" ] && installed=" [instalat]"
             echo "  $name${desc:+ -- $desc}${installed}"
         done
     else
-        echo "  (catalog is empty)"
+        echo "  (catalogul e gol)"
     fi
     exit 1
 }
@@ -36,36 +36,32 @@ SKILL_NAME="$1"
 SKILL_SRC="$CATALOG/$SKILL_NAME"
 SKILL_DST="$SKILLS_DIR/$SKILL_NAME"
 
-# Validate
+# Validare
 if [ ! -d "$SKILL_SRC" ]; then
-    echo "ERROR: Skill '$SKILL_NAME' not found in catalog."
-    echo "Run: ./scripts/list-skills.sh to see available skills."
+    echo "EROARE: Skill-ul '$SKILL_NAME' nu exista in catalog."
+    echo "Ruleaza: ./scripts/list-skills.sh ca sa vezi ce e disponibil."
+    exit 1
+fi
+
+if [ ! -f "$SKILL_SRC/SKILL.md" ]; then
+    echo "EROARE: $SKILL_SRC/SKILL.md lipseste. Catalogul e corupt."
     exit 1
 fi
 
 if [ -d "$SKILL_DST" ]; then
-    echo "Skill '$SKILL_NAME' is already installed."
-    echo "To reinstall, remove it first: ./scripts/remove-skill.sh $SKILL_NAME"
+    echo "Skill-ul '$SKILL_NAME' e deja instalat."
+    echo "Pentru reinstalare: ./scripts/remove-skill.sh $SKILL_NAME"
     exit 0
 fi
 
-# Copy skill
+# Copiaza skill-ul
 cp -r "$SKILL_SRC" "$SKILL_DST"
-echo "[OK] Installed skill: $SKILL_NAME"
+echo "[OK] Instalat: $SKILL_NAME"
 
-# Update registry in AGENTS.md
-if [ -f "$SKILL_DST/SKILL.md" ]; then
-    version=$(grep -m1 "^version:" "$SKILL_DST/SKILL.md" 2>/dev/null | sed 's/^version: *//' || echo "0.0.0")
-    category=$(grep -m1 "^category:" "$SKILL_DST/SKILL.md" 2>/dev/null | sed 's/^category: *//' || echo "unknown")
-    desc=$(grep -m1 "^description:" "$SKILL_DST/SKILL.md" 2>/dev/null | sed 's/^description: *//' || echo "")
-
-    # Append to registry table (before the empty line after the table header)
-    if grep -q "^| Skill | Version | Category | Description |" "$AGENTS_FILE" 2>/dev/null; then
-        # Add row after the separator line
-        sed -i "/^|-------|---------|----------|-------------|$/a | ${SKILL_NAME} | ${version} | ${category} | ${desc} |" "$AGENTS_FILE"
-        echo "[OK] Updated skill registry in AGENTS.md"
-    fi
+# Regenereaza skills/_index.json (single source of truth)
+if command -v node &>/dev/null; then
+    node "$ROBOS_ROOT/scripts/rebuild-index.js"
 fi
 
 echo ""
-echo "Skill '$SKILL_NAME' is ready to use."
+echo "Skill-ul '$SKILL_NAME' e gata. Rulezi cu trigger-ul natural sau '$SKILL_NAME' direct."

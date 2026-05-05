@@ -1,90 +1,87 @@
-# robOS - Shared Project Instructions
+# robOS — Reguli partajate de proiect
 
-robOS is an agentic operating system that runs on Claude Code. It gives a single AI operator
-persistent memory, installable skills, brand context, cron scheduling, and multi-client
-workspace isolation. It ships as a template -- users clone it, run setup, and start working.
+robOS e un sistem de operare agentic care ruleaza pe Claude Code. Da unui singur operator AI memorie persistenta, skill-uri instalabile, context de brand, scheduler cron si workspace-uri multi-client izolate. Se livreaza ca template — clonezi, rulezi setup, incepi sa lucrezi.
 
 ---
 
-## Operating Rules
+## Reguli de operare
 
-### Skill Reconciliation
+### Reconciliere skills
 
-At session start, compare what's on disk (`skills/*/`) against the catalog (`skills/_catalog/`).
-If a new skill appeared in the catalog since last session, note it silently in memory -- don't
-interrupt the user. If an installed skill's version is behind the catalog version, flag it
-in the session's Open Threads.
+La startul sesiunii, compara ce e pe disk (`skills/*/`) cu catalogul (`skills/_catalog/catalog.json`). Daca a aparut un skill nou in catalog de la ultima sesiune, noteaza tacit in memorie — nu intrerupe userul. Daca un skill instalat e in urma fata de versiunea din catalog, semnaleaza in Open Threads-ul sesiunii.
 
-### Task Routing
+### Routare task-uri
 
-1. **Check installed skills first.** If a skill matches the task, use it.
-2. **Check the catalog second.** If a matching skill exists but isn't installed, tell the user:
-   "There's a skill for this (`{skill-name}`) but it's not installed. Want me to install it, or should I handle it from base knowledge?"
-3. **Fall back to base knowledge.** If no skill covers it, proceed normally.
-4. **Make skill gaps explicit.** If you encounter a recurring task with no skill, note it in
-   `context/learnings.md` under "Skill Gap" so it can be built later.
+1. **Verifica skills instalate primul.** Daca un skill matches task-ul, foloseste-l.
+2. **Verifica catalogul al doilea.** Daca exista in catalog dar nu e instalat, spune userului:
+   "Exista un skill pentru asta (`{nume}`) dar nu e instalat. Vrei sa-l instalez sau ma descurc cu cunostintele de baza?"
+3. **Fallback la cunostinte de baza.** Daca niciun skill nu acopera, procedeaza normal.
+4. **Fa lipsurile vizibile.** Daca intalnesti un task recurent fara skill, noteaza-l in `context/learnings.md` la sectiunea "Skill Gap" pentru constructie viitoare.
 
 ---
 
-## Skill Categories
+## Categorii de skills
 
-| Prefix     | Purpose                                          |
-|------------|--------------------------------------------------|
-| `brand-`   | Brand voice analysis, style guides, tone checks  |
-| `content-` | Writing, editing, publishing workflows            |
-| `research-`| Web research, competitor analysis, trend scanning |
-| `sys-`     | System operations: session, cron, maintenance     |
-| `tool-`    | External tool integrations (APIs, CLIs)           |
+| Prefix     | Scop                                               |
+|------------|----------------------------------------------------|
+| `brand-`   | Voce de brand, style guides, tone checks           |
+| `content-` | Writing, editing, publishing                       |
+| `research-`| Research web, competitor analysis, trend scanning  |
+| `sys-`     | Operatii de sistem: sesiune, cron, mentenanta      |
+| `tool-`    | Integrari cu tooluri externe (API-uri, CLI-uri)    |
 
 ---
 
 ## Skill Registry
 
-<!-- Auto-populated by skill installation. Do not edit manually. -->
-<!-- Format: | skill-name | version | category | one-line description | -->
+Sursa unica de adevar: [skills/_index.json](skills/_index.json) — generat automat de [scripts/rebuild-index.js](scripts/rebuild-index.js) la fiecare instalare/dezinstalare.
 
-| Skill | Version | Category | Description |
-|-------|---------|----------|-------------|
-| sys-onboard | 1.0.0 | sys | Interactive onboarding: starter pack, 5-question interview, first skill run |
-| sys-audit | 1.1.0 | sys | Score 4C framework (0-100) with revision loop: auto-fixes gaps in bounded iterations |
-| sys-level-up | 1.1.0 | sys | 5 discovery questions + feasibility gate to only suggest what robOS can deliver |
-| sys-daily-plan | 1.0.0 | sys | Morning planning: memory + priorities + open threads into focused daily plan |
-| brand-voice | 1.0.0 | brand | Extract or build a brand voice profile (import, extract, build, or auto-scrape) |
-| brand-audience | 1.0.0 | brand | Build an Ideal Customer Profile through interview or market research |
-| brand-positioning | 1.0.0 | brand | Find the positioning angle that makes a product stand out |
-| sys-skill-builder | 1.0.0 | sys | Create new skills with proper frontmatter, structure, and test validation |
-| sys-session-close | 1.1.0 | sys | End-of-session wrap-up with plan alignment check, feedback, and memory |
-| sys-goal-breakdown | 1.0.0 | sys | Break a goal into actionable tasks across 3 complexity levels |
-| content-copywriting | 1.0.0 | content | Persuasive copy with 7-dimension scoring for landing pages, ads, emails |
-| content-repurpose | 1.0.0 | content | Turn one piece of content into platform-native posts for 8 platforms |
-| content-blog-post | 1.0.0 | content | Write SEO-optimized blog posts with keyword research and humanizer pass |
-| research-trending | 1.0.0 | research | Research trending topics across Reddit, X, HN, YouTube in last 30 days |
-| tool-humanizer | 1.0.0 | tool | Strip AI writing patterns (10 categories, 3 modes: quick/standard/deep) |
-| research-competitors | 1.0.0 | research | Competitor messaging, pricing, and positioning analysis with gap detection |
+Pentru a vedea ce e instalat: `bash scripts/list-skills.sh`
+Pentru a vedea ce e disponibil: dashboard tab Skills, sau `cat skills/_catalog/catalog.json`
+Pentru a regenera indexul manual: `node scripts/rebuild-index.js`
+
+Dashboard-ul citeste din `_index.json` (cu fallback pe scanarea filesystem-ului). Tabela markdown nu mai e duplicata aici — daca o adaugi din nou, va deriva fata de filesystem si vei strica routarea.
 
 ---
 
-## Model Recommendations
+## Recomandari de model
 
-Skills work on any Claude model, but choosing the right tier improves cost and quality:
+Skills functioneaza pe orice model Claude, dar tier-ul potrivit imbunatateste cost si calitate:
 
-| Skill category | Recommended | Rationale |
+| Categorie skill | Recomandat | Motiv |
 |---|---|---|
-| sys-onboard, sys-audit, sys-level-up | Opus | Deep reasoning, multi-step synthesis, run rarely |
-| sys-daily-plan, sys-session-close, sys-goal-breakdown | Sonnet | Structured retrieval + planning, run daily |
-| content-blog-post, content-copywriting, content-repurpose | Sonnet | Good cost/quality balance for generation |
-| brand-voice, brand-audience, brand-positioning | Opus | Run once during setup, need nuanced analysis |
-| research-trending, research-competitors | Sonnet | Web research + synthesis, moderate complexity |
-| tool-humanizer | Haiku | Pattern-matching transformation, high-volume use |
-| sys-skill-builder | Opus | Architecture decisions, run rarely |
+| sys-onboard, sys-audit, sys-level-up | Opus | Reasoning adanc, sinteza pe pasi multipli, ruleaza rar |
+| sys-daily-plan, sys-session-close, sys-goal-breakdown | Sonnet | Retrieval structurat + planning, ruleaza zilnic |
+| content-blog-post, content-copywriting, content-repurpose | Sonnet | Cost/calitate echilibrat pentru generare |
+| brand-voice, brand-audience, brand-positioning | Opus | Ruleaza o data la setup, are nevoie de analiza nuantata |
+| research-trending, research-competitors | Sonnet | Web research + sinteza, complexitate medie |
+| tool-humanizer | Haiku | Pattern-matching de mare volum |
+| sys-skill-builder | Opus | Decizii de arhitectura, ruleaza rar |
 
-Usage: if running Claude Code with model selection (--model flag or /model command), switch before running expensive skills. Not a hard requirement -- all skills degrade gracefully on smaller models.
+Folosire: daca rulezi Claude Code cu selectie de model (`--model` sau `/model`), schimba inainte sa rulezi skills costisitoare. Nu e obligatoriu — toate skills degradeaza gratiat pe modele mai mici.
+
+---
+
+## Limba si tonul
+
+robOS e configurat in romana (operatorul e roman, brand-ul e roman). Politica de limba per suprafata:
+
+| Suprafata | Limba | Note |
+|-----------|-------|------|
+| Output skill catre operator | Romana | Cu exceptia cazului in care output-ul e pentru audienta straina (ex: blog post EN) |
+| Triggers in `SKILL.md` | Bilingv (RO + EN) | RO primul, EN ca fallback pentru users care lucreaza in EN |
+| Comentarii in cod | Engleza | Standard industrie |
+| Mesaje user-facing din scripts | Romana | `bash scripts/*.sh`, dashboard UI, erori vizibile |
+| Documentatie (`docs/`, README, AGENTS, CLAUDE) | Romana | |
+| Brand files (`brand/*.md`) | Limba operatorului | Daca face content RO -> brand RO. Tagged in samples.md. |
+
+Cand un skill produce output pentru o platforma cu audienta diferita (LinkedIn EN, Twitter EN), respecta limba audientei, nu a operatorului.
 
 ---
 
 ## Context Loading
 
-Each skill declares its own context needs in `SKILL.md` frontmatter:
+Fiecare skill isi declara nevoile in frontmatter-ul `SKILL.md`:
 
 ```yaml
 context_loads:
@@ -93,56 +90,57 @@ context_loads:
   - context/USER.md
 ```
 
-Only load what the active skill asks for. Never preload all brand files.
+Incarca DOAR ce skill-ul activ cere. Niciodata nu pre-incarca toate fisierele de brand.
 
 ---
 
 ## Output Standards
 
-### Level 1 - Quick Output
-Single files go to `projects/{category}-{type}/`. Example: `projects/content-blog-post/`.
+### Nivel 1 — Output rapid
+Fisiere singulare merg in `projects/{categorie}-{tip}/`. Exemplu: `projects/content-blog-post/`.
 
-### Level 2 - Structured Output
-Multi-file deliverables go to `projects/briefs/{name}/`. Example: `projects/briefs/q3-launch/`.
+### Nivel 2 — Output structurat
+Livrabile multi-fisier merg in `projects/briefs/{nume}/`. Exemplu: `projects/briefs/lansare-q3/`.
 
-### Level 3 - Client Output
-Client work goes to `clients/{slug}/projects/`. Same structure as above, scoped to the client.
+### Nivel 3 — Output client
+Munca per client merge in `clients/{slug}/projects/`. Aceeasi structura, scoped la client.
 
-Always include a `_metadata.json` in Level 2+ outputs:
+Include intotdeauna `_metadata.json` in output-uri Nivel 2+:
 
 ```json
 {
   "created": "2026-05-04",
   "skill": "content-blog-post",
   "status": "draft",
-  "description": "Q3 product launch blog post"
+  "description": "Articol blog pentru lansarea produsului Q3"
 }
 ```
 
 ---
 
-## Building New Skills
+## Construirea de skills noi
 
-### Directory Structure
+### Structura de directoare
 
 ```
 skills/{skill-name}/
-  SKILL.md          # Frontmatter + step-by-step instructions (required)
-  references/       # Supporting docs, API refs, examples (optional)
-  lib/              # Helper scripts if needed (optional)
+  SKILL.md          # Frontmatter + instructiuni pas cu pas (obligatoriu)
+  references/       # Documente, API refs, exemple (optional)
+  lib/              # Helper scripts daca e nevoie (optional)
 ```
 
-### SKILL.md Frontmatter
+### Frontmatter SKILL.md
 
 ```yaml
 ---
 name: content-blog-post
 version: 1.0.0
 category: content
-description: Write SEO-optimized blog posts with brand voice
+description: Articole blog optimizate SEO aliniate la voce
 triggers:
+  - "scrie un articol despre"
+  - "blog despre"
   - "write a blog post"
-  - "draft a post about"
 context_loads:
   - brand/voice.md
   - brand/audience.md
@@ -152,36 +150,35 @@ inputs:
   - keywords (optional)
   - target_length (optional, default: 1200)
 outputs:
-  - markdown draft in projects/content-blog-post/
+  - draft markdown in projects/content-blog-post/
 ---
 ```
 
-### Registration Checklist
+### Checklist de inregistrare
 
-1. Skill directory exists in `skills/`
-2. `SKILL.md` has valid frontmatter with all required fields
-3. Step-by-step instructions are actionable (not vague)
-4. Skill is listed in the Skill Registry table in this file
-5. If the skill needs API keys, they're documented in `.env.example`
-
----
-
-## Graceful Degradation
-
-robOS works at every context level:
-
-- **Zero config**: No brand files, no USER.md filled in. Skills still work with generic defaults.
-- **Partial config**: Some brand files filled in. Skills use what's available, skip what's not.
-- **Full config**: Everything filled in. Skills produce fully branded, personalized output.
-
-Never error out because a context file is empty. Use sensible defaults and note what would
-improve with more context.
+1. Directorul skill-ului exista in `skills/`
+2. `SKILL.md` are frontmatter valid cu toate campurile obligatorii
+3. Instructiuni pas-cu-pas actionabile (nu vagi)
+4. Cheama `node scripts/rebuild-index.js` (sau folosesti add-skill.sh care o face automat)
+5. Daca skill-ul are nevoie de chei API, sunt documentate in `.env.example`
 
 ---
 
-## Protected Files
+## Degradare gratiata
 
-These files are never overwritten by updates or scripts:
+robOS functioneaza pe orice nivel de context:
+
+- **Zero config**: fara fisiere brand, fara USER.md completat. Skills functioneaza cu defaults generice.
+- **Config partial**: cateva fisiere brand completate. Skills folosesc ce e disponibil, sar peste rest.
+- **Config complet**: totul completat. Skills produc output personalizat complet.
+
+Nu da niciodata eroare pentru ca un fisier de context e gol. Foloseste defaults rezonabile si noteaza ce s-ar imbunatati cu mai mult context.
+
+---
+
+## Fisiere protejate
+
+Nu sunt suprascrise niciodata de update-uri sau scripturi:
 
 - `context/USER.md`
 - `context/learnings.md`
@@ -190,4 +187,5 @@ These files are never overwritten by updates or scripts:
 - `clients/*`
 - `projects/*`
 - `cron/jobs/*`
+- `data/*` (baza de date SQLite + cache-uri)
 - `.env`

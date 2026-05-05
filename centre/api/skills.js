@@ -3,7 +3,21 @@ import { join } from 'path';
 import { workspaceRoot } from '../lib/config.js';
 
 /**
- * Parse simple YAML-like frontmatter from SKILL.md
+ * Citeste skills/_index.json (generat de scripts/rebuild-index.js).
+ * Returneaza null daca nu exista — caller-ul decide fallback.
+ */
+function readIndex() {
+  const indexPath = join(workspaceRoot, 'skills', '_index.json');
+  if (!existsSync(indexPath)) return null;
+  try {
+    return JSON.parse(readFileSync(indexPath, 'utf-8'));
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Parser minimal de YAML frontmatter (fallback cand _index.json lipseste).
  */
 function parseFrontmatter(content) {
   const normalized = content.replace(/\r\n/g, '\n');
@@ -13,22 +27,18 @@ function parseFrontmatter(content) {
   const fm = {};
   const lines = match[1].split('\n');
   let currentKey = null;
-  let currentArray = null;
 
   for (const line of lines) {
-    const kvMatch = line.match(/^(\w[\w_]*)\s*:\s*(.+)/);
+    const kvMatch = line.match(/^(\w[\w_]*)\s*:\s*(.*)$/);
     const arrayItemMatch = line.match(/^\s+-\s+"?(.+?)"?\s*$/);
 
     if (kvMatch) {
       currentKey = kvMatch[1];
-      const value = kvMatch[2].trim();
+      const value = kvMatch[2].trim().replace(/^["']|["']$/g, '');
       if (value === '') {
-        // Could be start of an array
-        currentArray = [];
-        fm[currentKey] = currentArray;
+        fm[currentKey] = [];
       } else {
         fm[currentKey] = value;
-        currentArray = null;
       }
     } else if (arrayItemMatch && currentKey) {
       if (!Array.isArray(fm[currentKey])) {
@@ -41,10 +51,7 @@ function parseFrontmatter(content) {
   return fm;
 }
 
-/**
- * Read a skill directory and return its metadata.
- */
-function readSkill(dir, name, installed) {
+function readSkillFromDisk(dir, name, installed) {
   const skillMd = join(dir, 'SKILL.md');
   if (!existsSync(skillMd)) {
     return {
@@ -71,9 +78,15 @@ function readSkill(dir, name, installed) {
 }
 
 /**
- * GET /api/skills — list installed skills
+ * GET /api/skills — listeaza skills instalate.
+ * Citeste din _index.json daca exista; altfel scaneaza filesystem.
  */
 export function listSkills() {
+  const index = readIndex();
+  if (index && Array.isArray(index.skills)) {
+    return index.skills.map(s => ({ ...s, installed: true }));
+  }
+
   const skillsDir = join(workspaceRoot, 'skills');
   if (!existsSync(skillsDir)) return [];
 
@@ -81,22 +94,28 @@ export function listSkills() {
   return entries
     .filter(e => e.isDirectory() && !e.name.startsWith('_'))
     .filter(e => existsSync(join(skillsDir, e.name, 'SKILL.md')))
-    .map(e => readSkill(join(skillsDir, e.name), e.name, true));
+    .map(e => readSkillFromDisk(join(skillsDir, e.name), e.name, true));
 }
 
 /**
- * GET /api/skills/catalog — list catalog skills (not installed)
+ * GET /api/skills/catalog — listeaza skills disponibile (din catalog.json),
+ * marcheaza cele instalate cu installed: true.
  */
 export function listCatalog() {
-  const catalogDir = join(workspaceRoot, 'skills', '_catalog');
-  if (!existsSync(catalogDir)) return [];
+  const catalogPath = join(workspaceRoot, 'skills', '_catalog', 'catalog.json');
+  if (!existsSync(catalogPath)) return [];
+
+  let catalog;
+  try {
+    catalog = JSON.parse(readFileSync(catalogPath, 'utf-8'));
+  } catch {
+    return [];
+  }
 
   const installedNames = new Set(listSkills().map(s => s.name));
 
-  const entries = readdirSync(catalogDir, { withFileTypes: true });
-  return entries
-    .filter(e => e.isDirectory())
-    .filter(e => existsSync(join(catalogDir, e.name, 'SKILL.md')))
-    .map(e => readSkill(join(catalogDir, e.name), e.name, false))
-    .filter(s => !installedNames.has(s.name));
+  return (catalog.skills || []).map(s => ({
+    ...s,
+    installed: installedNames.has(s.name),
+  }));
 }

@@ -3,14 +3,13 @@ set -euo pipefail
 
 ROBOS_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 SKILLS_DIR="$ROBOS_ROOT/skills"
-AGENTS_FILE="$ROBOS_ROOT/AGENTS.md"
 
 usage() {
-    echo "Usage: remove-skill.sh <skill-name>"
+    echo "Folosire: remove-skill.sh <skill-name>"
     echo ""
-    echo "Remove an installed skill."
+    echo "Sterge un skill instalat."
     echo ""
-    echo "Installed skills:"
+    echo "Skills instalate:"
     for d in "$SKILLS_DIR"/*/; do
         [ -d "$d" ] || continue
         name=$(basename "$d")
@@ -26,28 +25,27 @@ SKILL_NAME="$1"
 SKILL_DIR="$SKILLS_DIR/$SKILL_NAME"
 
 if [ "$SKILL_NAME" = "_catalog" ]; then
-    echo "ERROR: Cannot remove the catalog."
+    echo "EROARE: Nu poti sterge catalogul."
     exit 1
 fi
 
 if [ ! -d "$SKILL_DIR" ]; then
-    echo "ERROR: Skill '$SKILL_NAME' is not installed."
+    echo "EROARE: Skill-ul '$SKILL_NAME' nu e instalat."
     exit 1
 fi
 
-# Confirm
-read -rp "Remove skill '$SKILL_NAME'? (y/N) " confirm
+# Confirmare
+read -rp "Stergem skill-ul '$SKILL_NAME'? (y/N) " confirm
 if [[ ! "$confirm" =~ ^[Yy]$ ]]; then
-    echo "Cancelled."
+    echo "Anulat."
     exit 0
 fi
 
-# Remove directory
+# Sterge directorul
 rm -rf "$SKILL_DIR"
-echo "[OK] Removed skill: $SKILL_NAME"
+echo "[OK] Sters: $SKILL_NAME"
 
-# Remove from registry in AGENTS.md
-if [ -f "$AGENTS_FILE" ]; then
-    sed -i "/^| ${SKILL_NAME} |/d" "$AGENTS_FILE"
-    echo "[OK] Removed from skill registry"
+# Regenereaza skills/_index.json
+if command -v node &>/dev/null; then
+    node "$ROBOS_ROOT/scripts/rebuild-index.js"
 fi

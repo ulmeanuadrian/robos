@@ -1,216 +1,214 @@
 {
-  "version": "1.0.0",
-  "updated": "2026-05-04",
+  "version": "1.1.0",
+  "updated": "2026-05-05",
+  "_note": "Acest catalog listeaza skill-urile disponibile pentru instalare. Statusul 'installed' se deriva din filesystem (skills/{name}/SKILL.md). Nu pune campul 'installed' aici.",
   "skills": [
     {
       "name": "brand-voice",
       "category": "brand",
-      "description": "Extract or build a brand voice profile (import, extract, build, or auto-scrape)",
-      "core": true,
-      "installed": true
+      "description": "Extrage sau construieste un profil de voce de brand (4 moduri: import, extract, build, auto-scrape)",
+      "core": true
     },
     {
       "name": "brand-audience",
       "category": "brand",
-      "description": "Build an Ideal Customer Profile through interview or market research",
-      "core": true,
-      "installed": true
+      "description": "Construieste un profil de client ideal (ICP) prin interviu sau market research",
+      "core": true
     },
     {
       "name": "brand-positioning",
       "category": "brand",
-      "description": "Find the positioning angle that makes a product stand out from competitors",
-      "core": true,
-      "installed": true
+      "description": "Gaseste unghiul de pozitionare care te diferentiaza de competitori",
+      "core": true
     },
     {
       "name": "sys-onboard",
       "category": "sys",
-      "description": "Interactive onboarding: starter pack selection, 5-question interview, brand personalization, and first skill run",
-      "core": true,
-      "installed": true
+      "description": "Onboarding interactiv: starter pack, interviu in 5 intrebari, personalizare brand, rulare prima skill",
+      "core": true
     },
     {
       "name": "sys-audit",
       "category": "sys",
-      "description": "Score your RobOS setup on the 4C framework (Context, Connections, Capabilities, Cadence) out of 100",
-      "core": true,
-      "installed": true
+      "description": "Scor 4C (Context, Connections, Capabilities, Cadence) din 100 cu loop de revizie automata",
+      "core": true
     },
     {
       "name": "sys-level-up",
       "category": "sys",
-      "description": "5 discovery questions to find your next automation opportunity",
-      "core": true,
-      "installed": true
+      "description": "5 intrebari de descoperire pentru a gasi urmatoarea oportunitate de automatizare",
+      "core": true
     },
     {
       "name": "sys-daily-plan",
       "category": "sys",
-      "description": "Morning planning: reads memory, priorities, open threads to produce a focused daily plan",
-      "core": true,
-      "installed": true
+      "description": "Planificare de dimineata: citeste memoria, prioritatile si open threads pentru un plan zilnic focusat",
+      "core": true
     },
     {
       "name": "sys-skill-builder",
       "category": "sys",
-      "description": "Create new skills with proper frontmatter, directory structure, and test validation",
-      "core": true,
-      "installed": true
+      "description": "Creeaza skill-uri noi cu frontmatter corect, structura de directoare si validare prin test",
+      "core": true
     },
     {
       "name": "sys-session-close",
       "category": "sys",
-      "description": "End-of-session wrap-up with feedback collection, memory finalization, and git check",
-      "core": true,
-      "installed": true
+      "description": "Inchidere de sesiune cu colectare feedback, finalizare memorie si verificare git",
+      "core": true
     },
     {
       "name": "sys-goal-breakdown",
       "category": "sys",
-      "description": "Break a goal into actionable tasks across 3 levels of complexity",
-      "core": true,
-      "installed": true
+      "description": "Sparge un obiectiv in task-uri actionabile pe 3 nivele de complexitate",
+      "core": true
     },
     {
       "name": "content-blog-post",
       "category": "content",
-      "description": "Write SEO-optimized blog posts matched to brand voice and audience",
-      "core": false,
-      "installed": true
+      "description": "Articole blog optimizate SEO, aliniate la voce si audienta",
+      "core": false
     },
     {
       "name": "content-social-post",
       "category": "content",
-      "description": "Create platform-specific social media posts with optimal formatting",
-      "core": false,
-      "installed": false
+      "description": "Posturi pentru retele sociale cu formatare specifica platformei",
+      "core": false
     },
     {
       "name": "content-repurpose",
       "category": "content",
-      "description": "Turn one piece of content into platform-native posts for 8 social platforms",
-      "core": false,
-      "installed": true
+      "description": "Transforma un singur continut in posturi native pentru 8 platforme sociale",
+      "core": false
     },
     {
       "name": "content-email-sequence",
       "category": "content",
-      "description": "Build multi-step email sequences (welcome, nurture, launch, re-engagement)",
-      "core": false,
-      "installed": false
+      "description": "Secvente de email-uri (welcome, nurture, lansare, re-engagement)",
+      "core": false
     },
     {
       "name": "content-copywriting",
       "category": "content",
-      "description": "Persuasive copy with 7-dimension quality scoring for landing pages and ads",
-      "core": false,
-      "installed": true
+      "description": "Copy persuasiv cu scoring pe 7 dimensiuni pentru landing pages, ads, emails",
+      "core": false
     },
     {
       "name": "content-newsletter",
       "category": "content",
-      "description": "Write newsletter editions with curated links, commentary, and CTAs",
-      "core": false,
-      "installed": false
-    },
-    {
-      "name": "research-competitors",
-      "category": "research",
-      "description": "Deep competitor analysis with messaging, pricing, and feature comparison",
-      "core": false,
-      "installed": true
-    },
-    {
-      "name": "research-trending",
-      "category": "research",
-      "description": "Scan web, social, and news for emerging trends in a given niche",
-      "core": false,
-      "installed": true
-    },
-    {
-      "name": "research-keyword",
-      "category": "research",
-      "description": "Keyword research with search intent classification and content gap analysis",
-      "core": false,
-      "installed": false
+      "description": "Editii de newsletter cu link-uri curate, comentariu si CTA-uri",
+      "core": false
     },
     {
       "name": "content-case-study",
       "category": "content",
-      "description": "Write customer case studies from interview notes or raw data",
-      "core": false,
-      "installed": false
-    },
-    {
-      "name": "brand-style-guide",
-      "category": "brand",
-      "description": "Generate a complete brand style guide from voice, audience, and positioning",
-      "core": false,
-      "installed": false
-    },
-    {
-      "name": "tool-humanizer",
-      "category": "tool",
-      "description": "Strip AI writing patterns from text with 10 pattern categories and 3 modes",
-      "core": false,
-      "installed": true
-    },
-    {
-      "name": "tool-wp-publisher",
-      "category": "tool",
-      "description": "Publish content to WordPress with SEO metadata and featured images",
-      "core": false,
-      "installed": false
-    },
-    {
-      "name": "tool-social-scheduler",
-      "category": "tool",
-      "description": "Schedule posts across social platforms via Zernio API",
-      "core": false,
-      "installed": false
-    },
-    {
-      "name": "sys-cron-manager",
-      "category": "sys",
-      "description": "Create, edit, and monitor recurring cron jobs for automated workflows",
-      "core": false,
-      "installed": false
-    },
-    {
-      "name": "sys-client-onboard",
-      "category": "sys",
-      "description": "Set up a new client workspace with brand files, project structure, and context",
-      "core": false,
-      "installed": false
+      "description": "Studii de caz din note de interviu sau date brute",
+      "core": false
     },
     {
       "name": "content-landing-page",
       "category": "content",
-      "description": "Write landing page copy with hero, benefits, social proof, and CTA sections",
-      "core": false,
-      "installed": false
+      "description": "Copy de landing page cu hero, beneficii, social proof, CTA",
+      "core": false
+    },
+    {
+      "name": "research-competitors",
+      "category": "research",
+      "description": "Analiza competitori cu mesaj, preturi, feature comparison si gap detection",
+      "core": false
+    },
+    {
+      "name": "research-trending",
+      "category": "research",
+      "description": "Scaneaza web, social, news pentru trenduri emergente intr-o nisa",
+      "core": false
+    },
+    {
+      "name": "research-keyword",
+      "category": "research",
+      "description": "Keyword research cu clasificare intent + content gap analysis",
+      "core": false
+    },
+    {
+      "name": "brand-style-guide",
+      "category": "brand",
+      "description": "Genereaza un brand style guide complet din voice, audience, positioning",
+      "core": false
+    },
+    {
+      "name": "tool-humanizer",
+      "category": "tool",
+      "description": "Sterge pattern-uri AI din text (10 categorii, 3 moduri)",
+      "core": false
+    },
+    {
+      "name": "tool-whatsapp",
+      "category": "tool",
+      "description": "Trimite mesaje WhatsApp Business prin Cloud API. Util pentru CTA-uri si notificari client.",
+      "core": false
+    },
+    {
+      "name": "tool-drive",
+      "category": "tool",
+      "description": "Citeste / cauta / descarca fisiere din Google Drive folosind un service account",
+      "core": false
+    },
+    {
+      "name": "tool-wp-publisher",
+      "category": "tool",
+      "description": "Publica continut pe WordPress cu metadata SEO si imagini featured",
+      "core": false
+    },
+    {
+      "name": "tool-social-scheduler",
+      "category": "tool",
+      "description": "Programeaza posturi pe retele sociale prin API extern",
+      "core": false
+    },
+    {
+      "name": "sys-cron-manager",
+      "category": "sys",
+      "description": "Creeaza, editeaza si monitorizeaza job-uri cron recurente",
+      "core": false
+    },
+    {
+      "name": "sys-client-onboard",
+      "category": "sys",
+      "description": "Configureaza un workspace nou de client cu fisiere brand, structura proiecte si context",
+      "core": false
+    },
+    {
+      "name": "sys-archive-memory",
+      "category": "sys",
+      "description": "Arhiveaza fisierele de memorie zilnice intr-un sumar lunar (rollup)",
+      "core": false
+    },
+    {
+      "name": "sys-connections-scan",
+      "category": "sys",
+      "description": "Scaneaza .env si MCP config, identifica conexiunile active si actualizeaza connections.md",
+      "core": false
     }
   ],
   "starterPacks": [
     {
       "name": "consultant",
-      "description": "Solo consultants and coaches",
+      "description": "Consultanti solo si coach-i",
       "files": ["voice.md", "audience.md", "positioning.md"]
     },
     {
       "name": "agency",
-      "description": "Small marketing/creative agencies (2-10 people)",
+      "description": "Agentii mici de marketing/creative (2-10 persoane)",
       "files": ["voice.md", "audience.md", "positioning.md"]
     },
     {
       "name": "ecommerce",
-      "description": "Online store owners (Shopify, WooCommerce, etc.)",
+      "description": "Magazine online (Shopify, WooCommerce, etc.)",
       "files": ["voice.md", "audience.md", "positioning.md"]
     },
     {
       "name": "creator",
-      "description": "Content creators, YouTubers, newsletter writers",
+      "description": "Creatori de continut, YouTuberi, autori de newsletter",
       "files": ["voice.md", "audience.md", "positioning.md"]
     }
   ]
