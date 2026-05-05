@@ -5,7 +5,7 @@ import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 
 import { listTasks, createTask, getTask, updateTask, deleteTask } from './api/tasks.js';
-import { listJobs, createJob, updateJob, triggerRun, getHistory } from './api/cron.js';
+import { listJobs, createJob, updateJob, deleteJob, triggerRun, getHistory, getRunLog, getStatus as getCronStatus } from './api/cron.js';
 import { listSkills, listCatalog } from './api/skills.js';
 import { listFiles, readFile } from './api/files.js';
 import { getEnv, setEnv, getMcp, setMcp } from './api/settings.js';
@@ -14,6 +14,7 @@ import { listClients } from './api/clients.js';
 import { handleSse } from './api/events.js';
 import { getSkillStats, getCostBreakdown, getQualityStats } from './api/analytics.js';
 import { closeDb } from './lib/db.js';
+import { startScheduler, stopScheduler } from './lib/cron-scheduler.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -158,10 +159,13 @@ async function handleApi(req, res, pathname, query) {
       const body = await readBody(req);
       return json(res, createJob(body), 201);
     }
+    if (pathname === '/api/cron/status' && method === 'GET') {
+      return json(res, getCronStatus());
+    }
 
     const cronRunMatch = pathname.match(/^\/api\/cron\/([^/]+)\/run$/);
     if (cronRunMatch && method === 'POST') {
-      const run = triggerRun(cronRunMatch[1]);
+      const run = await triggerRun(cronRunMatch[1]);
       return run ? json(res, run, 201) : error(res, 'Job not found', 404);
     }
 
@@ -170,11 +174,23 @@ async function handleApi(req, res, pathname, query) {
       return json(res, getHistory(cronHistoryMatch[1]));
     }
 
-    const cronPatchMatch = pathname.match(/^\/api\/cron\/([^/]+)$/);
-    if (cronPatchMatch && method === 'PATCH') {
+    const cronLogMatch = pathname.match(/^\/api\/cron\/([^/]+)\/runs\/(\d+)\/log$/);
+    if (cronLogMatch && method === 'GET') {
+      const slug = cronLogMatch[1];
+      const runId = parseInt(cronLogMatch[2], 10);
+      const data = getRunLog(slug, runId);
+      return data ? json(res, data) : error(res, 'Run not found', 404);
+    }
+
+    const cronSlugMatch = pathname.match(/^\/api\/cron\/([^/]+)$/);
+    if (cronSlugMatch && method === 'PATCH') {
       const body = await readBody(req);
-      const updated = updateJob(cronPatchMatch[1], body);
+      const updated = updateJob(cronSlugMatch[1], body);
       return updated ? json(res, updated) : error(res, 'Not found', 404);
+    }
+    if (cronSlugMatch && method === 'DELETE') {
+      const ok = deleteJob(cronSlugMatch[1]);
+      return ok ? json(res, { ok: true }) : error(res, 'Not found', 404);
     }
 
     // Skills
@@ -243,8 +259,9 @@ async function handleApi(req, res, pathname, query) {
 
     return error(res, 'Not found', 404);
   } catch (e) {
-    console.error(`API error [${method} ${pathname}]:`, e.message);
-    return error(res, e.message, 500);
+    const status = e.statusCode || 500;
+    if (status >= 500) console.error(`API error [${method} ${pathname}]:`, e.message);
+    return error(res, e.message, status);
   }
 }
 
@@ -295,17 +312,24 @@ async function handler(req, res) {
 const server = http.createServer(handler);
 
 server.listen(PORT, () => {
-  console.log(`robOS Centre running on http://localhost:${PORT}`);
+  console.log(`robOS Centre ruleaza la http://localhost:${PORT}`);
+  // Pornim scheduler-ul cron in-process (inlocuieste cron-daemon.js)
+  try {
+    startScheduler();
+  } catch (e) {
+    console.error('Scheduler n-a pornit:', e.message);
+  }
 });
 
 // Graceful shutdown
 function shutdown() {
-  console.log('\nShutting down...');
+  console.log('\nInchidere...');
+  try { stopScheduler(); } catch { /* ignore */ }
   server.close(() => {
     closeDb();
     process.exit(0);
   });
-  // Force exit after 5s
+  // Force exit dupa 5s
   setTimeout(() => process.exit(1), 5000);
 }
 

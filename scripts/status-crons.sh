@@ -3,58 +3,61 @@ set -euo pipefail
 
 ROBOS_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 PID_FILE="$ROBOS_ROOT/cron/status/daemon.pid"
-STATUS_DIR="$ROBOS_ROOT/cron/status"
-JOBS_DIR="$ROBOS_ROOT/cron/jobs"
+DB_PATH="$ROBOS_ROOT/data/robos.db"
 
-echo "=== RobOS Cron Status ==="
+echo "=== robOS Cron Status ==="
 echo ""
 
-# Daemon status
+# Status daemon
 if [ -f "$PID_FILE" ]; then
     PID=$(cat "$PID_FILE")
-    if kill -0 "$PID" 2>/dev/null; then
-        echo "Daemon: RUNNING (PID $PID)"
+    if [ -n "$PID" ] && kill -0 "$PID" 2>/dev/null; then
+        echo "Daemon: RULEAZA (PID $PID)"
     else
-        echo "Daemon: STOPPED (stale PID file)"
+        echo "Daemon: OPRIT (PID file vechi)"
     fi
 else
-    echo "Daemon: STOPPED"
+    echo "Daemon: OPRIT"
 fi
 
 echo ""
 
-# Job listing
-echo "JOBS:"
+if [ ! -f "$DB_PATH" ]; then
+    echo "EROARE: $DB_PATH nu exista. Ruleaza ./scripts/setup.sh inainte."
+    exit 1
+fi
+
+# Listare joburi din DB cu ultima rulare
+echo "JOBURI:"
 echo "---"
 
-job_count=0
-if [ -d "$JOBS_DIR" ]; then
-    for job_file in "$JOBS_DIR"/*.json; do
-        [ -f "$job_file" ] || continue
-        job_count=$((job_count + 1))
+JOBS=$(sqlite3 -separator $'\t' "$DB_PATH" "
+    SELECT
+        j.slug,
+        j.name,
+        j.schedule,
+        j.active,
+        COALESCE((SELECT result FROM cron_runs WHERE jobSlug = j.slug ORDER BY startedAt DESC LIMIT 1), '-'),
+        COALESCE((SELECT startedAt FROM cron_runs WHERE jobSlug = j.slug ORDER BY startedAt DESC LIMIT 1), '-')
+    FROM cron_jobs j
+    ORDER BY j.name
+" 2>/dev/null || echo "")
 
-        name=$(python3 -c "import json; print(json.load(open('$job_file'))['name'])" 2>/dev/null || echo "$(basename "$job_file" .json)")
-        schedule=$(python3 -c "import json; print(json.load(open('$job_file'))['schedule'])" 2>/dev/null || echo "?")
-        skill=$(python3 -c "import json; print(json.load(open('$job_file')).get('skill', '-'))" 2>/dev/null || echo "-")
-        enabled=$(python3 -c "import json; print(json.load(open('$job_file')).get('enabled', True))" 2>/dev/null || echo "True")
-
-        status_icon="ON "
-        [[ "$enabled" == "False" || "$enabled" == "false" ]] && status_icon="OFF"
-
-        # Check last run
-        last_run="-"
-        status_file="$STATUS_DIR/${name}.status"
-        if [ -f "$status_file" ]; then
-            last_run=$(python3 -c "import json; print(json.load(open('$status_file')).get('last_run', '-'))" 2>/dev/null || echo "-")
-        fi
-
-        printf "  [%s] %-25s  %-15s  schedule: %s  last: %s\n" "$status_icon" "$name" "$skill" "$schedule" "$last_run"
-    done
+if [ -z "$JOBS" ]; then
+    echo "  (niciun job in DB)"
+    echo ""
+    echo "Adauga: din dashboard (tab Schedule) sau prin fisier JSON in cron/jobs/"
+    exit 0
 fi
 
-if [ "$job_count" -eq 0 ]; then
-    echo "  (no jobs configured)"
-fi
+count=0
+while IFS=$'\t' read -r slug name schedule active last_result last_run; do
+    [ -z "$slug" ] && continue
+    count=$((count + 1))
+    icon="ON "
+    [ "$active" = "0" ] && icon="OFF"
+    printf "  [%s] %-25s  schedule: %-15s  ultima: %s (%s)\n" "$icon" "$name" "$schedule" "$last_result" "$last_run"
+done <<< "$JOBS"
 
 echo ""
-echo "Total: $job_count job(s)"
+echo "Total: $count job(uri)"
