@@ -229,7 +229,7 @@ Toate la http://localhost:3001 dupa `bash scripts/start.sh`.
 
 - **Activitate** (default open): cross-session activity log. Filtru text + refresh. Cel mai util zilnic.
 - **Audituri**: history pentru startup audits, session timeouts, learnings reviews.
-- **Memorie**: editor pentru fisierele zilnice. Save creeaza backup automat in `data/memory-backups/`.
+- **Memorie**: editor pentru fisierele zilnice. Save scrie direct in `context/memory/YYYY-MM-DD.md` — istoricul ramane prin git (commit-eaza dupa modificari mari). Pentru rollback fast: `git diff context/memory/YYYY-MM-DD.md` + `git checkout -- ...`.
 - **Learnings**: viewer pentru `context/learnings.md` (read-only).
 - **Conexiuni**: testeaza chei API live (Firecrawl, OpenAI, X AI, WhatsApp, Anthropic). Click "Verifica acum".
 

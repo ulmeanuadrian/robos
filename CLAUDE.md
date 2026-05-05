@@ -130,7 +130,7 @@ When user says "morning routine" or "rutina de dimineata":
 2. Check if an audit exists in `context/audits/` from the last 7 days:
    - If NO recent audit OR it's Monday: run `sys-audit` in quick mode (score + top gap only, no full report)
    - If recent audit exists and score >= 60: skip audit, mention score briefly
-3. If audit ran and score dropped vs previous: suggest "Vrei sa rulez /level-up ca sa gasim ce s-a degradat?"
+3. If audit ran and score dropped vs previous: suggest "Vrei sa rulez **level up** ca sa gasim ce s-a degradat?" (natural-language trigger; robOS routes via skill-route.js, nu prin slash commands)
 
 Total output: max 30 lines combined. No repetition between steps.
 End with: "Gata. Prioritatea #1: {first priority}. Incepem?"
