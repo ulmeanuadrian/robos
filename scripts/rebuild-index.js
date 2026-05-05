@@ -9,7 +9,7 @@
  *  - script-urile add-skill / remove-skill cheama acest generator dupa modificari
  */
 
-import { readdirSync, readFileSync, writeFileSync, existsSync, statSync } from 'fs';
+import { readdirSync, readFileSync, writeFileSync, existsSync, statSync, renameSync, unlinkSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -118,7 +118,20 @@ function buildIndex() {
     skills,
   };
 
-  writeFileSync(INDEX_FILE, JSON.stringify(index, null, 2) + '\n', 'utf-8');
+  // Atomic write: write to .tmp, rename over original.
+  // Earlier writeFileSync truncated and rewrote in place. Between truncate
+  // and full write, a parallel reader (e.g., hook-user-prompt loadIndex)
+  // could read partial content, hit JSON.parse, and silently fall back to
+  // an empty cached index — disabling skill routing for that prompt with
+  // no surfacing.
+  const tmp = INDEX_FILE + '.tmp';
+  try {
+    writeFileSync(tmp, JSON.stringify(index, null, 2) + '\n', 'utf-8');
+    renameSync(tmp, INDEX_FILE);
+  } catch (e) {
+    try { unlinkSync(tmp); } catch {}
+    throw e;
+  }
   console.log(`[OK] skills/_index.json regenerat: ${skills.length} skills, ${Object.keys(triggerMap).length} triggers`);
 }
 
