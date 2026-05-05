@@ -21,6 +21,8 @@ Sistem de operare agentic pentru Claude Code. Da unui singur operator AI memorie
 10. [Troubleshooting](#troubleshooting)
 11. [Stack tehnic](#stack-tehnic)
 
+> **Pentru utilizare zilnica**, citeste **[docs/operator-handbook.md](docs/operator-handbook.md)** — cum se porneste/inchide o sesiune, cum functioneaza memoria si activity log, ce skill triggers exista, bune practici si troubleshooting.
+
 ---
 
 ## Instalare
