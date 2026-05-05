@@ -166,6 +166,137 @@ outputs:
 
 ---
 
+## Concurrency Patterns
+
+Cand un skill are munca naturala paralela (≥3 unitati independente, fiecare ≥10s estimat), foloseste unul din pattern-urile standardizate de mai jos. **NU inventa pattern-uri noi** — daca nu se potriveste niciunul, ramai secvential si flag-ul gap-ul aici pentru pattern viitor.
+
+### Reguli globale (invariants, nenegociabile)
+
+1. **Prag de paralelism**: helper `scripts/parallel-budget.js`, functia `shouldParallelize(units, est_seconds_per_unit)` decide. Sub prag → secvential, intentionat.
+2. **Cost cap**: max **8 sub-agenti paraleli** per invocare de skill. Daca ai mai multi, sparge in waves secventiale de cate 8.
+3. **Timeout per sub-agent**: 90s soft, 180s hard cap. Daca un agent depaseste, trateaza-l ca failed.
+4. **Retry policy**: 1 retry max, doar pentru agenti idempotenti (citire + analiza). Zero retry pentru agenti cu side-effects (file writes).
+5. **Idempotenta**: sub-agentii NU comit git, NU push, NU trimit email, NU modifica `.env`. Side-effects ireversibile raman in main thread, dupa confirmare user.
+6. **Niciun secret in prompt**: daca un agent are nevoie de API key, citeste el `.env`. Main thread nu pasa cheia ca string.
+7. **Spawn paralel = un singur mesaj**: invocarile `Agent` paralele MERG IN ACELASI MESAJ DE RASPUNS, multiple tool calls. Mesaje separate = secvential = pierzi tot castigul.
+8. **Telemetrie obligatorie**: dupa fiecare invocare paralelizata, skill-ul scrie o linie in `data/skill-telemetry.ndjson` via `parallel-budget.js log`.
+
+### Pattern 1 — Pillar Fan-Out
+
+**Cand:** skill cu N dimensiuni independente de scoring sau analiza.
+
+**Structura:**
+```
+Main → spawn paralel N agenti specialisti, fiecare pe o dimensiune
+Main → astepti toti N (sau timeout)
+Main → spawn 1 reducer agent care primeste cele N rezultate + face top-gaps/sinteza
+Main → afiseaza
+```
+
+**Failure mode:** **graceful degradation**. Daca 1-2 dimensiuni esueaza → reducer primeste flag-uri si raporteaza "incomplete (X failed)". Hard-fail doar daca ≥50% din agenti esueaza.
+
+**Cost profile:** Nx tokens, 1x wall-clock vs serial.
+
+**Skill exemplu:** sys-audit (4 piloni paraleli + reducer).
+
+### Pattern 2 — MapReduce Research
+
+**Cand:** munca care implica X surse / queries independente de scanat.
+
+**Structura:**
+```
+Main → spawn paralel N agenti, fiecare pe o sursa (web, API, doc set)
+Main → astepti toti
+Main → spawn synthesizer agent care merge + dedupe + ranking
+Main → afiseaza
+```
+
+**Failure mode:** **graceful**. Synthesizer-ul scoate sectiunea pentru sursa lipsa cu footnote. Userul vede ce a reusit + ce a esuat.
+
+**Cost profile:** Nx tokens.
+
+**Skill exemple:** research-trending, research-competitors.
+
+### Pattern 3 — Multi-Asset Generation
+
+**Cand:** o campanie / brief produce N formate de output diferite (blog + tweets + newsletter + ...).
+
+**Structura:**
+```
+Main → spawn paralel N agenti, fiecare cu prompt specializat pe formatul lui
+Main → astepti toti
+Main → afiseaza colectia / scrie in projects/briefs/{nume}/
+```
+
+**Failure mode:** **hard-fail**. Campanie incompleta = livrabil broken. Daca un agent esueaza, skill-ul opreste si raporteaza ce trebuie regenerat.
+
+**Cost profile:** Nx tokens.
+
+**Skill exemple:** content-blog-post / content-copywriting / content-repurpose in `mode=campaign`.
+
+### Pattern 4 — Multi-Angle Creativity
+
+**Cand:** content high-stakes (lansare, pitch) sau user cere explicit "show me options".
+
+**Structura:**
+```
+Main → spawn paralel 3 agenti cu prompturi STILISTIC diferite (acelasi brief, voci diferite)
+Main → astepti toti
+Main → prezinta variantele user-ului → user pick (sau Frankenstein blend)
+```
+
+**Failure mode:** **best-effort**. Daca 1 esueaza, prezinti 2. Daca 2 esueaza, fall back la generare normala.
+
+**Cost profile:** ~3x tokens. **Opt-in only** (nu default — trebuie cerut explicit sau auto-trigger pe high-stakes detection).
+
+**Skill exemple:** content-* cu `mode=options`.
+
+### Pattern 5 — Adversarial Synthesis
+
+**Cand:** decizii strategice care risca confirmation bias (sugestii level-up, recomandari brand).
+
+**Structura:**
+```
+Main → spawn paralel:
+  Agent PRO   (cel mai bun caz pentru propunere)
+  Agent CONTRA (cel mai bun caz contra)
+  Agent ALT   (alternativa neevidenta, third option)
+Main → spawn synthesizer agent → matrix de trade-offs balansata
+Main → afiseaza user-ului
+```
+
+**Failure mode:** **hard-fail**. Pentru decizii ai nevoie de toate 3 perspective sau niciuna — output partial e mai prost decat output zero.
+
+**Cost profile:** 3x tokens, folosit rar (doar la momentele de decizie reale).
+
+**Skill exemple:** sys-level-up.
+
+### Telemetrie
+
+Fiecare skill paralelizat apeleaza dupa run:
+
+```bash
+node scripts/parallel-budget.js log {skill} {mode} {agents} {failed} {wall_ms} {fallback_used}
+```
+
+Linie scrisa in `data/skill-telemetry.ndjson`:
+```json
+{"ts":"2026-05-05T19:42:11Z","skill":"sys-audit","mode":"parallel","agents":4,"agents_failed":0,"wall_clock_ms":7234,"fallback_used":false}
+```
+
+Reguli pentru telemetrie:
+- `mode`: "parallel" | "serial" | "cached" (cand cache hit a evitat work)
+- `fallback_used: true` cand graceful degradation s-a activat — saptamanal scaneaza si daca un skill foloseste fallback >20%, e bug nu feature.
+
+### Cand NU paralelizezi
+
+- Sub prag (helper-ul returneaza false)
+- Munca user-blocking (Q&A interactiv) — userul oricum asteapta
+- Side-effects ireversibile (commit, deploy, email send)
+- Cand un singur agent are deja contextul perfect si paralelismul ar duplica fetch-ul
+
+---
+
 ## Degradare gratiata
 
 robOS functioneaza pe orice nivel de context:

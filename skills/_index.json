@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-05T14:58:54.213Z",
+  "generated_at": "2026-05-05T20:05:28.998Z",
   "count": 17,
   "by_category": {
     "brand": 3,
@@ -487,9 +487,9 @@
     },
     {
       "name": "sys-audit",
-      "version": "1.2.0",
+      "version": "3.0.0",
       "category": "sys",
-      "description": "Scor 4C (Context, Connections, Capabilities, Cadence) din 100. Identifica top gaps, sugereaza fix-uri, poate auto-repara gap-urile intr-un loop bounded. Cache pe baza mtime hash pentru re-run-uri rapide.",
+      "description": "Scor 4C (Context, Connections, Capabilities, Cadence) din 100. Pillar Fan-Out: 4 sub-agenti paraleli scoreaza fiecare cate un pilon, un reducer agreaga top-gaps + delta + cache. Userul vede doar raportul final.",
       "triggers": [
         "audit",
         "verifica setup-ul",
@@ -507,31 +507,29 @@
         "code audit"
       ],
       "context_loads": [
-        "context/USER.md (reads)",
-        "brand/voice.md (reads)",
-        "brand/audience.md (reads)",
-        "brand/positioning.md (reads)",
-        "brand/samples.md (reads)",
-        "context/priorities.md (reads)",
-        "connections.md (reads)",
-        "context/learnings.md (reads)",
-        "data/audit-cache.json (reads, writes)"
+        "context/USER.md (sub-agents read)",
+        "brand/* (sub-agents read)",
+        "context/priorities.md (sub-agents read)",
+        "connections.md (sub-agents read)",
+        "context/learnings.md (sub-agents read)",
+        "data/audit-cache.json (main + reducer write)"
       ],
       "inputs": [
         "mode (optional: \"full\" | \"quick\" | \"force\", default \"full\")"
       ],
       "outputs": [
-        "context/audits/{YYYY-MM-DD}.md",
-        "data/audit-cache.json (cache cu mtime hash)",
-        "Terminal report cu scor si recomandari"
+        "context/audits/{YYYY-MM-DD}.md (in full mode, written by reducer)",
+        "data/audit-cache.json (written by reducer)",
+        "data/skill-telemetry.ndjson (appended)",
+        "Raport final concis afisat user-ului"
       ],
-      "last_modified": "2026-05-04T21:56:41.022Z"
+      "last_modified": "2026-05-05T20:05:13.996Z"
     },
     {
       "name": "sys-daily-plan",
-      "version": "1.0.0",
+      "version": "2.0.0",
       "category": "sys",
-      "description": "Morning planning skill. Reads recent memory, priorities, and open threads to produce a focused daily plan with 3 priorities and skill suggestions.",
+      "description": "Morning planning skill. Mecanica de gather + synthesis (citire memorie, priorities, learnings) e incapsulata intr-un sub-agent — userul vede doar planul propus, ajusteaza, si confirma.",
       "triggers": [
         "plan my day",
         "planifica-mi ziua",
@@ -548,18 +546,18 @@
         "quarterly plan"
       ],
       "context_loads": [
-        "context/priorities.md (reads)",
-        "context/memory/ (reads last 3 days)",
-        "connections.md (reads, summary only)",
-        "context/learnings.md (reads, summary only)"
+        "context/priorities.md (sub-agent reads)",
+        "context/memory/ (sub-agent reads last 3 days)",
+        "connections.md (sub-agent reads, summary)",
+        "context/learnings.md (sub-agent reads, summary)"
       ],
       "inputs": [
         "date (optional, defaults to today)"
       ],
       "outputs": [
-        "Daily plan written to today's memory file"
+        "Plan zilnic scris in memoria zilei (via sub-agent dupa confirmare)"
       ],
-      "last_modified": "2026-05-04T20:54:25.568Z"
+      "last_modified": "2026-05-05T19:51:36.761Z"
     },
     {
       "name": "sys-goal-breakdown",
@@ -682,9 +680,9 @@
     },
     {
       "name": "sys-session-close",
-      "version": "1.2.0",
+      "version": "2.0.0",
       "category": "sys",
-      "description": "Inchidere de sesiune cu poarta de confirmare. Verifica deliverables, plan alignment, colecteaza feedback, loghez learnings, finalizeaza memoria zilei si verifica modificari git ne-comise.",
+      "description": "Inchidere de sesiune cu poarta de confirmare. Mecanica (memorie, lint, git, plan-vs-reality) e incapsulata intr-un sub-agent — userul vede doar confirmation gate, intrebarea de feedback si sumarul final.",
       "triggers": [
         "gata",
         "am terminat",
@@ -713,21 +711,21 @@
         "gata cu asta, urmatorul"
       ],
       "context_loads": [
-        "context/memory/YYYY-MM-DD.md (writes)",
-        "context/learnings.md (appends if feedback given)"
+        "context/memory/YYYY-MM-DD.md (writes — via sub-agent)",
+        "context/learnings.md (appends — via sub-agent)"
       ],
       "inputs": [],
       "outputs": [
         "context/memory/YYYY-MM-DD.md actualizat",
         "context/learnings.md actualizat (daca s-a dat feedback)"
       ],
-      "last_modified": "2026-05-05T05:16:14.349Z"
+      "last_modified": "2026-05-05T19:48:46.428Z"
     },
     {
       "name": "sys-session-open",
-      "version": "1.0.0",
+      "version": "2.0.0",
       "category": "sys",
-      "description": "Deschidere de sesiune simetrica cu sys-session-close. Citeste SOUL/USER, verifica recovery (sesiune anterioara abandonata sau >3 zile absenta), formalizeaza protocolul de startup ca skill auditabil. Apelat automat de hook-ul UserPromptSubmit la primul prompt — dar poate fi rulat si manual.",
+      "description": "Deschidere de sesiune simetrica cu sys-session-close. Identity load, recovery check si skill reconciliation ruleaza incapsulat — userul vede cel mult o linie de salutare cu open threads, sau nimic daca primul mesaj e un task.",
       "triggers": [
         "deschide sesiunea",
         "incepe sesiunea",
@@ -741,17 +739,17 @@
         "open file"
       ],
       "context_loads": [
-        "context/SOUL.md (reads)",
-        "context/USER.md (reads)",
-        "context/memory/ (reads, latest file)",
-        "skills/_index.json (reads, summary only)"
+        "context/SOUL.md (sub-agent reads)",
+        "context/USER.md (sub-agent reads)",
+        "context/memory/ (sub-agent reads, latest file)",
+        "skills/_index.json (sub-agent reads)"
       ],
       "inputs": [],
       "outputs": [
-        "Acknowledgment intern (nu output catre user decat la prima interactiune)",
+        "State intern (memorat pentru prima interactiune)",
         "data/session-state/{session_id}.json actualizat"
       ],
-      "last_modified": "2026-05-05T14:55:17.455Z"
+      "last_modified": "2026-05-05T19:49:41.901Z"
     },
     {
       "name": "sys-skill-builder",
