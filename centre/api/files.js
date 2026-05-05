@@ -8,6 +8,33 @@ const BROWSABLE = ['context', 'brand', 'projects', 'skills', 'cron', 'clients'];
 const BROWSABLE_FILES = ['CLAUDE.md', 'AGENTS.md', 'connections.md'];
 
 /**
+ * Files and path prefixes that must NEVER be readable via the API,
+ * even if they sit inside the workspace root. These hold credentials,
+ * server config, or runtime state that has no place in the dashboard
+ * file viewer.
+ */
+const DENIED_PATHS = new Set([
+  '.env',
+  '.env.local',
+  '.env.production',
+  '.mcp.json',
+]);
+const DENIED_PREFIXES = [
+  '.claude/',
+  '.command-centre/',
+  'data/',
+  'node_modules/',
+  '.git/',
+];
+
+function isDenied(normalized) {
+  if (DENIED_PATHS.has(normalized)) return true;
+  // Normalize Windows separators before prefix check
+  const unix = normalized.replace(/\\/g, '/');
+  return DENIED_PREFIXES.some((p) => unix === p.replace(/\/$/, '') || unix.startsWith(p));
+}
+
+/**
  * Recursively build a file tree for a directory.
  */
 function buildTree(dir, relPath, maxDepth = 4) {
@@ -21,7 +48,7 @@ function buildTree(dir, relPath, maxDepth = 4) {
   }
 
   return entries
-    .filter(e => !e.name.startsWith('.') || e.name === '.env')
+    .filter(e => !e.name.startsWith('.'))
     .sort((a, b) => {
       // Directories first
       if (a.isDirectory() && !b.isDirectory()) return -1;
@@ -94,6 +121,11 @@ export function readFile(relPath) {
 
   // Security: reject any path that escapes workspace
   if (rel.startsWith('..') || rel.startsWith('/')) {
+    return null;
+  }
+
+  // Security: deny credential / runtime-state paths even inside workspace
+  if (isDenied(normalized)) {
     return null;
   }
 
