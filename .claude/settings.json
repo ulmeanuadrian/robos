@@ -1,0 +1,16 @@
+{
+  "_note": "robOS project-level hooks. Merged with user's global settings.json. Hooks here enforce session lifecycle and skill routing — see scripts/hook-user-prompt.js.",
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/scripts/hook-user-prompt.js\"",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
+}

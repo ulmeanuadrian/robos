@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-05-05T05:23:23.793Z",
-  "count": 16,
+  "generated_at": "2026-05-05T14:58:54.213Z",
+  "count": 17,
   "by_category": {
     "brand": 3,
     "content": 3,
     "research": 2,
-    "sys": 7,
+    "sys": 8,
     "tool": 1
   },
   "triggers": {
@@ -144,6 +144,12 @@
     "session done": "sys-session-close",
     "signing off": "sys-session-close",
     "i'm done": "sys-session-close",
+    "deschide sesiunea": "sys-session-open",
+    "incepe sesiunea": "sys-session-open",
+    "session open": "sys-session-open",
+    "open session": "sys-session-open",
+    "startup check": "sys-session-open",
+    "sesiune noua": "sys-session-open",
     "creeaza un skill": "sys-skill-builder",
     "construieste un skill": "sys-skill-builder",
     "skill nou": "sys-skill-builder",
@@ -716,6 +722,36 @@
         "context/learnings.md actualizat (daca s-a dat feedback)"
       ],
       "last_modified": "2026-05-05T05:16:14.349Z"
+    },
+    {
+      "name": "sys-session-open",
+      "version": "1.0.0",
+      "category": "sys",
+      "description": "Deschidere de sesiune simetrica cu sys-session-close. Citeste SOUL/USER, verifica recovery (sesiune anterioara abandonata sau >3 zile absenta), formalizeaza protocolul de startup ca skill auditabil. Apelat automat de hook-ul UserPromptSubmit la primul prompt — dar poate fi rulat si manual.",
+      "triggers": [
+        "deschide sesiunea",
+        "incepe sesiunea",
+        "session open",
+        "open session",
+        "startup check",
+        "sesiune noua"
+      ],
+      "negative_triggers": [
+        "deschide fisierul",
+        "open file"
+      ],
+      "context_loads": [
+        "context/SOUL.md (reads)",
+        "context/USER.md (reads)",
+        "context/memory/ (reads, latest file)",
+        "skills/_index.json (reads, summary only)"
+      ],
+      "inputs": [],
+      "outputs": [
+        "Acknowledgment intern (nu output catre user decat la prima interactiune)",
+        "data/session-state/{session_id}.json actualizat"
+      ],
+      "last_modified": "2026-05-05T14:55:17.455Z"
     },
     {
       "name": "sys-skill-builder",

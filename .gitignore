@@ -39,3 +39,6 @@ Thumbs.db
 .idea/
 *.sublime-workspace
 paperclip/robomarketing/
+
+# Claude Code per-user settings (project-level settings.json IS committed)
+.claude/settings.local.json

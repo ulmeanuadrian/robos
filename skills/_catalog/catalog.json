@@ -58,6 +58,12 @@
       "core": true
     },
     {
+      "name": "sys-session-open",
+      "category": "sys",
+      "description": "Deschidere de sesiune cu identity load, recovery check si surfacing open threads. Apelat de hook-ul UserPromptSubmit la primul prompt.",
+      "core": true
+    },
+    {
       "name": "sys-goal-breakdown",
       "category": "sys",
       "description": "Sparge un obiectiv in task-uri actionabile pe 3 nivele de complexitate",

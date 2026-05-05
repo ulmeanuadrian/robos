@@ -8,6 +8,8 @@ Read @AGENTS.md for shared project rules, skill categories, and output standards
 
 ### Startup (Returning Mode - Silent)
 
+**Enforcement layer:** Hook-ul `UserPromptSubmit` (in `.claude/settings.json` → `scripts/hook-user-prompt.js`) injecteaza automat un STARTUP CONTEXT bundle la primul prompt al fiecarei sesiuni — open threads, recovery flags, skill router hint. Bundle-ul vine ca system reminder, imposibil de ignorat. Skill-ul formal asociat e `sys-session-open`. Daca hook-ul a rulat, deja ai contextul; lista de mai jos descrie ce trebuie sa internalizezi indiferent.
+
 When a session begins, do the following silently (no output):
 
 1. Read `context/SOUL.md` -- internalize personality

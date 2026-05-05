@@ -12,6 +12,8 @@ La startul sesiunii, compara ce e pe disk (`skills/*/`) cu catalogul (`skills/_c
 
 ### Routare task-uri
 
+**Enforcement layer:** Hook-ul `UserPromptSubmit` ruleaza `scripts/skill-route.js` la fiecare prompt. Daca matches un trigger, injecteaza un SKILL ROUTER hint in context cu skill-ul potrivit. Cand vezi "Promptul a matchat trigger-ul X pentru skill-ul Y", foloseste skill-ul Y; daca alegi sa nu, justifica explicit de ce baza ta de cunostinte e mai potrivita.
+
 1. **Verifica skills instalate primul.** Daca un skill matches task-ul, foloseste-l.
 2. **Verifica catalogul al doilea.** Daca exista in catalog dar nu e instalat, spune userului:
    "Exista un skill pentru asta (`{nume}`) dar nu e instalat. Vrei sa-l instalez sau ma descurc cu cunostintele de baza?"
