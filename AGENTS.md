@@ -4,6 +4,34 @@ robOS e un sistem de operare agentic care ruleaza pe Claude Code. Da unui singur
 
 ---
 
+## Hook system (enforcement layer)
+
+robOS impune comportament prin **hooks** Claude Code (configurate in `.claude/settings.json`). Reguli si fapte din AGENTS.md / CLAUDE.md / SKILL.md ar fi recomandari fara hook-urile care le materializeaza la runtime.
+
+| Hook | Script | Rol |
+|------|--------|-----|
+| `UserPromptSubmit` | [scripts/hook-user-prompt.js](scripts/hook-user-prompt.js) | (a) la primul prompt al sesiunii: injecteaza STARTUP CONTEXT (memorie azi, recovery flags, open threads, instructiuni-prioritare); (b) la fiecare prompt: ruleaza skill-route.js si injecteaza SKILL ROUTER hint daca matcheaza un trigger. |
+| `Stop` (1) | [scripts/checkpoint-reminder.js](scripts/checkpoint-reminder.js) | Ridica reminder cand memoria zilei nu a primit scriere recent. Escalation in 3 trepte; al 3-lea unheeded blocheaza Stop pana cand operatorul scrie memoria. |
+| `Stop` (2) | [scripts/activity-capture.js](scripts/activity-capture.js) | Captureaza turn-ul curent in `data/activity-log.ndjson` (rotation 500 entries). Bridge cross-session — urmatorul prompt vede ce s-a intamplat ieri/saptamana trecuta. |
+
+Erori de hook → `data/hook-errors.ndjson` (rotation 500). Niciun hook nu blocheaza promptul user-ului pe baza de eroare interna; eroarea ajunge in error sink, hook-ul iese 0 (silent failure are vizibilitate via sink, nu via Claude Code).
+
+### Cron complementar (deterministic, fara tokens)
+
+| Job | Frecventa | Rol |
+|-----|-----------|-----|
+| `audit-startup.js` | zilnic 8:00 | Scaneaza memoria din ultimele 7 zile, raporteaza sesiuni abandonate. Append in `data/startup-audit.log`. |
+| `session-timeout-detector.js` | la 15 min | Detecteaza sesiuni abandonate >2h (markeri din `data/session-state/`), scrie recovery flag in `data/session-recovery/{ts}.json` consumat la urmatorul session start. |
+| `learnings-aggregator.js` | saptamanal lunea | Genereaza review din `context/learnings.md` cu pattern detection (3+ aparitii → rule candidate). Output in `context/learnings/_review-{week}.md`. |
+
+Toti scriu prin `scripts/lib/ndjson-log.js` (atomic append + rotation). Toti foloseasc `scripts/lib/memory-format.js` pentru parsare consistenta a memoriei.
+
+### Sub-agent timeouts (advisory)
+
+`SUBAGENT_TIMEOUT_MS_ADVISORY = 90s` din `parallel-budget.js` e contract de design, **NU runtime-enforced**. Agent tool e invocat declarativ in SKILL.md prompts; main thread n-are Promise.race hook. Skill-uri proiecteaza failure modes presupunand acest budget; in practica timeout-ul real vine de la harness-ul Claude Code.
+
+---
+
 ## Reguli de operare
 
 ### Reconciliere skills
