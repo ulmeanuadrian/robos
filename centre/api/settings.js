@@ -37,9 +37,11 @@ export function getEnv() {
   return vars;
 }
 
-function maskValue(val) {
-  if (!val || val.length <= 8) return '****';
-  return val.slice(0, 3) + '****';
+function maskValue() {
+  // Always return a constant mask. Earlier version leaked the first 3
+  // characters which is enough to distinguish provider families
+  // (sk-ant- vs sk-, fc-, AIza-, etc.) and reduces brute-force entropy.
+  return '****';
 }
 
 /**
@@ -93,13 +95,77 @@ export function getMcp() {
 }
 
 /**
+ * Validate one MCP server entry. Returns true if shape is safe.
+ *
+ * MCP servers run as subprocesses on next Claude session. An attacker
+ * controlling this PUT (CSRF or LAN reach) could register
+ * { command: "powershell", args: ["-c", "evil"] } and get RCE on
+ * the operator's machine. We validate the shape strictly:
+ *  - command (if present) must be a plain identifier or absolute path
+ *    matching /^[a-zA-Z0-9_./\\:-]+$/, no shell metacharacters
+ *  - args must be array of strings, each without shell-dangerous chars
+ *  - env must be object of string values, each safe
+ *  - url (for sse/http servers) must be https:// only
+ */
+const MCP_CMD_SAFE = /^[a-zA-Z0-9_./\\:-]+$/;
+function isSafeArgString(s) {
+  return typeof s === 'string' && !SHELL_DANGEROUS.test(s);
+}
+function validateMcpServer(entry, name) {
+  if (!entry || typeof entry !== 'object') return `${name}: not an object`;
+
+  // HTTP / SSE servers
+  if (entry.type === 'sse' || entry.type === 'http') {
+    if (typeof entry.url !== 'string') return `${name}: missing url`;
+    if (!/^https:\/\//i.test(entry.url)) return `${name}: only https:// urls allowed`;
+    return null;
+  }
+
+  // Stdio (subprocess) servers
+  if (entry.command !== undefined) {
+    if (typeof entry.command !== 'string' || !entry.command) return `${name}: command must be non-empty string`;
+    if (!MCP_CMD_SAFE.test(entry.command)) return `${name}: command contains unsafe characters`;
+    if (entry.command.includes('..')) return `${name}: command may not contain ..`;
+  }
+  if (entry.args !== undefined) {
+    if (!Array.isArray(entry.args)) return `${name}: args must be array`;
+    for (let i = 0; i < entry.args.length; i++) {
+      if (!isSafeArgString(entry.args[i])) return `${name}: args[${i}] contains shell-dangerous characters`;
+    }
+  }
+  if (entry.env !== undefined) {
+    if (typeof entry.env !== 'object' || Array.isArray(entry.env)) return `${name}: env must be object`;
+    for (const [k, v] of Object.entries(entry.env)) {
+      if (typeof v !== 'string') return `${name}: env.${k} must be string`;
+      if (SHELL_DANGEROUS.test(v)) return `${name}: env.${k} contains shell-dangerous characters`;
+    }
+  }
+  return null;
+}
+
+/**
  * PUT /api/settings/mcp — write .mcp.json
+ *
+ * Returns:
+ *   { ok: true } on success
+ *   { ok: false, error: '...' } on validation failure
  */
 export function setMcp(config) {
-  if (!config || typeof config !== 'object') return false;
-  if (config.mcpServers && typeof config.mcpServers !== 'object') return false;
+  if (!config || typeof config !== 'object') return { ok: false, error: 'config must be object' };
+  if (config.mcpServers !== undefined) {
+    if (typeof config.mcpServers !== 'object' || Array.isArray(config.mcpServers)) {
+      return { ok: false, error: 'mcpServers must be object' };
+    }
+    for (const [name, entry] of Object.entries(config.mcpServers)) {
+      if (!/^[a-zA-Z0-9_-]+$/.test(name)) {
+        return { ok: false, error: `mcpServers.${name}: name must match [a-zA-Z0-9_-]+` };
+      }
+      const err = validateMcpServer(entry, `mcpServers.${name}`);
+      if (err) return { ok: false, error: err };
+    }
+  }
 
   const mcpPath = join(workspaceRoot, '.mcp.json');
   writeFileSync(mcpPath, JSON.stringify(config, null, 2) + '\n', 'utf-8');
-  return true;
+  return { ok: true };
 }

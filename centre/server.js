@@ -258,7 +258,8 @@ async function handleApi(req, res, pathname, query) {
     }
     if (pathname === '/api/settings/mcp' && method === 'PUT') {
       const body = await readBody(req);
-      setMcp(body);
+      const result = setMcp(body);
+      if (!result.ok) return error(res, result.error, 400);
       return json(res, { ok: true });
     }
 
