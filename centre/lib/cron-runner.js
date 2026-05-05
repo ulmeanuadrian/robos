@@ -89,18 +89,38 @@ export async function executeJob(job, { trigger = 'scheduled', attempt = 1 } = {
   emit('cron:run:started', { slug: job.slug, runId, trigger, startedAt });
 
   const cwd = resolveCwd(job);
-  const args = ['-p', job.prompt];
-  if (job.model) args.unshift('--model', job.model);
 
-  console.log(`[cron-runner] RUN ${job.slug} (run #${runId}, trigger=${trigger}, attempt=${attempt}, cwd=${cwd})`);
+  // Mod 1: command direct (deterministic, bypass Claude). Folosit pentru audituri (audit-startup, session-timeout, learnings-aggregator).
+  // Mod 2 (default): claude -p {prompt} prin shell.
+  const useDirectCommand = job.command && typeof job.command === 'string' && job.command.trim();
+  let spawnCmd, spawnArgs, spawnOpts;
 
-  return new Promise((resolve) => {
-    const child = spawn('claude', args, {
+  if (useDirectCommand) {
+    spawnCmd = job.command.trim();
+    spawnArgs = [];
+    spawnOpts = {
+      cwd,
+      stdio: ['ignore', 'pipe', 'pipe'],
+      env: { ...process.env },
+      shell: true, // permite syntax `node scripts/foo.js` cu PATH resolution
+    };
+  } else {
+    spawnCmd = 'claude';
+    spawnArgs = ['-p', job.prompt];
+    if (job.model) spawnArgs.unshift('--model', job.model);
+    spawnOpts = {
       cwd,
       stdio: ['ignore', 'pipe', 'pipe'],
       env: { ...process.env },
       shell: process.platform === 'win32',
-    });
+    };
+  }
+
+  const mode = useDirectCommand ? 'cmd' : 'claude';
+  console.log(`[cron-runner] RUN ${job.slug} (run #${runId}, mode=${mode}, trigger=${trigger}, attempt=${attempt}, cwd=${cwd})`);
+
+  return new Promise((resolve) => {
+    const child = spawn(spawnCmd, spawnArgs, spawnOpts);
 
     let output = '';
     let timedOut = false;

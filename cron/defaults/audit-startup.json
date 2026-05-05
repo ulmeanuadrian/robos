@@ -1,0 +1,11 @@
+{
+  "slug": "audit-startup",
+  "name": "Daily startup audit",
+  "schedule": "0 8 * * *",
+  "command": "node scripts/audit-startup.js --days 7 --quiet",
+  "timeout": "30s",
+  "retries": 0,
+  "notify": "on_failure",
+  "enabled": true,
+  "_description": "Scaneaza ultimele 7 zile de memorie. Detecteaza sesiuni abandonate (fara pattern \"Session: N deliverables\"). Logheaza in data/startup-audit.log. Ruleaza zilnic la 08:00. Bypass Claude (deterministic), 0 cost token."
+}

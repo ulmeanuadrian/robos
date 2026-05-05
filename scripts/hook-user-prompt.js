@@ -115,16 +115,47 @@ function extractOpenThreads(content) {
 }
 
 /**
+ * Citeste si consuma data/session-recovery.json daca exista (creat de session-timeout-detector).
+ * Returneaza payload-ul sau null. Sterge fisierul dupa citire (one-shot).
+ */
+function consumeRecoveryFile() {
+  const recoveryPath = join(ROBOS_ROOT, 'data', 'session-recovery.json');
+  if (!existsSync(recoveryPath)) return null;
+  try {
+    const data = JSON.parse(readFileSync(recoveryPath, 'utf-8'));
+    if (data.consumed) return null;
+    // Marcheaza consumed (in loc sa stergem, pastram istoric)
+    data.consumed = true;
+    data.consumed_at = new Date().toISOString();
+    writeFileSync(recoveryPath, JSON.stringify(data, null, 2));
+    return data;
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Construieste bundle-ul de startup pentru primul prompt al sesiunii.
  */
 function buildStartupBundle() {
   const today = todayISO();
   const todayMem = readTodayMemory();
   const latest = findLatestMemoryFile();
+  const recovery = consumeRecoveryFile();
 
   const lines = [];
   lines.push(`[STARTUP CONTEXT — primul prompt al sesiunii ${today}]`);
   lines.push('');
+
+  // Recovery: daca session-timeout-detector a marcat sesiuni abandonate, surface-uim
+  if (recovery && recovery.abandoned_sessions?.length > 0) {
+    lines.push('!! RECOVERY: session-timeout-detector a marcat sesiune(i) abandonata(e):');
+    for (const s of recovery.abandoned_sessions.slice(0, 3)) {
+      lines.push(`  - ${s.sessionId} (memorie ${s.memDate || 'none'}, ${s.ageMin} min de inactivitate)`);
+    }
+    lines.push('Mentioneaza-i userului ca ultima sesiune nu s-a inchis curat si intreaba daca reia sau face cleanup.');
+    lines.push('');
+  }
 
   // Caz 1: avem memorie pentru azi
   if (todayMem) {

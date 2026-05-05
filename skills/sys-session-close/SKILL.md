@@ -135,6 +135,20 @@ Session: {N} deliverables, {M} decisions
 ```
 (Asta e pattern-ul pe care session-recovery-check-ul il cauta la urmatorul start.)
 
+# Step 4b: Lint Memory (NEW)
+
+Dupa ce ai actualizat memoria, ruleaza linter-ul:
+
+```bash
+node scripts/lint-memory.js
+```
+
+- **Exit 0** (clean): mergi mai departe.
+- **Exit 1** (errors): linter-ul a gasit sectiuni lipsa sau structura invalida. Repara INAINTE de Step 5. Adauga sectiunile lipsa, normalizeaza header-ele.
+- **Warnings** (closing pattern lipsa): poate insemna ca ai uitat linia "Session: N deliverables, M decisions". Verifica si adauga.
+
+Daca scriptul nu exista (versiune mai veche de robOS), sari peste cu un warning intern.
+
 # Step 5: Verifica Modificari Git
 
 Ruleaza `git status` in radacina proiectului. Daca exista modificari ne-comise:

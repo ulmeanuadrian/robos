@@ -6,6 +6,7 @@
 # Use git update-index --skip-worktree brand/*.md to stop tracking local edits
 context/USER.md
 context/learnings.md
+context/learnings/
 context/memory/
 projects/*
 !projects/.gitkeep

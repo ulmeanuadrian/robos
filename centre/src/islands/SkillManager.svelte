@@ -14,6 +14,32 @@
   let selectedSkill = $state<Skill | null>(null);
   let skillContent = $state('');
   let contentLoading = $state(false);
+  let runMessage = $state('');
+  let running = $state(false);
+
+  async function runSelected() {
+    if (!selectedSkill || !selectedSkill.installed || running) return;
+    running = true;
+    runMessage = '';
+    try {
+      const res = await fetch(`/api/skills/${selectedSkill.name}/run`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({}),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        runMessage = `Pornit (PID ${data.pid}). Log: ${data.log_file}`;
+      } else {
+        const err = await res.json();
+        runMessage = `Eroare: ${err.error || res.statusText}`;
+      }
+    } catch (e: any) {
+      runMessage = `Eroare retea: ${e.message}`;
+    } finally {
+      running = false;
+    }
+  }
 
   async function fetchSkills() {
     try {
@@ -128,7 +154,15 @@
           {#if selectedSkill.version}
             <span class="detail-version">v{selectedSkill.version}</span>
           {/if}
+          {#if selectedSkill.installed}
+            <button class="btn btn-primary btn-sm" onclick={runSelected} disabled={running} style="margin-left:auto;">
+              {running ? 'Se ruleaza...' : 'Run now'}
+            </button>
+          {/if}
         </div>
+        {#if runMessage}
+          <div class="run-message">{runMessage}</div>
+        {/if}
         <div class="detail-body">
           {#if contentLoading}
             <p class="detail-loading">Loading...</p>
@@ -175,6 +209,16 @@
     text-transform: uppercase;
     letter-spacing: 0.05em;
     margin: 0 0 var(--space-3) 0;
+  }
+
+  .run-message {
+    padding: var(--space-2) var(--space-3);
+    background: var(--color-surface);
+    border-left: 3px solid var(--color-primary);
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+    margin-bottom: var(--space-3);
+    word-break: break-all;
   }
 
   .catalog-title {

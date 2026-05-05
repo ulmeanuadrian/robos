@@ -7,6 +7,7 @@ import { dirname } from 'path';
 import { listTasks, createTask, getTask, updateTask, deleteTask } from './api/tasks.js';
 import { listJobs, createJob, updateJob, deleteJob, triggerRun, getHistory, getRunLog, getStatus as getCronStatus } from './api/cron.js';
 import { listSkills, listCatalog } from './api/skills.js';
+import { getAuditHistory, listMemory, getMemoryFile, saveMemoryFile, getLearnings, getConnectionHealth, runSkill } from './api/system.js';
 import { listFiles, readFile } from './api/files.js';
 import { getEnv, setEnv, getMcp, setMcp } from './api/settings.js';
 import { getSummary, getHealth } from './api/dashboard.js';
@@ -199,6 +200,36 @@ async function handleApi(req, res, pathname, query) {
     }
     if (pathname === '/api/skills/catalog' && method === 'GET') {
       return json(res, listCatalog());
+    }
+
+    const skillRunMatch = pathname.match(/^\/api\/skills\/([^/]+)\/run$/);
+    if (skillRunMatch && method === 'POST') {
+      const body = await readBody(req);
+      const result = runSkill(skillRunMatch[1], body);
+      return result ? json(res, result, 202) : error(res, 'Skill not found', 404);
+    }
+
+    // System (audit history, memory, learnings, connection health)
+    if (pathname === '/api/system/audit-history' && method === 'GET') {
+      return json(res, getAuditHistory());
+    }
+    if (pathname === '/api/system/memory' && method === 'GET') {
+      return json(res, listMemory());
+    }
+    const memoryMatch = pathname.match(/^\/api\/system\/memory\/(\d{4}-\d{2}-\d{2})$/);
+    if (memoryMatch && method === 'GET') {
+      const data = getMemoryFile(memoryMatch[1]);
+      return data ? json(res, data) : error(res, 'Not found', 404);
+    }
+    if (memoryMatch && method === 'PUT') {
+      const body = await readBody(req);
+      return json(res, saveMemoryFile(memoryMatch[1], body.content || ''));
+    }
+    if (pathname === '/api/system/learnings' && method === 'GET') {
+      return json(res, getLearnings());
+    }
+    if (pathname === '/api/system/connections-health' && method === 'GET') {
+      return json(res, await getConnectionHealth());
     }
 
     // Files

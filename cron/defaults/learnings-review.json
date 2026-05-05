@@ -1,0 +1,11 @@
+{
+  "slug": "learnings-review",
+  "name": "Weekly learnings review",
+  "schedule": "0 9 * * 1",
+  "command": "node scripts/learnings-aggregator.js --quiet",
+  "timeout": "60s",
+  "retries": 0,
+  "notify": "on_finish",
+  "enabled": true,
+  "_description": "Scaneaza context/learnings.md, gaseste pattern-uri recurente per skill (3+ actions neresolved in 30 zile), produce raport saptamanal in context/learnings/_review-YYYY-WW.md. Ruleaza luni la 09:00. Bypass Claude (deterministic), 0 cost token."
+}

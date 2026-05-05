@@ -16,6 +16,7 @@ import { getDb } from './db.js';
 import { executeJob } from './cron-runner.js';
 
 const JOBS_DIR = join(workspaceRoot, 'cron', 'jobs');
+const DEFAULTS_DIR = join(workspaceRoot, 'cron', 'defaults');
 
 /** Map<slug, Cron> */
 const activeCrons = new Map();
@@ -31,17 +32,35 @@ function migrateJsonJobs() {
   const files = readdirSync(JOBS_DIR).filter(f => f.endsWith('.json'));
   if (files.length === 0) return 0;
 
+  return importJobsFromDir(JOBS_DIR, 'MIGRAT', files);
+}
+
+/**
+ * Migreaza default jobs livrate cu robOS din cron/defaults/ (idempotent).
+ * Defaults sunt in git (cron/defaults/), user-create sunt in cron/jobs/ (gitignored).
+ */
+function migrateDefaultJobs() {
+  if (!existsSync(DEFAULTS_DIR)) return 0;
+  const files = readdirSync(DEFAULTS_DIR).filter(f => f.endsWith('.json'));
+  if (files.length === 0) return 0;
+  return importJobsFromDir(DEFAULTS_DIR, 'DEFAULT', files);
+}
+
+/**
+ * Helper comun pentru import din director (sare peste slug-uri existente).
+ */
+function importJobsFromDir(dir, label, files) {
   const db = getDb();
   const existsStmt = db.prepare('SELECT 1 FROM cron_jobs WHERE slug = ?');
   const insertStmt = db.prepare(`
-    INSERT INTO cron_jobs (slug, name, schedule, days, model, prompt, active, timeout, retries, notify, clientId)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO cron_jobs (slug, name, schedule, days, model, prompt, command, active, timeout, retries, notify, clientId)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `);
 
   let imported = 0;
   for (const file of files) {
     try {
-      const raw = readFileSync(join(JOBS_DIR, file), 'utf-8');
+      const raw = readFileSync(join(dir, file), 'utf-8');
       const job = JSON.parse(raw);
       const slug = job.slug || job.name || file.replace(/\.json$/, '');
 
@@ -49,7 +68,7 @@ function migrateJsonJobs() {
 
       const prompt = job.prompt || (job.skill
         ? `Run skill ${job.skill}${job.args ? ' with args: ' + JSON.stringify(job.args) : ''}`
-        : `Run job: ${slug}`);
+        : (job.command ? `Direct command: ${job.command}` : `Run job: ${slug}`));
 
       insertStmt.run(
         slug,
@@ -58,6 +77,7 @@ function migrateJsonJobs() {
         job.days || 'daily',
         job.model || 'sonnet',
         prompt,
+        job.command || null,
         job.enabled === false ? 0 : 1,
         job.timeout || '30m',
         job.retries || 0,
@@ -65,7 +85,7 @@ function migrateJsonJobs() {
         job.clientId || null
       );
       imported++;
-      console.log(`[scheduler] MIGRAT: ${slug} (din ${file})`);
+      console.log(`[scheduler] ${label}: ${slug} (din ${file})`);
     } catch (e) {
       console.warn(`[scheduler] WARN: nu am putut migra ${file}:`, e.message);
     }
@@ -138,8 +158,10 @@ export function startScheduler() {
   console.log('[scheduler] pornesc...');
 
   try {
-    const migrated = migrateJsonJobs();
-    if (migrated > 0) console.log(`[scheduler] migrat ${migrated} job(uri) din JSON`);
+    const defaultsMigrated = migrateDefaultJobs();
+    if (defaultsMigrated > 0) console.log(`[scheduler] migrat ${defaultsMigrated} default job(uri)`);
+    const userMigrated = migrateJsonJobs();
+    if (userMigrated > 0) console.log(`[scheduler] migrat ${userMigrated} user job(uri) din JSON`);
   } catch (e) {
     console.warn('[scheduler] migrare JSON->DB esuata:', e.message);
   }

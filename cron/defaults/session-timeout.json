@@ -1,0 +1,11 @@
+{
+  "slug": "session-timeout",
+  "name": "Session timeout detector",
+  "schedule": "*/15 * * * *",
+  "command": "node scripts/session-timeout-detector.js --quiet",
+  "timeout": "30s",
+  "retries": 0,
+  "notify": "on_failure",
+  "enabled": true,
+  "_description": "Scaneaza sesiunile deschise. Daca o sesiune e mai veche de 2h fara activitate sau pattern de inchidere, o marcheaza ca abandonata si pregateste recovery flag pentru sesiunea urmatoare. Ruleaza la fiecare 15 minute. Bypass Claude (deterministic), 0 cost token."
+}

@@ -26,9 +26,19 @@ function validateJobInput(body, { partial = false } = {}) {
     }
   }
 
+  // prompt e obligatoriu doar daca command nu e prezent (jobs cu command bypassuiesc Claude)
+  const hasCommand = body.command && typeof body.command === 'string' && body.command.trim().length >= 3;
   if (!partial || body.prompt !== undefined) {
-    if (!body.prompt || typeof body.prompt !== 'string' || body.prompt.trim().length < 3) {
-      errors.push('prompt: trebuie text >= 3 caractere');
+    if (!hasCommand) {
+      if (!body.prompt || typeof body.prompt !== 'string' || body.prompt.trim().length < 3) {
+        errors.push('prompt: trebuie text >= 3 caractere (sau seteaza command pentru jobs deterministe)');
+      }
+    }
+  }
+
+  if (body.command !== undefined && body.command !== null && body.command !== '') {
+    if (typeof body.command !== 'string' || body.command.trim().length < 3) {
+      errors.push('command: trebuie text >= 3 caractere daca e setat');
     }
   }
 
@@ -94,9 +104,12 @@ export function createJob(body) {
   }
 
   const stmt = db.prepare(`
-    INSERT INTO cron_jobs (slug, name, schedule, days, model, prompt, active, timeout, retries, notify, clientId, createdAt)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
+    INSERT INTO cron_jobs (slug, name, schedule, days, model, prompt, command, active, timeout, retries, notify, clientId, createdAt)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
   `);
+
+  // Daca command e setat dar prompt nu, generam un placeholder pentru prompt (nu poate fi NULL conform schema)
+  const promptValue = body.prompt || (body.command ? `Direct command: ${body.command}` : null);
 
   stmt.run(
     body.slug,
@@ -104,7 +117,8 @@ export function createJob(body) {
     body.schedule,
     body.days || 'daily',
     body.model || 'sonnet',
-    body.prompt,
+    promptValue,
+    body.command || null,
     body.active !== undefined ? (body.active ? 1 : 0) : 1,
     body.timeout || '30m',
     body.retries || 0,
@@ -136,7 +150,7 @@ export function updateJob(slug, body) {
   const fields = [];
   const params = [];
 
-  const allowedFields = ['name', 'schedule', 'days', 'model', 'prompt', 'active', 'timeout', 'retries', 'notify', 'clientId'];
+  const allowedFields = ['name', 'schedule', 'days', 'model', 'prompt', 'command', 'active', 'timeout', 'retries', 'notify', 'clientId'];
 
   for (const field of allowedFields) {
     if (body[field] !== undefined) {

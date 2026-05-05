@@ -42,6 +42,7 @@ CREATE TABLE IF NOT EXISTS cron_jobs (
   days TEXT DEFAULT 'daily',
   model TEXT DEFAULT 'sonnet',
   prompt TEXT NOT NULL,
+  command TEXT,
   active INTEGER DEFAULT 1,
   timeout TEXT DEFAULT '30m',
   retries INTEGER DEFAULT 0,
