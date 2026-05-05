@@ -345,8 +345,11 @@ async function handler(req, res) {
 // Create and start server
 const server = http.createServer(handler);
 
-server.listen(PORT, () => {
-  console.log(`robOS Centre ruleaza la http://localhost:${PORT}`);
+// Bind to 127.0.0.1 (loopback) by default — server reachable only from this machine.
+// To expose on LAN intentionally, set ROBOS_CENTRE_HOST=0.0.0.0 (and add auth first).
+const HOST = process.env.ROBOS_CENTRE_HOST || '127.0.0.1';
+server.listen(PORT, HOST, () => {
+  console.log(`robOS Centre ruleaza la http://${HOST}:${PORT} (loopback only — pentru expunere LAN, seteaza ROBOS_CENTRE_HOST + adauga auth)`);
   // Pornim scheduler-ul cron in-process (inlocuieste cron-daemon.js)
   try {
     startScheduler();
