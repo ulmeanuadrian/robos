@@ -26,20 +26,16 @@ function validateJobInput(body, { partial = false } = {}) {
     }
   }
 
-  // prompt e obligatoriu doar daca command nu e prezent (jobs cu command bypassuiesc Claude)
-  const hasCommand = body.command && typeof body.command === 'string' && body.command.trim().length >= 3;
   if (!partial || body.prompt !== undefined) {
-    if (!hasCommand) {
-      if (!body.prompt || typeof body.prompt !== 'string' || body.prompt.trim().length < 3) {
-        errors.push('prompt: trebuie text >= 3 caractere (sau seteaza command pentru jobs deterministe)');
-      }
+    if (!body.prompt || typeof body.prompt !== 'string' || body.prompt.trim().length < 3) {
+      errors.push('prompt: trebuie text >= 3 caractere');
     }
   }
 
+  // SECURITATE: command field nu poate fi setat via API. Doar din cron/defaults/*.json
+  // (citat in git, controlat). Asta previne RCE prin dashboard.
   if (body.command !== undefined && body.command !== null && body.command !== '') {
-    if (typeof body.command !== 'string' || body.command.trim().length < 3) {
-      errors.push('command: trebuie text >= 3 caractere daca e setat');
-    }
+    errors.push('command: nu poate fi setat via API (motiv de securitate). Pentru jobs deterministe, adauga JSON in cron/defaults/.');
   }
 
   if (body.timeout !== undefined && body.timeout !== null) {
@@ -103,13 +99,11 @@ export function createJob(body) {
     throw err;
   }
 
+  // command NU se accepta via API — validateJobInput a respins deja daca era setat
   const stmt = db.prepare(`
     INSERT INTO cron_jobs (slug, name, schedule, days, model, prompt, command, active, timeout, retries, notify, clientId, createdAt)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
+    VALUES (?, ?, ?, ?, ?, ?, NULL, ?, ?, ?, ?, ?, datetime('now'))
   `);
-
-  // Daca command e setat dar prompt nu, generam un placeholder pentru prompt (nu poate fi NULL conform schema)
-  const promptValue = body.prompt || (body.command ? `Direct command: ${body.command}` : null);
 
   stmt.run(
     body.slug,
@@ -117,8 +111,7 @@ export function createJob(body) {
     body.schedule,
     body.days || 'daily',
     body.model || 'sonnet',
-    promptValue,
-    body.command || null,
+    body.prompt,
     body.active !== undefined ? (body.active ? 1 : 0) : 1,
     body.timeout || '30m',
     body.retries || 0,
@@ -150,7 +143,8 @@ export function updateJob(slug, body) {
   const fields = [];
   const params = [];
 
-  const allowedFields = ['name', 'schedule', 'days', 'model', 'prompt', 'command', 'active', 'timeout', 'retries', 'notify', 'clientId'];
+  // command exclus intentionat — nu se accepta via API (vezi validateJobInput)
+  const allowedFields = ['name', 'schedule', 'days', 'model', 'prompt', 'active', 'timeout', 'retries', 'notify', 'clientId'];
 
   for (const field of allowedFields) {
     if (body[field] !== undefined) {

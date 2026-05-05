@@ -25,9 +25,10 @@
  *  - manual (debugging: `node scripts/audit-startup.js`)
  */
 
-import { readFileSync, readdirSync, writeFileSync, appendFileSync, existsSync, mkdirSync } from 'fs';
+import { readFileSync, readdirSync, writeFileSync, existsSync, mkdirSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
+import { appendNdjson } from './lib/ndjson-log.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -109,8 +110,7 @@ function analyzeMemoryFile(filename) {
 }
 
 function writeAuditLog(entry) {
-  ensureDir(DATA_DIR);
-  appendFileSync(LOG_FILE, JSON.stringify(entry) + '\n', 'utf-8');
+  appendNdjson(LOG_FILE, entry);
 }
 
 function todayISO() {

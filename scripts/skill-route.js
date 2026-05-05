@@ -38,7 +38,7 @@ function normalize(s) {
   return s
     .toLowerCase()
     .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '') // strip diacritics
+    .replace(/[̀-ͯ]/g, '') // strip combining diacritical marks
     .replace(/\s+/g, ' ')
     .trim();
 }

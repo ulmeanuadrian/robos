@@ -21,9 +21,10 @@
  *  node scripts/session-timeout-detector.js --quiet
  */
 
-import { readdirSync, readFileSync, writeFileSync, statSync, existsSync, appendFileSync, mkdirSync, unlinkSync } from 'fs';
+import { readdirSync, readFileSync, writeFileSync, statSync, existsSync, mkdirSync, unlinkSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
+import { appendNdjson } from './lib/ndjson-log.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -152,7 +153,7 @@ async function main() {
     verdict,
   };
 
-  appendFileSync(TIMEOUT_LOG, JSON.stringify(entry) + '\n', 'utf-8');
+  appendNdjson(TIMEOUT_LOG, entry);
 
   // Daca am detectat sesiuni abandonate, scriem un recovery file pentru sesiunea urmatoare
   if (abandoned.length > 0) {

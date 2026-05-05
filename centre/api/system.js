@@ -237,7 +237,17 @@ async function pingApi(key, pingFn) {
  * Returneaza imediat (fire-and-forget). Output-ul se logheaza in cron/logs/skill-run-{slug}.log.
  *
  * Body: { args?: string }   — optional argumente in plus pentru prompt
+ *
+ * Securitate:
+ *  - skillName: regex strict (lowercase + cifre + liniute)
+ *  - args: respinge metacaractere shell (`, $, ;, |, &, <, >, \, newlines)
+ *  - spawn fara shell: true (argv passed direct, fara interpretare shell)
  */
+
+// Regex care respinge metacaractere shell periculoase. Acceptat: text obisnuit,
+// punctuatie standard, spatii, caractere romanesti, semne de intrebare/exclamare.
+const ARGS_FORBIDDEN_RE = /[`$;|&<>\\\n\r ]/;
+
 export function runSkill(skillName, body = {}) {
   if (!/^[a-z0-9][a-z0-9-]*$/.test(skillName)) {
     const err = new Error('Invalid skill name');
@@ -250,7 +260,21 @@ export function runSkill(skillName, body = {}) {
     return null;
   }
 
-  const args = body.args && typeof body.args === 'string' ? body.args.trim() : '';
+  let args = '';
+  if (body.args && typeof body.args === 'string') {
+    args = body.args.trim();
+    if (ARGS_FORBIDDEN_RE.test(args)) {
+      const err = new Error('args: contine caractere interzise (`, $, ;, |, &, <, >, \\, newlines, null)');
+      err.statusCode = 400;
+      throw err;
+    }
+    if (args.length > 1000) {
+      const err = new Error('args: max 1000 caractere');
+      err.statusCode = 400;
+      throw err;
+    }
+  }
+
   const prompt = args
     ? `Use skill ${skillName}. Input: ${args}`
     : `Use skill ${skillName} now.`;
@@ -259,12 +283,17 @@ export function runSkill(skillName, body = {}) {
   if (!existsSync(logsDir)) mkdirSync(logsDir, { recursive: true });
   const logFile = join(logsDir, `skill-run-${skillName}-${Date.now()}.log`);
 
-  const child = spawn('claude', ['-p', prompt], {
+  // shell: false — argv-ul e pasat direct la executabil, fara interpretare shell.
+  // Pe Windows, .cmd/.bat fail-uiesc fara shell, dar `claude` e .exe (sau bash script via pnpm).
+  // Daca PATH-ul nu rezolva claude direct, user-ul are flexibilitatea sa seteze CLAUDE_BIN env var.
+  const claudeBin = process.env.CLAUDE_BIN || 'claude';
+  const child = spawn(claudeBin, ['-p', prompt], {
     cwd: workspaceRoot,
     stdio: ['ignore', 'pipe', 'pipe'],
     env: { ...process.env },
-    shell: process.platform === 'win32',
+    shell: false,
     detached: true,
+    windowsHide: true,
   });
 
   let output = '';
@@ -273,6 +302,11 @@ export function runSkill(skillName, body = {}) {
   child.on('close', (code) => {
     try {
       writeFileSync(logFile, `Exit: ${code}\n\n${output}`, 'utf-8');
+    } catch { /* ignore */ }
+  });
+  child.on('error', (err) => {
+    try {
+      writeFileSync(logFile, `Spawn error: ${err.message}\n`, 'utf-8');
     } catch { /* ignore */ }
   });
   child.unref();

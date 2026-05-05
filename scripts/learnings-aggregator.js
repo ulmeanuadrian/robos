@@ -27,9 +27,10 @@
  *  - manual
  */
 
-import { readFileSync, writeFileSync, existsSync, mkdirSync, appendFileSync } from 'fs';
+import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
+import { appendNdjson } from './lib/ndjson-log.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -87,14 +88,14 @@ function daysAgoISO(days) {
 function parseLearnings(content) {
   const sections = {};
   // Split by ## headers (skill names)
-  const skillMatches = [...content.matchAll(/^##\s+([^\n]+)\n([\s\S]*?)(?=^##\s+|\Z)/gm)];
+  const skillMatches = [...content.matchAll(/^##\s+([^\n]+)\n([\s\S]*?)(?=^##\s+|$(?![\s\S]))/gm)];
 
   for (const match of skillMatches) {
     const skillName = match[1].trim();
     const body = match[2];
 
     // Within skill, find dated entries (### YYYY-MM-DD ...)
-    const entryMatches = [...body.matchAll(/^###\s+(\d{4}-\d{2}-\d{2})([^\n]*)\n([\s\S]*?)(?=^###\s+|^##\s+|\Z)/gm)];
+    const entryMatches = [...body.matchAll(/^###\s+(\d{4}-\d{2}-\d{2})([^\n]*)\n([\s\S]*?)(?=^###\s+|^##\s+|$(?![\s\S]))/gm)];
     const entries = entryMatches.map(em => ({
       date: em[1],
       title: em[2].trim().replace(/^\s*[—–-]\s*/, ''),
@@ -246,16 +247,15 @@ async function main() {
   const reportPath = join(REVIEW_DIR, `_review-${weekTag}.md`);
   writeFileSync(reportPath, lines.join('\n'), 'utf-8');
 
-  // Append to data log (NDJSON)
-  ensureDir(DATA_DIR);
-  appendFileSync(LOG_FILE, JSON.stringify({
+  // Append to data log (NDJSON, with rotation)
+  appendNdjson(LOG_FILE, {
     aggregated_at: new Date().toISOString(),
     week: weekTag,
     window_days: opts.window,
     skills_with_activity: report.length,
     rule_candidates: candidates.length,
     report_path: reportPath,
-  }) + '\n', 'utf-8');
+  });
 
   if (!opts.quiet) {
     console.log(`[learnings] Aggregated ${report.length} skills. Rule candidates: ${candidates.length}.`);
