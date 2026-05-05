@@ -1,0 +1,11 @@
+{
+  "_comment": "Cand un student deschide robOS in VS Code, primeste popup cu recomandari. Nu se instaleaza automat — student-ul confirma. Lista mica si focusata, fiecare cu rationament clar.",
+  "recommendations": [
+    "anthropic.claude-code",
+    "suzuki0430.ccusage-vscode",
+    "svelte.svelte-vscode",
+    "astro-build.astro-vscode",
+    "dbaeumer.vscode-eslint"
+  ],
+  "unwantedRecommendations": []
+}
