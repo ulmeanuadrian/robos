@@ -1,8 +1,8 @@
 ---
 name: sys-daily-plan
-version: 1.0.0
+version: 2.0.0
 category: sys
-description: "Morning planning skill. Reads recent memory, priorities, and open threads to produce a focused daily plan with 3 priorities and skill suggestions."
+description: "Morning planning skill. Mecanica de gather + synthesis (citire memorie, priorities, learnings) e incapsulata intr-un sub-agent — userul vede doar planul propus, ajusteaza, si confirma."
 triggers:
   - "plan my day"
   - "planifica-mi ziua"
@@ -16,94 +16,174 @@ negative_triggers:
   - "plan a project"
   - "plan a campaign"
   - "quarterly plan"
+output_discipline: encapsulated
 context_loads:
-  - context/priorities.md (reads)
-  - context/memory/ (reads last 3 days)
-  - connections.md (reads, summary only)
-  - context/learnings.md (reads, summary only)
+  - context/priorities.md (sub-agent reads)
+  - context/memory/ (sub-agent reads last 3 days)
+  - connections.md (sub-agent reads, summary)
+  - context/learnings.md (sub-agent reads, summary)
 inputs:
   - date (optional, defaults to today)
 outputs:
-  - Daily plan written to today's memory file
+  - Plan zilnic scris in memoria zilei (via sub-agent dupa confirmare)
 ---
 
-# Step 1: Gather Context
+# Output Discipline (citeste inainte de a face orice)
 
-Read these files silently:
+Acest skill ruleaza in mod **incapsulat**. In transcriptul vizibil userului trebuie sa apara DOAR:
 
-1. **`context/priorities.md`** -- current quarter goals and active priorities
-2. **Last 3 days of memory** -- scan `context/memory/` for the 3 most recent files. Extract:
-   - Open Threads (unfinished work)
-   - Decisions made (to avoid re-deciding)
-   - Deliverables completed (to see momentum)
-3. **`connections.md`** -- scan for connected tools (if any, note what data sources are available)
+1. Planul propus (max 20 linii, format definit la Step 2).
+2. Intrebarea de confirmare/ajustare ("Asta e sugestia mea. Vrei sa ajustezi sau mergi cu asta?").
+3. Mesajul de kickoff dupa salvare.
 
-If any file is missing, work with what exists. Don't block on missing context.
+**Reguli stricte:**
+- NU folosi TodoWrite.
+- NU anunta "Step 1: gather context", "Step 2: synthesize", etc.
+- NU rula Read direct din main thread pentru priorities.md, memorie sau connections.md.
+- Userul nu trebuie sa vada lista de fisiere scanate sau procesul de sinteza.
 
-# Step 2: Synthesize
+---
 
-Based on what you found, identify:
+# Step 1: Deleaga gather + synthesis (UN SINGUR Agent call)
 
-1. **Carry-overs**: open threads from previous days that need attention
-2. **Priority work**: tasks that align with current quarter priorities
-3. **Quick wins**: small things that could be done in under 30 minutes
-
-# Step 3: Present the Plan
-
-Output a concise daily plan:
+Invoca Agent tool o singura data:
 
 ```
-Today: {day of week}, {YYYY-MM-DD}
+subagent_type: general-purpose
+description: "Daily plan — gather + synthesize"
+prompt: """
+Esti agentul de pregatire pentru sys-daily-plan in robOS.
 
-Priorities (pick max 3):
-1. {most important -- from open threads or quarter priorities}
-   Skill: {suggest a skill if one applies, or "manual work"}
-2. {second priority}
-   Skill: {suggestion}
-3. {third priority or quick win}
-   Skill: {suggestion}
+Ruleaza tacit:
 
-Carry-overs from yesterday:
-- {open thread 1}
-- {open thread 2}
+1. Citeste context/priorities.md — extrage obiectivele de Q curent + parking lot.
 
-Default shift check:
-For priority #1 -- to what extent could AI handle this?
-{one sentence assessment with leverage percentage}
+2. Citeste ultimele 3 fisiere din context/memory/ (sortate dupa filename YYYY-MM-DD desc). Pentru fiecare, extrage:
+   - ### Open Threads (lucruri neterminate)
+   - ### Decisions (alegeri facute, ca sa nu redecidem)
+   - ### Deliverables (momentum recent)
+
+3. Scaneaza connections.md — note ce tooluri sunt conectate (relevant pentru sugestii de skill).
+
+4. Sintetizeaza in 3 categorii:
+   - **Carry-overs**: open threads care necesita atentie azi
+   - **Priority work**: aliniat cu Q goals
+   - **Quick wins**: <30 min, momentum builders
+
+5. Pentru fiecare priority, identifica:
+   - Skill care aplica (din skills/_index.json) sau "manual work" daca niciunul
+   - AI leverage % estimat pentru priority #1 (cat poate AI face: 0-100%)
+
+6. Construieste max 3 prioritati (rank descending: importance * urgency).
+
+7. Daca un fisier lipseste sau e gol, lucreaza cu ce exista. Nu bloca.
+
+8. Returneaza DOAR acest JSON:
+{
+  "today_date": "YYYY-MM-DD",
+  "today_dow": "Monday" | ...,
+  "session_number": N (verifica daca exista deja memorie azi → N+1, altfel 1),
+  "priorities": [
+    { "rank": 1, "title": "...", "skill": "skill-name" | "manual work", "rationale": "scurt — de ce e priority #1" },
+    { "rank": 2, "title": "...", "skill": "..." },
+    { "rank": 3, "title": "...", "skill": "..." }
+  ],
+  "carry_overs": ["thread 1", "thread 2"],
+  "default_shift": "o propozitie scurta despre AI leverage % pentru priority #1",
+  "no_priorities_reason": null sau "explicatie daca nu s-au gasit prioritati clare"
+}
+"""
 ```
 
-Keep the plan to under 20 lines. No fluff.
+Astepti JSON-ul. Nu il afisezi brut.
 
-# Step 4: Ask for Adjustments
+---
 
-Say: "This is my suggestion. Want to adjust priorities, add something, or just go with this?"
+# Step 2: Prezinta planul (main thread)
 
-If the user adjusts, update the plan. If they approve, proceed to Step 5.
+Format exact, max 20 linii:
 
-# Step 5: Save to Memory
+```
+Today: {today_dow}, {today_date}
 
-Write the approved plan to today's memory file `context/memory/{YYYY-MM-DD}.md`:
+Priorities:
+1. {priorities[0].title}
+   Skill: {priorities[0].skill}
+2. {priorities[1].title}
+   Skill: {priorities[1].skill}
+3. {priorities[2].title}
+   Skill: {priorities[2].skill}
 
-```markdown
-## Session {N}
+Carry-overs:
+- {carry_overs[0]}
+- {carry_overs[1]}
+
+Default shift check (priority #1):
+{default_shift}
+```
+
+Omiteri:
+- Daca `carry_overs` e gol, scoate sectiunea complet.
+- Daca `priorities` are doar 1-2 elemente, afiseaza cate sunt (nu inventezi).
+- Daca `no_priorities_reason` e non-null, afiseaza in loc de prioritati: "Nu am identificat prioritati clare azi: {reason}. Vrei sa pornim de la ceva specific?"
+
+Fara fluff. Fara "Buna dimineata!". Doar planul.
+
+---
+
+# Step 3: Ajustari (main thread)
+
+Intreaba: "Asta e sugestia mea. Vrei sa ajustezi prioritatile, sa adaugi ceva, sau mergi cu asta?"
+
+Asteapta:
+- **Confirma** ("merge", "ok", "da") → Step 4
+- **Ajusteaza** (modifica/adauga/scoate) → integreaza schimbarile in plan, re-afiseaza scurt versiunea finala, apoi Step 4
+- **Schimba complet** → re-construieste lista cu input-ul user-ului, apoi Step 4
+
+---
+
+# Step 4: Salveaza in memorie (deleaga)
+
+Invoca un al doilea Agent call:
+
+```
+subagent_type: general-purpose
+description: "Save daily plan to memory"
+prompt: """
+Scrie planul aprobat in context/memory/{today_date}.md.
+
+Plan aprobat:
+{lista finala de prioritati + carry-overs}
+Session number: {session_number}
+
+Format:
+
+## Session {session_number}
 
 ### Goal
-{priority 1 from the plan}
+{priorities[0].title}
 
 ### Deliverables
-- Daily plan created: {list the 3 priorities}
+- Daily plan created: {priorities concat cu " | "}
 
 ### Decisions
-(will be filled as decisions are made)
+(va fi populat pe parcurs)
 
 ### Open Threads
-(will be updated at session end)
+{carry_overs ca bullets, daca exista}
+
+Daca fisierul exista deja (sesiune anterioara azi), NU suprascrie — adauga ## Session {N+1} la final.
+
+Returneaza: "saved"
+"""
 ```
 
-If the file already exists (previous session today), increment the session number.
+---
 
-# Step 6: Kickoff
+# Step 5: Kickoff (main thread)
 
-End with: "Ready to start on #{1 priority}? Or want to run /audit first to check your setup?"
+Output exact:
 
-Do not auto-start work. Wait for the user to choose what to do.
+"Ready. Prioritatea #1: {priorities[0].title}. Incepem? Sau vrei /audit intai?"
+
+STOP. Nu auto-porni munca. Asteapta userul.

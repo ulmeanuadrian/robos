@@ -1,8 +1,8 @@
 ---
 name: sys-session-close
-version: 1.2.0
+version: 2.0.0
 category: sys
-description: "Inchidere de sesiune cu poarta de confirmare. Verifica deliverables, plan alignment, colecteaza feedback, loghez learnings, finalizeaza memoria zilei si verifica modificari git ne-comise."
+description: "Inchidere de sesiune cu poarta de confirmare. Mecanica (memorie, lint, git, plan-vs-reality) e incapsulata intr-un sub-agent — userul vede doar confirmation gate, intrebarea de feedback si sumarul final."
 triggers:
   - "gata"
   - "am terminat"
@@ -28,18 +28,38 @@ negative_triggers:
   - "merci, acum"
   - "merci, mai am"
   - "gata cu asta, urmatorul"
+output_discipline: encapsulated
 context_loads:
-  - context/memory/YYYY-MM-DD.md (writes)
-  - context/learnings.md (appends if feedback given)
+  - context/memory/YYYY-MM-DD.md (writes — via sub-agent)
+  - context/learnings.md (appends — via sub-agent)
 inputs: []
 outputs:
   - context/memory/YYYY-MM-DD.md actualizat
   - context/learnings.md actualizat (daca s-a dat feedback)
 ---
 
-# Step 0: Poarta de confirmare (NEW)
+# Output Discipline (citeste inainte de a face orice)
 
-Triggers ca "thanks" / "merci" / "pa" sunt usor de declansat accidental. Inainte de a face orice altceva, intreaba EXPLICIT:
+Acest skill ruleaza in mod **incapsulat**. In transcriptul vizibil userului trebuie sa apara DOAR trei lucruri:
+
+1. Promptul de confirmare de la Step 0 (si raspunsul userului)
+2. Intrebarea de feedback "Cum a mers?" (si raspunsul userului)
+3. Sumarul final de 2-3 linii
+
+**Reguli stricte:**
+- NU folosi TodoWrite in acest skill. Niciodata.
+- NU anunta "Step 1", "Step 2", "Acum verific X" catre user.
+- NU rula Bash direct din main thread pentru memorie / lint / git — deleaga.
+- NU rula Read/Write/Grep direct din main thread pe memorie sau learnings — deleaga.
+- Singura exceptie: dupa ce userul aproba explicit un commit (Step 3), bash-ul de commit e vizibil pentru ca e o actiune autorizata.
+
+Daca te prinzi gandind "stai sa verific intai X" — OPRESTE-TE. Trece nevoia aceea in promptul sub-agentului.
+
+---
+
+# Step 0: Poarta de confirmare (main thread)
+
+Triggers ca "thanks" / "merci" / "pa" sunt usor de declansat accidental. Inainte de orice altceva, intreaba EXPLICIT:
 
 "Inchidem sesiunea? Am sa salvez memoria zilei, verific modificari git ne-comise si cer feedback. Spune **da** sa continuam sau **nu** ca sa iesim din skill."
 
@@ -47,8 +67,6 @@ Asteapta raspunsul:
 - **Da / yes / inchide / continua** → procedeaza la Step 1
 - **Nu / nope / not yet / mai am** → spune "OK, continuam" si IESI din skill imediat. Nu rulezi alte step-uri.
 - **Ambiguu** sau user pune o intrebare noua → tratezi noul mesaj ca task normal, nu ca raspuns la confirmare. IESI din skill.
-
-Acest pas elimina 90% din false-fires unde "thanks" era acknowledgment, nu farewell.
 
 # Trigger Guard suplimentar
 
@@ -59,118 +77,139 @@ Inainte de Step 0, sanity check rapid pe trigger:
 
 Daca e clar NU session-end, sari peste skill. Daca e ambiguu, foloseste Step 0 — confirmarea explicita rezolva.
 
-# Step 1: Reviu
+---
 
-Scaneaza fisierul de memorie de azi (`context/memory/YYYY-MM-DD.md`) si conversatia curenta. Construieste:
+# Step 1: Deleaga mecanica catre sub-agent (UN SINGUR Agent call)
 
-1. **Deliverables** — fisiere create, modificate, publicate. Specific: cai, URL-uri, titluri.
-2. **Decisions** — alegeri facute in sesiune. Include rationamentul.
-3. **Open threads** — orice inceput dar neterminat, sau amanat explicit.
+Dupa confirmare, construieste mental un **rezumat de o singura paragrafa** al sesiunii (asta e singurul lucru pe care sub-agentul nu il poate deduce din fisiere):
 
-Daca nu exista fisier de memorie pentru azi, creeaza-l acum din istoricul conversatiei.
+- La ce a lucrat userul (subiect general)
+- Fisiere create / modificate (cai concrete)
+- Decizii cheie (cu motiv scurt)
+- Lucruri incepute dar neterminate
 
-# Step 1b: Plan vs Reality Check
+Apoi invoca Agent tool **o singura data**:
 
-Daca fisierul de memorie de azi are sectiunea `### Goal` scrisa de sys-daily-plan (cu prioritati numerotate):
+```
+subagent_type: general-purpose
+description: "Inchidere sesiune — mecanica interna"
+prompt: """
+Esti agentul de mecanica interna pentru sys-session-close in robOS.
 
-1. Extrage prioritatile planificate (max 3)
-2. Compara cu deliverables-urile din Step 1
-3. Pentru fiecare prioritate, clasifica:
-   - **DONE** — deliverable matches clar prioritatea
-   - **PARTIAL** — inceput dar nefinalizat
-   - **PIVOTED** — am facut altceva (identifica ce)
-   - **SKIPPED** — nu s-a atins
-4. Daca o prioritate e PIVOTED sau SKIPPED, noteaza motivul din contextul conversatiei (NU intreba — deduci din ce s-a intamplat)
-5. Include in sumarul final:
-   ```
-   Plan alignment: {DONE count}/3 prioritati completate
-   ```
-6. Loghez in `context/learnings.md` sub `## General` DOAR daca apare un pattern (3+ zile cu acelasi tip de drift). Pivot-urile single-day sunt normale, nu necesita logare.
+REZUMAT CONVERSATIE (de la main thread):
+{paragraful tau}
 
-# Step 2: Cere Feedback
+Ruleaza tacit urmatoarele:
 
-Intreaba exact: "Cum a mers? Modificari pentru data viitoare?"
+1. Citeste context/memory/{YYYY-MM-DD de azi}.md. Daca nu exista, creeaza-l acum din rezumat.
 
-Asteapta raspuns. Trei cai posibile:
+2. Daca fisierul are sectiunea ### Goal cu prioritati numerotate (scrise de sys-daily-plan), calculeaza Plan vs Reality:
+   - Pentru fiecare prioritate clasifica: DONE / PARTIAL / PIVOTED / SKIPPED
+   - alignment = "{done_count}/3"
+   Daca nu exista plan, alignment = null.
 
-**Calea A — Pozitiv sau neutru, fara schimbari:**
-Noteaza in memorie ca sesiunea a mers bine. Mergi la Step 4.
+3. Actualizeaza fisierul de memorie:
+   - ### Goal reflecta ce s-a intamplat efectiv
+   - ### Deliverables complet (cai exacte, URL-uri, titluri)
+   - ### Decisions cu rationamentul
+   - ### Open Threads cu ce a ramas neterminat
+   - Daca au fost mai multe sesiuni azi, incrementeaza ## Session N
+   - Adauga la final linia: "Session: {N} deliverables, {M} decisions"
 
-**Calea B — Feedback specific dat:**
-Loghez feedback-ul in `context/learnings.md` la sectiunea skill-ului relevant. Daca feedback-ul e despre comportament general (nu un skill specific), pune-l sub `## General`. Mergi la Step 3.
+4. Pattern-uri de drift: daca alignment a fost <2/3 in ultimele 3+ zile consecutiv, adauga in context/learnings.md sub ## General o singura linie cu pattern-ul. Pivot-urile single-day NU se logheaza.
 
-**Calea C — User sare peste feedback** (zice "nimic", "all good", "nimic special"):
-Mergi la Step 4.
+5. Ruleaza: node scripts/lint-memory.js
+   - Exit 0: OK
+   - Exit 1: repara structura si reruleaza
+   - Script missing: skip silentios
+   - Warnings despre closing pattern: verifica linia "Session: ..." si re-adauga daca lipseste
 
-# Step 3: Proceseaza Feedback
+6. Ruleaza: git status --short
+   Captureaza fisierele modificate (NU comite — userul decide la Step 3).
 
-Daca s-a dat feedback (Calea B):
+7. Returneaza DOAR acest JSON, nimic altceva:
+{
+  "deliverables_count": N,
+  "decisions_count": M,
+  "plan_alignment": "X/3" sau null,
+  "headline": "o singura propozitie despre cel mai important lucru realizat",
+  "open_threads_count": N,
+  "open_threads_list": ["thread 1 scurt", "thread 2 scurt"],
+  "git_changes": ["path1", "path2"] sau [],
+  "lint_passed": true/false
+}
+"""
+```
 
-1. Identifica skill-ul/skills-urile pe care se aplica
-2. Deschide `context/learnings.md`
-3. Gaseste sau creeaza sectiunea `## {nume-skill}`
-4. Adauga intrare cu data:
+Astepti rezultatul JSON al sub-agentului. Nu il afisezi userului.
 
-```markdown
-### YYYY-MM-DD
-- Feedback: {ce a spus userul, parafrazat}
+---
+
+# Step 2: Cere feedback (main thread)
+
+Intreaba EXACT: "Cum a mers? Modificari pentru data viitoare?"
+
+Asteapta raspunsul:
+
+**Calea A — Pozitiv/neutru, fara schimbari** ("nimic", "all good", "merge bine"):
+Sari direct la Step 3.
+
+**Calea B — Feedback specific** (mentioneaza un comportament, un skill, o preferinta noua):
+Invoca al DOILEA Agent call:
+
+```
+subagent_type: general-purpose
+description: "Log feedback in learnings"
+prompt: """
+Adauga acest feedback in context/learnings.md.
+
+Feedback verbatim de la user: "{raspunsul lor}"
+
+Identifica skill-ul caruia i se aplica (uitati-va la conversatie). Daca e despre comportament general, foloseste sectiunea ## General. Altfel ## {nume-skill}.
+
+Adauga sub sectiunea potrivita:
+
+### {YYYY-MM-DD}
+- Feedback: {parafrazat in 1-2 linii}
 - Actiune: {ce trebuie schimbat data viitoare}
+
+Daca feedback-ul implica modificarea unui skill, NU edita skill-ul — adauga la finalul memoriei zilei o linie in Open Threads: "Modifica skill {nume}: {ce}".
+
+Returneaza: "logged"
+"""
 ```
 
-5. Daca feedback-ul implica modificarea skill-ului, noteaza in Open Threads — nu edita skill-ul mid-close.
+**Calea C — User sare peste** ("nimic special"):
+Sari la Step 3.
 
-# Step 4: Finalizeaza Memoria Zilei
+---
 
-Actualizeaza `context/memory/YYYY-MM-DD.md` cu starea finala:
+# Step 3: Git commit prompt (main thread, conditional)
 
-- `### Goal` reflecta ce s-a intamplat efectiv (poate s-a deplasat de la goal-ul initial)
-- `### Deliverables` complet si exact
-- `### Decisions` capteaza alegeri semnificative
-- `### Open Threads` listeaza orice neterminat sau care necesita follow-up
-- Daca au fost mai multe sesiuni azi, incrementeaza `## Session N`
+Daca JSON-ul de la sub-agent are `git_changes` non-gol:
 
-La final adauga linia de inchidere care semnaleaza "session-end proper":
-```
-Session: {N} deliverables, {M} decisions
-```
-(Asta e pattern-ul pe care session-recovery-check-ul il cauta la urmatorul start.)
+Spune: "Sunt modificari ne-comise: {lista scurta din git_changes}. Vrei sa fac commit?"
 
-# Step 4b: Lint Memory (NEW)
+- **Da**: ruleaza `git add` + `git commit` cu mesaj descriptiv. Comanda asta E vizibila — userul a autorizat-o.
+- **Nu**: nimic. Sub-agentul a logat deja in Open Threads.
 
-Dupa ce ai actualizat memoria, ruleaza linter-ul:
+Daca `git_changes` e gol, sari tacit acest pas.
 
-```bash
-node scripts/lint-memory.js
-```
+---
 
-- **Exit 0** (clean): mergi mai departe.
-- **Exit 1** (errors): linter-ul a gasit sectiuni lipsa sau structura invalida. Repara INAINTE de Step 5. Adauga sectiunile lipsa, normalizeaza header-ele.
-- **Warnings** (closing pattern lipsa): poate insemna ca ai uitat linia "Session: N deliverables, M decisions". Verifica si adauga.
+# Step 4: Sumar final (main thread)
 
-Daca scriptul nu exista (versiune mai veche de robOS), sari peste cu un warning intern.
-
-# Step 5: Verifica Modificari Git
-
-Ruleaza `git status` in radacina proiectului. Daca exista modificari ne-comise:
-
-Spune: "Sunt modificari ne-comise: {lista scurta}. Vrei sa fac commit?"
-
-- Daca da: stage + commit cu mesaj descriptiv
-- Daca nu: noteaza in Open Threads ca exista modificari ne-comise
-
-Daca git nu e initializat sau nu sunt modificari, sari tacit.
-
-# Step 6: Sumar de Sesiune
-
-Output sumar de 2-3 linii. Format:
+Output **exact** acest format, nimic mai mult:
 
 ```
 ---
-Sesiune: {numar deliverables} deliverables, {numar decisions} decizii. Plan alignment: {X}/3.
-{O propozitie despre cel mai important lucru realizat.}
-{O propozitie despre open threads, daca exista.}
+Sesiune: {deliverables_count} deliverables, {decisions_count} decizii. Plan alignment: {plan_alignment}.
+{headline}
+Open threads: {open_threads_list joined cu ", "}.
 ```
 
-Daca nu existase un plan zilnic (Step 1b nu s-a aplicat), omite "Plan alignment" din output.
+Omiteri:
+- Daca `plan_alignment` e null, scoate ", Plan alignment: ..." din prima linie.
+- Daca `open_threads_count` e 0, scoate ultima linie.
 
-Pastreaza-l scurt. Fara "great session!" energy. Doar fapte.
+Fara "Great session!", fara emoji, fara "succes maine!". Doar fapte. STOP.
