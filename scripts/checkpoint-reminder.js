@@ -87,7 +87,13 @@ async function main() {
     process.exit(0);
   }
 
-  const sessionId = payload.session_id || 'unknown';
+  // Validate session_id before using as filename. Claude Code sends UUIDs
+  // but untrusted JSON is never trusted for a path component.
+  const SESSION_ID_RE = /^[a-zA-Z0-9_-]{1,128}$/;
+  const rawSessionId = payload.session_id;
+  const sessionId = (typeof rawSessionId === 'string' && SESSION_ID_RE.test(rawSessionId))
+    ? rawSessionId
+    : 'unknown';
   const now = Date.now();
   const thresholdMs = DEFAULT_THRESHOLD_MIN * 60 * 1000;
 

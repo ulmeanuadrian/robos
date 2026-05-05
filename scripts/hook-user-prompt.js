@@ -273,7 +273,15 @@ async function main() {
     process.exit(0);
   }
 
-  const sessionId = payload.session_id || 'unknown';
+  // Sanitize session_id before using it as a filename. Claude Code sends
+  // UUIDs but we never trust untrusted JSON for a path component. Allow
+  // hex chars, dashes, and the test fixture words (alpha-numeric + hyphen),
+  // limit length, fall back to 'unknown' on anything weird.
+  const SESSION_ID_RE = /^[a-zA-Z0-9_-]{1,128}$/;
+  const rawSessionId = payload.session_id;
+  const sessionId = (typeof rawSessionId === 'string' && SESSION_ID_RE.test(rawSessionId))
+    ? rawSessionId
+    : 'unknown';
   const prompt = payload.prompt || '';
 
   const sections = [];
