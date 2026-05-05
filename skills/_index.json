@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-05T20:21:50.498Z",
+  "generated_at": "2026-05-05T21:25:21.941Z",
   "count": 17,
   "by_category": {
     "brand": 3,
@@ -192,6 +192,7 @@
         "positioning",
         "competitor landscape"
       ],
+      "multi_angle_triggers": [],
       "context_loads": [
         "brand/audience.md (writes)",
         "brand/positioning.md (summary)",
@@ -206,6 +207,7 @@
       "outputs": [
         "brand/audience.md (structured ICP document)"
       ],
+      "modes": [],
       "last_modified": "2026-05-05T05:19:36.416Z"
     },
     {
@@ -231,6 +233,7 @@
         "brand voice",
         "buyer persona"
       ],
+      "multi_angle_triggers": [],
       "context_loads": [
         "brand/positioning.md (writes)",
         "brand/voice.md (summary)",
@@ -245,6 +248,7 @@
       "outputs": [
         "brand/positioning.md (complete positioning document)"
       ],
+      "modes": [],
       "last_modified": "2026-05-05T05:19:44.258Z"
     },
     {
@@ -270,6 +274,7 @@
         "competitor analysis",
         "positioning"
       ],
+      "multi_angle_triggers": [],
       "context_loads": [
         "brand/voice.md (writes)",
         "brand/samples.md (writes)",
@@ -286,6 +291,7 @@
         "brand/voice.md (6-dimension voice profile)",
         "brand/samples.md (3-5 example outputs)"
       ],
+      "modes": [],
       "last_modified": "2026-05-05T05:18:55.977Z"
     },
     {
@@ -311,6 +317,14 @@
         "repurpose",
         "social post"
       ],
+      "multi_angle_triggers": [
+        "show me options",
+        "show me angles",
+        "vreau optiuni",
+        "mai multe versiuni",
+        "3 angles",
+        "3 variante"
+      ],
       "context_loads": [
         "brand/voice.md (reads)",
         "brand/audience.md (reads)",
@@ -329,7 +343,10 @@
         "SEO metadata",
         "data/skill-telemetry.ndjson (appended in mode=options)"
       ],
-      "last_modified": "2026-05-05T20:16:25.981Z"
+      "modes": [],
+      "output_discipline": "encapsulated",
+      "concurrency_pattern": "multi-angle-creativity (opt-in only)",
+      "last_modified": "2026-05-05T20:24:56.319Z"
     },
     {
       "name": "content-copywriting",
@@ -358,6 +375,13 @@
         "repurpose",
         "social posts from"
       ],
+      "multi_angle_triggers": [
+        "show me options",
+        "vreau optiuni",
+        "3 variante",
+        "3 angles",
+        "show me angles"
+      ],
       "context_loads": [
         "brand/voice.md (reads)",
         "brand/audience.md (reads)",
@@ -376,7 +400,10 @@
         "Score card (7 dimensions)",
         "data/skill-telemetry.ndjson (appended in mode=options)"
       ],
-      "last_modified": "2026-05-05T20:17:21.945Z"
+      "modes": [],
+      "output_discipline": "encapsulated",
+      "concurrency_pattern": "multi-angle-creativity (opt-in only)",
+      "last_modified": "2026-05-05T20:25:04.492Z"
     },
     {
       "name": "content-repurpose",
@@ -402,6 +429,7 @@
         "blog post",
         "SEO article"
       ],
+      "multi_angle_triggers": [],
       "context_loads": [
         "brand/voice.md (platform agents read)",
         "brand/audience.md (platform agents read summary)",
@@ -416,6 +444,9 @@
         "Per-platform files in projects/content-repurpose/{slug}/",
         "data/skill-telemetry.ndjson (appended)"
       ],
+      "modes": [],
+      "output_discipline": "encapsulated",
+      "concurrency_pattern": "multi-asset-generation",
       "last_modified": "2026-05-05T20:14:32.506Z"
     },
     {
@@ -438,6 +469,7 @@
         "voce de brand",
         "scrie copy"
       ],
+      "multi_angle_triggers": [],
       "context_loads": [
         "brand/positioning.md (synthesizer reads, for comparison baseline)",
         "brand/audience.md (synthesizer reads, for overlap detection)",
@@ -455,6 +487,9 @@
         "projects/research-competitors/{date}-{slug}/raw/{competitor}.json",
         "data/skill-telemetry.ndjson (appended)"
       ],
+      "modes": [],
+      "output_discipline": "encapsulated",
+      "concurrency_pattern": "mapreduce-research",
       "last_modified": "2026-05-05T20:11:20.422Z"
     },
     {
@@ -479,6 +514,7 @@
         "competitor analysis",
         "analiza competitori"
       ],
+      "multi_angle_triggers": [],
       "context_loads": [
         "brand/audience.md (synthesizer reads, for relevance filtering)",
         "context/learnings.md (synthesizer appends)"
@@ -493,6 +529,9 @@
         "projects/research-trending/{date}-{slug}/sources.md",
         "data/skill-telemetry.ndjson (appended)"
       ],
+      "modes": [],
+      "output_discipline": "encapsulated",
+      "concurrency_pattern": "mapreduce-research",
       "last_modified": "2026-05-05T20:10:13.273Z"
     },
     {
@@ -516,6 +555,7 @@
         "security audit",
         "code audit"
       ],
+      "multi_angle_triggers": [],
       "context_loads": [
         "context/USER.md (sub-agents read)",
         "brand/* (sub-agents read)",
@@ -533,6 +573,13 @@
         "data/skill-telemetry.ndjson (appended)",
         "Raport final concis afisat user-ului"
       ],
+      "modes": [
+        "full (default): audit complet + raport detaliat + loop optional de revizie",
+        "quick: scor + top gap, fara save, folosit de morning routine",
+        "force: forteaza recalculare ignorand cache-ul"
+      ],
+      "output_discipline": "encapsulated",
+      "concurrency_pattern": "pillar-fan-out",
       "last_modified": "2026-05-05T20:05:13.996Z"
     },
     {
@@ -555,6 +602,7 @@
         "plan a campaign",
         "quarterly plan"
       ],
+      "multi_angle_triggers": [],
       "context_loads": [
         "context/priorities.md (sub-agent reads)",
         "context/memory/ (sub-agent reads last 3 days)",
@@ -567,6 +615,8 @@
       "outputs": [
         "Plan zilnic scris in memoria zilei (via sub-agent dupa confirmare)"
       ],
+      "modes": [],
+      "output_discipline": "encapsulated",
       "last_modified": "2026-05-05T19:51:36.761Z"
     },
     {
@@ -593,6 +643,7 @@
         "plan a blog post",
         "planifica un articol"
       ],
+      "multi_angle_triggers": [],
       "context_loads": [
         "projects/briefs/ (reads directory)",
         "context/memory/YYYY-MM-DD.md (writes)",
@@ -608,6 +659,7 @@
         "projects/briefs/{slug}/brief.md (Level 2+)",
         "projects/briefs/{slug}/.planning/ (Level 3)"
       ],
+      "modes": [],
       "last_modified": "2026-05-05T05:19:12.132Z"
     },
     {
@@ -630,6 +682,7 @@
         "upgrade",
         "update"
       ],
+      "multi_angle_triggers": [],
       "context_loads": [
         "context/USER.md (sub-agents read)",
         "context/priorities.md (sub-agents read)",
@@ -644,6 +697,9 @@
         "context/learnings.md appended sub ## sys-level-up",
         "data/skill-telemetry.ndjson (appended)"
       ],
+      "modes": [],
+      "output_discipline": "encapsulated",
+      "concurrency_pattern": "adversarial-synthesis",
       "last_modified": "2026-05-05T20:19:12.988Z"
     },
     {
@@ -668,6 +724,7 @@
         "client onboarding",
         "set up a new client"
       ],
+      "multi_angle_triggers": [],
       "context_loads": [
         "context/USER.md (writes)",
         "brand/voice.md (parallel agent writes)",
@@ -687,6 +744,8 @@
         "One completed skill run in projects/",
         "data/skill-telemetry.ndjson (appended)"
       ],
+      "modes": [],
+      "concurrency_pattern": "multi-asset-generation (soft-fail variant)",
       "last_modified": "2026-05-05T20:21:29.825Z"
     },
     {
@@ -721,6 +780,7 @@
         "merci, mai am",
         "gata cu asta, urmatorul"
       ],
+      "multi_angle_triggers": [],
       "context_loads": [
         "context/memory/YYYY-MM-DD.md (writes — via sub-agent)",
         "context/learnings.md (appends — via sub-agent)"
@@ -730,6 +790,8 @@
         "context/memory/YYYY-MM-DD.md actualizat",
         "context/learnings.md actualizat (daca s-a dat feedback)"
       ],
+      "modes": [],
+      "output_discipline": "encapsulated",
       "last_modified": "2026-05-05T19:48:46.428Z"
     },
     {
@@ -749,6 +811,7 @@
         "deschide fisierul",
         "open file"
       ],
+      "multi_angle_triggers": [],
       "context_loads": [
         "context/SOUL.md (sub-agent reads)",
         "context/USER.md (sub-agent reads)",
@@ -760,6 +823,8 @@
         "State intern (memorat pentru prima interactiune)",
         "data/session-state/{session_id}.json actualizat"
       ],
+      "modes": [],
+      "output_discipline": "encapsulated",
       "last_modified": "2026-05-05T19:49:41.901Z"
     },
     {
@@ -786,6 +851,7 @@
         "update a skill",
         "remove a skill"
       ],
+      "multi_angle_triggers": [],
       "context_loads": [
         "skills/_catalog/catalog.json (reads)",
         "context/learnings.md (section sys-skill-builder)"
@@ -799,6 +865,7 @@
         "skills/{skill-name}/references/ (if reference materials provided)",
         "Updated skills/_catalog/catalog.json"
       ],
+      "modes": [],
       "last_modified": "2026-05-05T05:19:03.228Z"
     },
     {
@@ -825,6 +892,7 @@
         "positioning",
         "translate"
       ],
+      "multi_angle_triggers": [],
       "context_loads": [
         "brand/voice.md (reads, only in deep mode)",
         "context/learnings.md (section tool-humanizer)"
@@ -837,6 +905,7 @@
         "Cleaned text (returned inline or saved to original file)",
         "Pattern report (standard and deep modes)"
       ],
+      "modes": [],
       "last_modified": "2026-05-05T05:19:21.281Z"
     }
   ]

@@ -12,44 +12,13 @@
 import { readdirSync, readFileSync, writeFileSync, existsSync, statSync, renameSync, unlinkSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
+import { parseFrontmatter, normalizeSkillRecord } from './lib/skill-frontmatter.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const ROBOS_ROOT = join(__dirname, '..');
 const SKILLS_DIR = join(ROBOS_ROOT, 'skills');
 const INDEX_FILE = join(SKILLS_DIR, '_index.json');
-
-function parseFrontmatter(content) {
-  const normalized = content.replace(/\r\n/g, '\n');
-  const match = normalized.match(/^---\n([\s\S]*?)\n---/);
-  if (!match) return {};
-
-  const fm = {};
-  const lines = match[1].split('\n');
-  let currentKey = null;
-
-  for (const line of lines) {
-    const kvMatch = line.match(/^(\w[\w_]*)\s*:\s*(.*)$/);
-    const arrayItemMatch = line.match(/^\s+-\s+"?(.+?)"?\s*$/);
-
-    if (kvMatch) {
-      currentKey = kvMatch[1];
-      const value = kvMatch[2].trim().replace(/^["']|["']$/g, '');
-      if (value === '') {
-        fm[currentKey] = [];
-      } else {
-        fm[currentKey] = value;
-      }
-    } else if (arrayItemMatch && currentKey) {
-      if (!Array.isArray(fm[currentKey])) {
-        fm[currentKey] = [];
-      }
-      fm[currentKey].push(arrayItemMatch[1]);
-    }
-  }
-
-  return fm;
-}
 
 function readSkill(skillDir, name) {
   const skillMd = join(skillDir, 'SKILL.md');
@@ -60,15 +29,7 @@ function readSkill(skillDir, name) {
   const stat = statSync(skillMd);
 
   return {
-    name: fm.name || name,
-    version: fm.version || '0.0.0',
-    category: fm.category || 'unknown',
-    description: fm.description || '',
-    triggers: Array.isArray(fm.triggers) ? fm.triggers : [],
-    negative_triggers: Array.isArray(fm.negative_triggers) ? fm.negative_triggers : [],
-    context_loads: Array.isArray(fm.context_loads) ? fm.context_loads : [],
-    inputs: Array.isArray(fm.inputs) ? fm.inputs : [],
-    outputs: Array.isArray(fm.outputs) ? fm.outputs : [],
+    ...normalizeSkillRecord(fm, name),
     last_modified: stat.mtime.toISOString(),
   };
 }

@@ -17,8 +17,13 @@
 //   node scripts/smoke-parallel.js          (full check)
 //   node scripts/smoke-parallel.js verbose  (full check with per-rule output)
 
-const fs = require('fs');
-const path = require('path');
+import * as fs from 'fs';
+import * as path from 'path';
+import { fileURLToPath } from 'url';
+import { parseFrontmatter } from './lib/skill-frontmatter.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const VERBOSE = process.argv[2] === 'verbose';
 const ROOT = path.join(__dirname, '..');
@@ -39,16 +44,10 @@ function readSkill(name) {
   return fs.readFileSync(skillFile, 'utf8');
 }
 
-function extractFrontmatter(content) {
-  const m = content.match(/^---\n([\s\S]*?)\n---/);
-  if (!m) return {};
-  const fm = {};
-  for (const line of m[1].split('\n')) {
-    const kv = line.match(/^(\w+):\s*(.+)$/);
-    if (kv) fm[kv[1]] = kv[2].trim();
-  }
-  return fm;
-}
+// Use the canonical parser so smoke validation matches the index/dashboard
+// view of the same SKILL.md content. Earlier this file had its own simpler
+// parser that diverged silently.
+const extractFrontmatter = parseFrontmatter;
 
 function findParallelizedSkills() {
   const dirs = fs.readdirSync(SKILLS_DIR).filter((d) => {

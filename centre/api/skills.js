@@ -1,6 +1,7 @@
 import { readdirSync, readFileSync, existsSync } from 'fs';
 import { join } from 'path';
 import { workspaceRoot } from '../lib/config.js';
+import { parseFrontmatter, normalizeSkillRecord } from '../../scripts/lib/skill-frontmatter.js';
 
 /**
  * Citeste skills/_index.json (generat de scripts/rebuild-index.js).
@@ -16,65 +17,14 @@ function readIndex() {
   }
 }
 
-/**
- * Parser minimal de YAML frontmatter (fallback cand _index.json lipseste).
- */
-function parseFrontmatter(content) {
-  const normalized = content.replace(/\r\n/g, '\n');
-  const match = normalized.match(/^---\n([\s\S]*?)\n---/);
-  if (!match) return {};
-
-  const fm = {};
-  const lines = match[1].split('\n');
-  let currentKey = null;
-
-  for (const line of lines) {
-    const kvMatch = line.match(/^(\w[\w_]*)\s*:\s*(.*)$/);
-    const arrayItemMatch = line.match(/^\s+-\s+"?(.+?)"?\s*$/);
-
-    if (kvMatch) {
-      currentKey = kvMatch[1];
-      const value = kvMatch[2].trim().replace(/^["']|["']$/g, '');
-      if (value === '') {
-        fm[currentKey] = [];
-      } else {
-        fm[currentKey] = value;
-      }
-    } else if (arrayItemMatch && currentKey) {
-      if (!Array.isArray(fm[currentKey])) {
-        fm[currentKey] = [];
-      }
-      fm[currentKey].push(arrayItemMatch[1]);
-    }
-  }
-
-  return fm;
-}
-
 function readSkillFromDisk(dir, name, installed) {
   const skillMd = join(dir, 'SKILL.md');
   if (!existsSync(skillMd)) {
-    return {
-      name,
-      version: '',
-      category: 'unknown',
-      description: '',
-      triggers: [],
-      installed,
-    };
+    return { ...normalizeSkillRecord({}, name), installed };
   }
-
   const content = readFileSync(skillMd, 'utf-8');
   const fm = parseFrontmatter(content);
-
-  return {
-    name: fm.name || name,
-    version: fm.version || '',
-    category: fm.category || 'unknown',
-    description: fm.description || '',
-    triggers: Array.isArray(fm.triggers) ? fm.triggers : [],
-    installed,
-  };
+  return { ...normalizeSkillRecord(fm, name), installed };
 }
 
 /**
