@@ -117,6 +117,11 @@ switch (cmd) {
   }
   case 'status': {
     const s = checkStatus();
+    // --json: machine-readable for skills / dashboards
+    if (process.argv.includes('--json')) {
+      console.log(JSON.stringify(s));
+      break;
+    }
     if (s.status === 'hit') {
       console.log(`HIT: scor ${s.cache.score}/100, varsta ${Math.round(s.age_ms / 60000)}min`);
     } else {

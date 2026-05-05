@@ -57,35 +57,28 @@ Acest skill ruleaza in mod **incapsulat** + **paralelizat (Pillar Fan-Out)**. In
 
 # Step 0: Cache check (main thread, fast)
 
-Inainte de orice scanare, verifica cache-ul. Skip pasul daca `mode = force`.
-
-Ruleaza un singur bash call:
+Inainte de orice scanare, verifica cache-ul prin helper-ul canonic. Skip pasul daca `mode = force`.
 
 ```bash
-node -e "
-const fs = require('fs'), path = require('path'), crypto = require('crypto');
-const cacheFile = 'data/audit-cache.json';
-const inputs = [
-  'context/USER.md','brand/voice.md','brand/audience.md','brand/positioning.md','brand/samples.md',
-  'context/priorities.md','connections.md','context/learnings.md','.env'
-];
-const dirs = ['skills','cron/jobs','context/memory','context/audits'];
-let parts = [];
-for (const f of inputs) { try { parts.push(fs.statSync(f).mtime.toISOString()); } catch { parts.push('missing'); } }
-for (const d of dirs) { try { const e = fs.readdirSync(d).filter(x => !x.startsWith('_')).sort(); parts.push(e.length + ':' + e.join(',')); } catch { parts.push('missing'); } }
-const hash = crypto.createHash('sha256').update(parts.join('|')).digest('hex');
-let cache = null; try { cache = JSON.parse(fs.readFileSync(cacheFile,'utf8')); } catch {}
-const now = Date.now();
-const fresh = cache && cache.input_hash === hash && (now - new Date(cache.computed_at).getTime() < 86400000);
-console.log(JSON.stringify({ hash, hit: !!fresh, cache: fresh ? cache : null }));
-"
+node scripts/audit-cache.js status --json
 ```
 
-Parseaza JSON-ul. Doua cai:
+Helper-ul returneaza JSON cu structura:
+```json
+{ "status": "hit" | "miss", "reason": "...", "cache": {...} | null, "age_ms": N }
+```
 
-**Cache HIT** → mergi la Step 4 (Output) cu valorile cached. Mode-ul ramane same; in quick → one-liner cu " (cached)", in full → raport scurt.
+Parseaza JSON-ul. Pastreaza `cache.input_hash` daca status=hit (vei avea nevoie de el la Step 3 pentru cache write). Doua cai:
 
-**Cache MISS sau force** → continua la Step 1.
+**Status: hit** → mergi la Step 4 (Output) cu valorile din `cache`. Mode-ul ramane same; in quick → one-liner cu " (cached)", in full → raport scurt.
+
+**Status: miss** sau `mode=force` → continua la Step 1. Pentru a obtine hash-ul curent (necesar la Step 3 cache write), ruleaza:
+
+```bash
+node scripts/audit-cache.js hash
+```
+
+Pastreaza output-ul (un sha256 hex) pentru reducer.
 
 ---
 

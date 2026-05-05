@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-05T21:25:21.941Z",
+  "generated_at": "2026-05-05T22:02:40.303Z",
   "count": 17,
   "by_category": {
     "brand": 3,
@@ -580,7 +580,7 @@
       ],
       "output_discipline": "encapsulated",
       "concurrency_pattern": "pillar-fan-out",
-      "last_modified": "2026-05-05T20:05:13.996Z"
+      "last_modified": "2026-05-05T21:31:34.499Z"
     },
     {
       "name": "sys-daily-plan",
