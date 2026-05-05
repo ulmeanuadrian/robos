@@ -1,8 +1,8 @@
 ---
 name: sys-audit
-version: 1.1.0
+version: 1.2.0
 category: sys
-description: "Scores your robOS setup on the 4C framework (Context, Connections, Capabilities, Cadence) out of 100. Identifies top gaps, suggests fixes, and can auto-repair gaps in a bounded revision loop."
+description: "Scor 4C (Context, Connections, Capabilities, Cadence) din 100. Identifica top gaps, sugereaza fix-uri, poate auto-repara gap-urile intr-un loop bounded. Cache pe baza mtime hash pentru re-run-uri rapide."
 triggers:
   - "audit"
   - "verifica setup-ul"
@@ -18,8 +18,9 @@ negative_triggers:
   - "security audit"
   - "code audit"
 modes:
-  - full (default): complete audit with all 6 steps + optional revision loop
-  - quick: score + top gap only, no file save, used by morning routine
+  - full (default): audit complet cu toti 6 pasi + loop optional de revizie
+  - quick: scor + top gap, fara save, folosit de morning routine
+  - force: forteaza recalculare ignorand cache-ul
 context_loads:
   - context/USER.md (reads)
   - brand/voice.md (reads)
@@ -29,22 +30,55 @@ context_loads:
   - context/priorities.md (reads)
   - connections.md (reads)
   - context/learnings.md (reads)
+  - data/audit-cache.json (reads, writes)
 inputs:
-  - mode (optional: "full" or "quick", default "full")
+  - mode (optional: "full" | "quick" | "force", default "full")
 outputs:
   - context/audits/{YYYY-MM-DD}.md
-  - Terminal report with score and recommendations
+  - data/audit-cache.json (cache cu mtime hash)
+  - Terminal report cu scor si recomandari
 ---
+
+# Step 0: Cache check
+
+Inainte de orice scanare, verifica cache-ul. Skip pasul daca `mode = force`.
+
+1. Citeste `data/audit-cache.json` daca exista. Format asteptat:
+   ```json
+   {
+     "score": 73,
+     "pillars": {"context": 22, "connections": 11, "capabilities": 18, "cadence": 22},
+     "label": "Strong",
+     "top_gaps": [...],
+     "computed_at": "2026-05-05T08:14:22Z",
+     "input_hash": "a1b2c3..."
+   }
+   ```
+
+2. Calculeaza `current_hash`: concateneaza `mtime.toISOString()` pentru fiecare input:
+   - `context/USER.md`, `brand/voice.md`, `brand/audience.md`, `brand/positioning.md`, `brand/samples.md`
+   - `context/priorities.md`, `connections.md`, `context/learnings.md`, `.env`
+   - Plus listing-ul (count + sorted names) pentru `skills/`, `cron/jobs/`, `context/memory/`, `context/audits/`
+
+   Hash = SHA-256 al concatenarii. Pentru fisiere care lipsesc, foloseste string-ul "missing".
+
+3. Daca `current_hash === cache.input_hash` SI `Date.now() - cache.computed_at < 24h`:
+   - **Cache HIT**: foloseste valorile din cache pentru Step 2 si urmatoarele
+   - In quick mode: outputeaza direct one-liner-ul cu scor si nota "(cached)"
+   - In full mode: continua de la Step 3 cu scorul si pillar-ele cached
+
+4. Altfel cache MISS sau expirate → procedeaza normal de la Step 1.
 
 # Quick Mode Gate
 
-If invoked in quick mode (by morning routine or with explicit "quick audit"):
-1. Run Step 1 and Step 2 (scan + calculate score)
-2. Output ONE line: "4C: {score}/100 ({label}) | Top gap: {gap #1 name} ({pillar score}/25)"
-3. If score dropped vs last audit in `context/audits/`: add " ⚠ -{delta} vs {last date}"
-4. STOP. Do not run Steps 3-7. Do not save a new audit file.
+Daca e quick mode (morning routine sau explicit):
+1. Daca cache HIT → afiseaza scorul cached cu "(cached)" si STOP
+2. Daca cache MISS → ruleaza Step 1+2, scrie cache nou, afiseaza one-liner si STOP
+3. Format: `"4C: {score}/100 ({label}) | Top gap: {nume} ({pillar}/25)"`
+4. Daca scorul a scazut fata de ultimul audit din `context/audits/`: adauga ` ⚠ -{delta} vs {data}`
+5. NU rulezi Steps 3-7. NU salvezi fisier de audit nou.
 
-For full mode, continue below.
+Pentru full mode, continua mai jos.
 
 ---
 
@@ -147,11 +181,26 @@ Write the full audit to `context/audits/{YYYY-MM-DD}.md`:
 
 Create `context/audits/` directory if it doesn't exist.
 
-# Step 6: Print Report
+# Step 6: Print Report + Cache Write
 
-Output the score card and top 3 gaps to the terminal. Keep it concise -- the full details are in the saved file.
+Output scorul si top 3 gaps in terminal. Pastreaza-l concis — detaliile complete sunt in fisierul salvat.
 
-End with: "Scor: {total}/100. Vrei sa repar gap-ul #1 acum? (spune **fix it**) Sau: /level-up pentru oportunitati, /daily-plan pentru plan de zi."
+Inainte de output, scrie `data/audit-cache.json`:
+
+```json
+{
+  "score": {total},
+  "pillars": { "context": N, "connections": N, "capabilities": N, "cadence": N },
+  "label": "{label}",
+  "top_gaps": [...],
+  "computed_at": "{now ISO}",
+  "input_hash": "{hash calculat la Step 0}"
+}
+```
+
+Cache-ul TTL e 24h. Invalidare automata cand orice input file se modifica (mtime hash).
+
+End cu: "Scor: {total}/100. Vrei sa repar gap-ul #1 acum? (spune **fix it**) Sau: /level-up pentru oportunitati, /daily-plan pentru plan de zi."
 
 ---
 
