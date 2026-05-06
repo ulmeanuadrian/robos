@@ -24,6 +24,11 @@
             "type": "command",
             "command": "node \"$CLAUDE_PROJECT_DIR/scripts/activity-capture.js\"",
             "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/scripts/note-candidates.js\"",
+            "timeout": 5
           }
         ]
       }

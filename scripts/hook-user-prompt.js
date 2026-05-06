@@ -30,6 +30,7 @@ import { fileURLToPath } from 'url';
 import { routePrompt } from './skill-route.js';
 import { logHookError } from './lib/hook-error-sink.js';
 import { isClosed, extractOpenThreads as extractOpenThreadsLib } from './lib/memory-format.js';
+import { checkLicense } from './license-check.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -150,6 +151,42 @@ function consumeRecoveryFile() {
 }
 
 /**
+ * Citeste candidatii note pending din ultimele 7 zile, max 5.
+ * Lazy SQLite import — daca DB sau tabela lipsesc, returneaza [] fara sa blocheze.
+ * Importul e dynamic ca hook-ul sa porneasca rapid pe sesiuni unde DB nu e folosit.
+ */
+async function readPendingCandidates(limit = 5) {
+  try {
+    const dbPath = join(ROBOS_ROOT, 'data', 'robos.db');
+    if (!existsSync(dbPath)) return [];
+
+    const { getDb, closeDb } = await import('../centre/lib/db.js');
+    const db = getDb();
+
+    // Defensive: tabela poate sa nu existe pe DB-uri vechi pre-migration.
+    const exists = db.prepare(
+      "SELECT 1 FROM sqlite_master WHERE type='table' AND name='note_candidates'"
+    ).get();
+    if (!exists) { closeDb(); return []; }
+
+    const rows = db.prepare(`
+      SELECT id, trigger, excerpt
+      FROM note_candidates
+      WHERE status = 'pending'
+        AND detected_at >= datetime('now', '-7 days')
+      ORDER BY detected_at DESC
+      LIMIT ?
+    `).all(limit);
+
+    closeDb();
+    return rows;
+  } catch {
+    // Niciodata nu blocheaza promptul.
+    return [];
+  }
+}
+
+/**
  * Citeste ultimele N entries din activity-log.ndjson (cross-session activity).
  * Returneaza un array (cele mai recente primele) sau [] daca lipseste.
  */
@@ -170,12 +207,13 @@ function readRecentActivity(limit = 5) {
 /**
  * Construieste bundle-ul de startup pentru primul prompt al sesiunii.
  */
-function buildStartupBundle() {
+async function buildStartupBundle() {
   const today = todayISO();
   const todayMem = readTodayMemory();
   const latest = findLatestMemoryFile();
   const recovery = consumeRecoveryFile();
   const recentActivity = readRecentActivity(5);
+  const pendingCandidates = await readPendingCandidates(5);
 
   const lines = [];
   lines.push(`[STARTUP CONTEXT — primul prompt al sesiunii ${today}]`);
@@ -225,6 +263,20 @@ function buildStartupBundle() {
       lines.push(`  - ${when} "${userPreview}"`);
     }
     lines.push('  (full log: data/activity-log.ndjson — citeste DOAR daca user-ul intreaba "ce am facut" sau similar)');
+  }
+
+  // Note candidates — surface DOAR daca user saluta sau e idle, NU daca primul prompt e task.
+  if (pendingCandidates.length > 0) {
+    lines.push('');
+    lines.push(`Note candidates pending (${pendingCandidates.length} din ultimele 7 zile):`);
+    pendingCandidates.forEach((c, i) => {
+      const ex = (c.excerpt || '').slice(0, 100).replace(/\s+/g, ' ');
+      lines.push(`  ${i + 1}. [${c.trigger}] ${ex}  (id=${c.id})`);
+    });
+    lines.push('  Mentioneaza candidatii DOAR daca user saluta sau intreaba explicit. Daca primul mesaj e task, NU surface — vor astepta.');
+    lines.push('  Daca user confirma (ex. "1,3,5" / "all" / "skip"), apeleaza:');
+    lines.push('    node scripts/note-candidates-review.js confirm <id1,id2,...>');
+    lines.push('    node scripts/note-candidates-review.js reject <id1,id2,...>');
   }
 
   lines.push('[/STARTUP CONTEXT]');
@@ -331,11 +383,29 @@ async function main() {
     : 'unknown';
   const prompt = payload.prompt || '';
 
+  // Section 0: License check.
+  // license-check.js detecteaza dev mode (ROBOS_DEV=1 in .env) si trece pe ok=true.
+  // Validare offline ~5ms in caz normal. Network call doar la prima rulare / refresh la 60d.
+  try {
+    const licenseResult = await checkLicense(ROBOS_ROOT);
+    if (!licenseResult.ok) {
+      process.stdout.write(JSON.stringify({
+        decision: 'block',
+        reason: `[robOS — licenta] ${licenseResult.message}`,
+      }));
+      process.exit(0);
+    }
+  } catch (e) {
+    // Fallback degradat: daca check-ul crapa, lasam sa treaca + logam.
+    // Gate degradat e mai bun decat DoS pentru user platitor.
+    logHookError('license-check', e);
+  }
+
   const sections = [];
 
   // Section 1: Startup bundle (doar la primul prompt)
   if (isFirstOfSession(sessionId)) {
-    sections.push(buildStartupBundle());
+    sections.push(await buildStartupBundle());
   }
 
   // Section 2: Skill route hint (la fiecare prompt unde matches)
