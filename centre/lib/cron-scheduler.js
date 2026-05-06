@@ -14,6 +14,7 @@ import { join } from 'path';
 import { workspaceRoot } from './config.js';
 import { getDb } from './db.js';
 import { executeJob } from './cron-runner.js';
+import { tryAcquire, release as releaseLock, amILeader } from './cron-leader-lock.js';
 
 const JOBS_DIR = join(workspaceRoot, 'cron', 'jobs');
 const DEFAULTS_DIR = join(workspaceRoot, 'cron', 'defaults');
@@ -150,6 +151,13 @@ export function reloadJobs() {
 
 /**
  * Porneste scheduler-ul. Idempotent.
+ *
+ * Leader lock: doar un proces ruleaza scheduling-ul efectiv. Daca exista deja
+ * un leader activ (heartbeat <30s), acest proces ramane PASIV — migrarea JSON
+ * tot ruleaza (idempotent + side-effect free) dar reloadJobs() e skip.
+ *
+ * Daemon-ul standalone si Centre dashboard-ul concureaza prin acelasi lock —
+ * primul venit e leader, al doilea ramane passive observer.
  */
 export function startScheduler() {
   if (started) return;
@@ -166,10 +174,29 @@ export function startScheduler() {
     console.warn('[scheduler] migrare JSON->DB esuata:', e.message);
   }
 
+  // Acquire leader lock — doar leader-ul scheduleaza
+  if (!tryAcquire()) {
+    console.log('[scheduler] alt proces e leader — raman pasiv (no scheduling)');
+    return;
+  }
+
   reloadJobs();
 
   // Re-incarca la fiecare 5 minute (capteaza schimbari din UI)
   reloadTimer = setInterval(() => {
+    if (!amILeader()) {
+      // Lock pierdut intre runs (alt proces a preluat) → opresc reload-uri
+      console.warn('[scheduler] nu mai sunt leader — opresc reload-urile');
+      if (reloadTimer) {
+        clearInterval(reloadTimer);
+        reloadTimer = null;
+      }
+      for (const [, cron] of activeCrons) {
+        try { cron.stop(); } catch { /* ignore */ }
+      }
+      activeCrons.clear();
+      return;
+    }
     reloadJobs();
   }, 5 * 60 * 1000);
 }
@@ -188,6 +215,7 @@ export function stopScheduler() {
   }
   activeCrons.clear();
   started = false;
+  releaseLock(); // graceful shutdown — eliberez lock-ul
   console.log('[scheduler] oprit');
 }
 

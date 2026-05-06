@@ -31,24 +31,65 @@ Sistem de operare agentic pentru Claude Code. Da unui singur operator AI memorie
 
 ## Instalare
 
-**Cerinte**: Node >= 20, Claude Code CLI ([install](https://docs.anthropic.com/en/docs/claude-code)), git.
+**Cerinte**: Node >= 20, Claude Code CLI ([install](https://claude.com/claude-code)).
+
+### Quickstart 30 secunde (student care a primit tarball)
+
+Dupa ce dezarhivezi `robos-X.Y.Z.tar.gz` si intri in folder:
+
+```bash
+# Mac/Linux:
+bash scripts/robos
+
+# Windows (PowerShell sau cmd):
+scripts\robos.cmd
+
+# Universal (orice platforma cu Node):
+node scripts/robos.js
+```
+
+Atat. Comanda asta:
+1. Detecteaza ca-i prima rulare → ruleaza setup-ul (npm install + build + DB init)
+2. Porneste dashboard-ul la `http://localhost:3001` si deschide browser-ul
+3. Salveaza state-ul ca lansari ulterioare sa fie instant (~0.7s)
+
+Pentru chat cu Claude — in alt terminal in folder: `claude`, apoi scrie `onboard me`.
+
+Optional, ca sa lansezi `robos` din orice director:
+```bash
+node scripts/robos.js --install-shortcut
+```
+(adauga un alias in `.zshrc`/`.bashrc` sau o functie in PowerShell `$PROFILE`).
+
+### Quickstart pentru dev (git clone)
 
 ```bash
 git clone <repo-url> robos
 cd robos
-bash scripts/setup.sh
-bash scripts/start.sh
+node scripts/setup.js
+node scripts/robos.js
 ```
 
-Setup-ul:
-1. Verifica Node si Claude CLI
+Setup-ul (ce face automat):
+1. Verifica Node + Claude CLI
 2. Instaleaza dependentele Centre (`npm install`)
 3. Build dashboard (Astro static)
-4. Initializeaza SQLite (`data/robos.db`)
-5. Genereaza `skills/_index.json`
-6. Cere numele tau si business-ul, scrie `context/USER.md`
+4. Initializeaza SQLite (`data/robos.db`) cu schema completa (4 migratii)
+5. Genereaza `skills/_index.json` (registry single source of truth)
+6. Bootstrap `.env` din `.env.example` (auto-generat ROBOS_DASHBOARD_TOKEN)
 
-Dashboard la `http://localhost:3001`.
+### Comenzi launcher
+
+| Comanda | Ce face |
+|---|---|
+| `node scripts/robos.js` | Launch normal: setup-if-needed → start dashboard → open browser |
+| `node scripts/robos.js --status` | Diagnostic complet (PID, port, version, shortcut, last launch) |
+| `node scripts/robos.js --stop` | Opreste dashboard graceful (SIGTERM, fallback SIGKILL la 5s) |
+| `node scripts/robos.js --setup-only` | Doar setup, fara pornire dashboard |
+| `node scripts/robos.js --no-browser` | Pornire fara deschidere browser |
+| `node scripts/robos.js --clean` | Sterge `centre/dist/` + rebuild |
+| `node scripts/robos.js --install-shortcut` | Adauga `robos` la PATH/profile |
+| `node scripts/robos.js --uninstall-shortcut` | Sterge shortcut-ul |
 
 ---
 
@@ -338,18 +379,50 @@ Cold start sub 300ms. Build static (nu dev server). Update live prin Server-Sent
 
 ## Update
 
+### Pentru student (instalat din tarball)
+
+```bash
+node scripts/update.js
+```
+
+Face:
+1. Verifica versiunea curenta vs `api.robos.vip/version`
+2. Daca update disponibil, cere confirmare
+3. Backup user content in `data/.update-backup/{timestamp}/`
+4. Cere update token (autentificat cu JWT-ul existent)
+5. Descarca tarball nou via `dl.robos.vip/{token}`
+6. Aplica: copiaza fisiere `centre/`, `scripts/`, `skills/`, root files — preserva user content
+7. Migrarile DB se aplica automat la urmatoarea pornire dashboard (`runMigrations` incremental)
+8. Restarteaza dashboard-ul daca rula
+
+### Pentru dev (git clone)
+
 ```bash
 bash scripts/update.sh
 ```
 
-Face:
-1. Backup `data/robos.db`
-2. `git pull --ff-only`
-3. Re-instaleaza dependinte daca `centre/` s-a schimbat
-4. Regenereaza `skills/_index.json`
-5. Listeaza skills noi in catalog
+Face: backup DB + `git pull --ff-only` + reinstall deps daca centre s-a schimbat + regenerare _index + listeaza skills noi din catalog.
 
-**Fisiere protejate** (nu sunt rescrise niciodata): `context/USER.md`, `context/learnings.md`, `context/memory/*`, `brand/*`, `clients/*`, `projects/*`, `cron/jobs/*`, `data/*`, `.env`.
+### Datele tale sunt in siguranta
+
+Aceste fisiere/directoare **NU sunt suprascrise NICIODATA** de update:
+
+| Fisier/director | Continutul tau |
+|---|---|
+| `context/USER.md` | Profilul tau personal |
+| `context/learnings.md` | Feedback-ul acumulat per skill |
+| `context/memory/` | Jurnalele zilnice (toate) |
+| `context/notes/` | Second brain markdown notes |
+| `context/decision-journal.md` | Jurnalul decizii non-triviale |
+| `brand/` | Voce, audienta, pozitionare, samples (intregul folder) |
+| `clients/` | Toate workspace-urile per client |
+| `projects/` | Tot output-ul generat |
+| `cron/jobs/` | Joburile tale custom |
+| `data/` | DB SQLite + cache-uri + state files |
+| `.env` | Cheile API |
+| `connections.md` | Inventar tool-uri |
+
+Update-ul atinge DOAR: cod sursa (`centre/`, `scripts/`, `licensing/` daca dev), skill-uri din catalog (`skills/_catalog/`), root files (AGENTS.md, CLAUDE.md, README.md, VERSION, CHANGELOG.md, .gitignore, .gitattributes). Tot ce-i mai sus e protejat.
 
 ---
 

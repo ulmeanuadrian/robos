@@ -20,6 +20,7 @@ import { join } from 'path';
 import { workspaceRoot } from './config.js';
 import { getDb } from './db.js';
 import { emit } from './event-bus.js';
+import { notify, isSilentOutput } from './notify.js';
 
 const LOGS_DIR = join(workspaceRoot, 'cron', 'logs');
 const MAX_CONCURRENT = 3;
@@ -168,6 +169,29 @@ export async function executeJob(job, { trigger = 'scheduled', attempt = 1 } = {
 
       console.log(`[cron-runner] DONE ${job.slug} (${result}, ${durationSec.toFixed(1)}s, exit ${code})`);
 
+      // Smart silence: jobs care produc [SILENT] in output suprima notification.
+      // Util pentru monitoring jobs care raporteaza "all clear" — nu deranjam operatorul.
+      // Failure-urile NU se suprima, indiferent de [SILENT] (siguranta).
+      const silent = isSilentOutput(output);
+      const notifyMode = job.notify || 'on_finish';
+      const shouldNotify = (() => {
+        if (notifyMode === 'silent') return false;
+        if (result === 'failure' || result === 'timeout') {
+          return notifyMode === 'on_finish' || notifyMode === 'on_failure';
+        }
+        // success
+        if (silent) return false;
+        return notifyMode === 'on_finish';
+      })();
+
+      if (shouldNotify) {
+        const title = result === 'success' ? `robOS: ${job.slug} done` : `robOS: ${job.slug} ${result}`;
+        const msg = result === 'success'
+          ? `Completed in ${durationSec.toFixed(1)}s`
+          : `Job ended with ${result} (exit ${code})`;
+        notify({ title, message: msg, type: result === 'success' ? 'success' : 'failure' }).catch(() => {});
+      }
+
       emit('cron:run:completed', {
         slug: job.slug,
         runId,
@@ -175,6 +199,8 @@ export async function executeJob(job, { trigger = 'scheduled', attempt = 1 } = {
         durationSec,
         exitCode: code,
         attempt,
+        silent,
+        notified: shouldNotify,
       });
 
       // Retry policy

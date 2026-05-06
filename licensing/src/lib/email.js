@@ -60,18 +60,19 @@ export function welcomeEmail({ email, downloadUrl, isBundle }) {
 
 <h3 style="margin-top: 24px; margin-bottom: 8px;">Instalare (5 minute):</h3>
 <ol>
-  <li>Click pe butonul <b>Descarca robOS</b> de mai sus → primesti un fisier <code style="background: #f5f5f5; padding: 2px 6px; border-radius: 3px;">robos-${'$'}{version}.tar.gz</code></li>
-  <li>Dezarhiveaza-l oriunde pe laptop. Se creeaza folder <code style="background: #f5f5f5; padding: 2px 6px; border-radius: 3px;">robOS/</code></li>
-  <li>Deschide terminal in folder si ruleaza:
-    <ul>
-      <li>Mac/Linux: <code style="background: #f5f5f5; padding: 2px 6px; border-radius: 3px;">bash scripts/setup.sh</code></li>
-      <li>Windows:   <code style="background: #f5f5f5; padding: 2px 6px; border-radius: 3px;">scripts\\setup.cmd</code></li>
-      <li>Sau universal: <code style="background: #f5f5f5; padding: 2px 6px; border-radius: 3px;">node scripts/setup.js</code></li>
+  <li>Click pe butonul <b>Descarca robOS</b> de mai sus → primesti <code style="background: #f5f5f5; padding: 2px 6px; border-radius: 3px;">robos-${'$'}{version}.tar.gz</code></li>
+  <li>Dezarhiveaza-l oriunde pe laptop (creeaza folder <code style="background: #f5f5f5; padding: 2px 6px; border-radius: 3px;">robOS/</code>)</li>
+  <li>Deschide terminal in folder si ruleaza ASTA — porneste totul:
+    <ul style="margin-top: 6px;">
+      <li>Mac/Linux: <code style="background: #f5f5f5; padding: 2px 6px; border-radius: 3px;">bash scripts/robos</code></li>
+      <li>Windows: <code style="background: #f5f5f5; padding: 2px 6px; border-radius: 3px;">scripts\\robos.cmd</code></li>
+      <li>Universal: <code style="background: #f5f5f5; padding: 2px 6px; border-radius: 3px;">node scripts/robos.js</code></li>
     </ul>
   </li>
-  <li>Deschide Claude Code in folder: <code style="background: #f5f5f5; padding: 2px 6px; border-radius: 3px;">claude</code></li>
-  <li>Scrie: <code style="background: #f5f5f5; padding: 2px 6px; border-radius: 3px;">onboard me</code></li>
+  <li>Dashboard-ul se deschide automat la <code style="background: #f5f5f5; padding: 2px 6px; border-radius: 3px;">http://localhost:3001</code>. Pentru chat cu Claude, deschide <code style="background: #f5f5f5; padding: 2px 6px; border-radius: 3px;">claude</code> in alta fereastra de terminal in folder, apoi scrie <b>onboard me</b>.</li>
 </ol>
+
+<p style="font-size: 14px; color: #666; margin-top: 16px;">Optional: <code style="background: #f5f5f5; padding: 2px 6px; border-radius: 3px;">node scripts/robos.js --install-shortcut</code> adauga comanda <code>robos</code> in shell-ul tau (zsh/bash/PowerShell), ca sa lansezi de oriunde fara sa-i dai path-ul.</p>
 
 <p>Te ghideaza el de acolo. La primul prompt, robOS isi activeaza singur licenta (nu trebuie sa faci nimic special).</p>
 
@@ -93,14 +94,17 @@ INAINTE DE INSTALARE — verifici ca ai:
   2. Claude Code CLI → https://claude.com/claude-code
 
 INSTALARE (5 minute):
-  1. Click pe link → primesti robos-{version}.tar.gz
+  1. Click pe link -> primesti robos-{version}.tar.gz
   2. Dezarhiveaza folderul oriunde pe laptop (creeaza robOS/)
-  3. In terminal, ruleaza:
-       Mac/Linux: bash scripts/setup.sh
-       Windows:   scripts\\setup.cmd
-       Universal: node scripts/setup.js
-  4. Deschide Claude Code in folder: claude
-  5. Scrie: onboard me
+  3. In terminal, ruleaza ASTA — porneste totul:
+       Mac/Linux: bash scripts/robos
+       Windows:   scripts\\robos.cmd
+       Universal: node scripts/robos.js
+  4. Dashboard-ul se deschide la http://localhost:3001.
+     Pentru chat: deschide 'claude' in alta fereastra in folder, scrie 'onboard me'.
+
+Optional, pentru launch de oriunde: node scripts/robos.js --install-shortcut
+(adauga 'robos' in shell-ul tau)
 
 La primul prompt, robOS isi activeaza singur licenta.
 
