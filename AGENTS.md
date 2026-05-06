@@ -58,6 +58,7 @@ La startul sesiunii, compara ce e pe disk (`skills/*/`) cu catalogul (`skills/_c
 |------------|----------------------------------------------------|
 | `brand-`   | Voce de brand, style guides, tone checks           |
 | `content-` | Writing, editing, publishing                       |
+| `mode-`    | Comutatoare cognitive (Shadow, Facilitator, Anti-Dependence) — schimba postura Claude pentru o sarcina specifica |
 | `research-`| Research web, competitor analysis, trend scanning  |
 | `sys-`     | Operatii de sistem: sesiune, cron, mentenanta      |
 | `tool-`    | Integrari cu tooluri externe (API-uri, CLI-uri)    |

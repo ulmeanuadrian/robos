@@ -1,9 +1,10 @@
 {
-  "generated_at": "2026-05-05T22:14:20.226Z",
-  "count": 17,
+  "generated_at": "2026-05-06T05:53:56.582Z",
+  "count": 20,
   "by_category": {
     "brand": 3,
     "content": 3,
+    "mode": 3,
     "research": 2,
     "sys": 8,
     "tool": 1
@@ -66,6 +67,27 @@
     "repurpose this": "content-repurpose",
     "turn this into social posts": "content-repurpose",
     "social posts from": "content-repurpose",
+    "anti-dependence": "mode-anti-dependence",
+    "anti dependence mode": "mode-anti-dependence",
+    "ce as face eu intai": "mode-anti-dependence",
+    "ce ai face tu intai": "mode-anti-dependence",
+    "intreaba-ma ce as face": "mode-anti-dependence",
+    "modul anti-dependenta": "mode-anti-dependence",
+    "what would you do": "mode-anti-dependence",
+    "facilitator mode": "mode-facilitator",
+    "intreaba-ma intai": "mode-facilitator",
+    "intreaba-ma 5 intrebari": "mode-facilitator",
+    "modul facilitator": "mode-facilitator",
+    "ajuta-ma sa gandesc": "mode-facilitator",
+    "ask me first": "mode-facilitator",
+    "facilitate me": "mode-facilitator",
+    "shadow mode": "mode-shadow",
+    "intra in shadow": "mode-shadow",
+    "verifica strict": "mode-shadow",
+    "modul shadow": "mode-shadow",
+    "stop mod explicativ": "mode-shadow",
+    "enter shadow mode": "mode-shadow",
+    "explanation only": "mode-shadow",
     "analiza competitori": "research-competitors",
     "ce zic concurentii": "research-competitors",
     "competitor analysis": "research-competitors",
@@ -448,6 +470,113 @@
       "output_discipline": "encapsulated",
       "concurrency_pattern": "multi-asset-generation",
       "last_modified": "2026-05-05T20:14:32.506Z"
+    },
+    {
+      "name": "mode-anti-dependence",
+      "version": "1.0.0",
+      "category": "mode",
+      "description": "Anti-Dependence Mode din OM-AI Protocol. Inainte sa propun solutii, intreb operatorul ce ar face el. Previne atrofia cognitiva pe sarcini repetitive critice si pastreaza ownership-ul deciziei la operator.",
+      "triggers": [
+        "anti-dependence",
+        "anti dependence mode",
+        "ce as face eu intai",
+        "ce ai face tu intai",
+        "intreaba-ma ce as face",
+        "modul anti-dependenta",
+        "what would you do"
+      ],
+      "negative_triggers": [
+        "exit anti-dependence",
+        "iesi din anti-dependence",
+        "raspunde direct"
+      ],
+      "multi_angle_triggers": [],
+      "context_loads": [
+        "context/CONTRACT.md",
+        "context/decision-journal.md"
+      ],
+      "inputs": [
+        "target (optional: decizia / sarcina pentru care se aplica)"
+      ],
+      "outputs": [
+        "O intrebare scurta despre ce ar face operatorul",
+        "DUPA raspuns: 2-3 alternative, una validand abordarea operatorului daca e rezonabila"
+      ],
+      "modes": [],
+      "output_discipline": "ask-first-propose-second",
+      "last_modified": "2026-05-06T05:43:44.133Z"
+    },
+    {
+      "name": "mode-facilitator",
+      "version": "1.0.0",
+      "category": "mode",
+      "description": "Facilitator Mode din OM-AI Protocol. Comutator cognitiv: in loc sa propun solutii, pun 3-5 intrebari structurate pentru a clarifica gandirea operatorului. Folosit la inceput de proiect, decizii strategice, sau cand operatorul cere sa fie ghidat sa decida singur.",
+      "triggers": [
+        "facilitator mode",
+        "intreaba-ma intai",
+        "intreaba-ma 5 intrebari",
+        "modul facilitator",
+        "ajuta-ma sa gandesc",
+        "ask me first",
+        "facilitate me"
+      ],
+      "negative_triggers": [
+        "exit facilitator",
+        "iesi din facilitator",
+        "raspunde acum"
+      ],
+      "multi_angle_triggers": [],
+      "context_loads": [
+        "context/CONTRACT.md",
+        "context/USER.md"
+      ],
+      "inputs": [
+        "target (optional: contextul intrebarilor — \"lansare produs nou\", \"decizie pricing\", etc.)"
+      ],
+      "outputs": [
+        "3-5 intrebari numerotate",
+        "Fara propuneri de solutii pana la raspunsuri"
+      ],
+      "modes": [],
+      "output_discipline": "question-only",
+      "last_modified": "2026-05-06T05:43:10.938Z"
+    },
+    {
+      "name": "mode-shadow",
+      "version": "1.0.0",
+      "category": "mode",
+      "description": "Shadow Mode din OM-AI Protocol. Comutator cognitiv: Claude NU rescrie, NU genereaza continut nou — listeaza inconsistente, presupuneri, lipsuri si intrebari importante. Folosit ca verification gate inainte de generare de copy/LP/tabel sau pentru review de fapte despre robOS / brand / clients.",
+      "triggers": [
+        "shadow mode",
+        "intra in shadow",
+        "verifica strict",
+        "modul shadow",
+        "stop mod explicativ",
+        "enter shadow mode",
+        "explanation only"
+      ],
+      "negative_triggers": [
+        "exit shadow",
+        "iesi din shadow",
+        "scrie acum"
+      ],
+      "multi_angle_triggers": [],
+      "context_loads": [
+        "context/CONTRACT.md",
+        "context/decision-journal.md",
+        ".gitignore"
+      ],
+      "inputs": [
+        "target (optional: ce verific — \"tabel LP\", \"claim despre robOS X\", \"doc claude-vs-robos.md\")"
+      ],
+      "outputs": [
+        "Lista de 3-7 puncte structurate",
+        "Fara generare de continut nou",
+        "Optional: append in context/decision-journal.md daca se rezolva un hallucination"
+      ],
+      "modes": [],
+      "output_discipline": "structured-flag-list",
+      "last_modified": "2026-05-06T05:42:34.796Z"
     },
     {
       "name": "research-competitors",
