@@ -1,27 +1,44 @@
 <script lang="ts">
-  interface EnvVar {
+  import { apiFetch } from '../lib/api-client';
+
+  interface EnvEntry {
     key: string;
-    value: string;
+    value: string | null;
     masked: boolean;
+    status: 'set' | 'unset' | 'placeholder';
+    category: string;
+    required_by: string[];
+    optional_for: string[];
   }
 
   let activeTab = $state<'env' | 'mcp' | 'claude' | 'scripts'>('env');
-  let envVars = $state<EnvVar[]>([]);
+  let envEntries = $state<EnvEntry[]>([]);
+  let envWarnings = $state<string[]>([]);
+  let editingKey = $state<string | null>(null);
+  let editingValue = $state<string>('');
+  let editingShow = $state<boolean>(false);
   let mcpConfig = $state('');
   let loading = $state(true);
   let saving = $state(false);
   let saveMessage = $state('');
+  let authError = $state<string | null>(null);
 
   async function fetchSettings() {
     loading = true;
+    authError = null;
     try {
       if (activeTab === 'env') {
-        const res = await fetch('/api/settings/env');
-        if (res.ok) {
-          envVars = await res.json();
+        const res = await apiFetch('/api/settings/env');
+        if (res.status === 401 || res.status === 503) {
+          authError = 'Auth not configured. Ruleaza: node scripts/setup-env.js, apoi reincarca.';
+          envEntries = [];
+        } else if (res.ok) {
+          const data = await res.json();
+          envEntries = data.entries || [];
+          envWarnings = data.warnings || [];
         }
       } else if (activeTab === 'mcp') {
-        const res = await fetch('/api/settings/mcp');
+        const res = await apiFetch('/api/settings/mcp');
         if (res.ok) {
           const data = await res.json();
           mcpConfig = JSON.stringify(data, null, 2);
@@ -34,18 +51,57 @@
     }
   }
 
-  async function saveEnv() {
+  function startEdit(entry: EnvEntry) {
+    editingKey = entry.key;
+    editingValue = entry.masked ? '' : (entry.value || '');
+    editingShow = !entry.masked;
+    saveMessage = '';
+  }
+
+  function cancelEdit() {
+    editingKey = null;
+    editingValue = '';
+    editingShow = false;
+  }
+
+  async function saveOne() {
+    if (!editingKey) return;
     saving = true;
     saveMessage = '';
     try {
-      const res = await fetch('/api/settings/env', {
+      const res = await apiFetch('/api/settings/env', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(envVars),
+        body: JSON.stringify({ key: editingKey, value: editingValue }),
       });
-      saveMessage = res.ok ? 'Saved successfully.' : 'Failed to save.';
-    } catch {
-      saveMessage = 'Error saving settings.';
+      if (res.ok) {
+        saveMessage = `${editingKey} salvat.`;
+        cancelEdit();
+        await fetchSettings();
+      } else {
+        const err = await res.json().catch(() => ({ error: `HTTP ${res.status}` }));
+        saveMessage = `Eroare: ${err.error || res.statusText}`;
+      }
+    } catch (e) {
+      saveMessage = `Eroare retea: ${(e as Error).message}`;
+    } finally {
+      saving = false;
+    }
+  }
+
+  async function clearOne(entry: EnvEntry) {
+    if (!confirm(`Sterg valoarea pentru ${entry.key}?`)) return;
+    saving = true;
+    try {
+      const res = await apiFetch('/api/settings/env', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key: entry.key, value: '' }),
+      });
+      if (res.ok) {
+        saveMessage = `${entry.key} sters.`;
+        await fetchSettings();
+      }
     } finally {
       saving = false;
     }
@@ -56,22 +112,50 @@
     saveMessage = '';
     try {
       const parsed = JSON.parse(mcpConfig);
-      const res = await fetch('/api/settings/mcp', {
+      const res = await apiFetch('/api/settings/mcp', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(parsed),
       });
-      saveMessage = res.ok ? 'Saved successfully.' : 'Failed to save.';
+      if (res.ok) {
+        saveMessage = 'MCP salvat.';
+      } else {
+        const err = await res.json().catch(() => ({ error: `HTTP ${res.status}` }));
+        saveMessage = `Eroare: ${err.error || res.statusText}`;
+      }
     } catch {
-      saveMessage = 'Invalid JSON format.';
+      saveMessage = 'JSON invalid.';
     } finally {
       saving = false;
     }
   }
 
-  function toggleMask(index: number) {
-    envVars[index].masked = !envVars[index].masked;
-  }
+  // Group entries by category for display
+  const grouped = $derived.by(() => {
+    const buckets = new Map<string, EnvEntry[]>();
+    for (const e of envEntries) {
+      const cat = e.category || 'general';
+      if (!buckets.has(cat)) buckets.set(cat, []);
+      buckets.get(cat)!.push(e);
+    }
+    // Order: core, skills, distribution, general, anything else
+    const ORDER = ['core', 'skills', 'distribution', 'general'];
+    const sorted: { category: string; entries: EnvEntry[] }[] = [];
+    for (const cat of ORDER) {
+      if (buckets.has(cat)) sorted.push({ category: cat, entries: buckets.get(cat)! });
+    }
+    for (const [cat, entries] of buckets) {
+      if (!ORDER.includes(cat)) sorted.push({ category: cat, entries });
+    }
+    return sorted;
+  });
+
+  const CATEGORY_LABELS: Record<string, string> = {
+    core: 'Core (robOS porneste cu astea)',
+    skills: 'Skills (chei API per skill)',
+    distribution: 'Distribution (numai daca distribui robOS)',
+    general: 'Altele',
+  };
 
   $effect(() => {
     fetchSettings();
@@ -94,7 +178,7 @@
     <button
       class="tab-btn"
       class:active={activeTab === tab.id}
-      onclick={() => { activeTab = tab.id; saveMessage = ''; }}
+      onclick={() => { activeTab = tab.id; saveMessage = ''; cancelEdit(); }}
     >
       {tab.label}
     </button>
@@ -107,39 +191,82 @@
   {:else if activeTab === 'env'}
     <div class="env-section">
       <div class="section-intro">
-        <p>Environment variables from your workspace <code>.env</code> file.</p>
+        <p>Variabile de environment din <code>.env</code>. Sursa unica de adevar pentru chei API si secrete in robOS.</p>
+        <p class="hint">Valorile secrete (API_KEY, TOKEN, SECRET, ...) nu sunt afisate niciodata. Apasa <strong>Set</strong> sa le suprascrii. Comentariile din <code>.env</code> sunt pastrate la salvare.</p>
       </div>
-      {#if envVars.length === 0}
+
+      {#if authError}
+        <div class="auth-error">{authError}</div>
+      {/if}
+
+      {#each envWarnings as warning}
+        <div class="auth-error">{warning}</div>
+      {/each}
+
+      {#if envEntries.length === 0 && !authError}
         <div class="settings-empty">
-          <p>No .env file found or it is empty.</p>
-          <p class="hint">Create a <code>.env</code> file in your workspace root to configure environment variables.</p>
+          <p>Niciun slot in <code>.env</code>.</p>
+          <p class="hint">Ruleaza <code>node scripts/setup-env.js</code> ca sa-l populezi din <code>.env.example</code>.</p>
         </div>
       {:else}
-        <div class="env-list">
-          {#each envVars as envVar, i}
-            <div class="env-row">
-              <label class="env-key">{envVar.key}</label>
-              <div class="env-value-wrapper">
-                <input
-                  type={envVar.masked ? 'password' : 'text'}
-                  class="env-input"
-                  bind:value={envVar.value}
-                />
-                <button class="btn btn-ghost btn-sm" onclick={() => toggleMask(i)}>
-                  {envVar.masked ? 'Show' : 'Hide'}
-                </button>
-              </div>
+        {#each grouped as group}
+          <div class="env-group">
+            <h3 class="env-group-title">{CATEGORY_LABELS[group.category] || group.category}</h3>
+            <div class="env-list">
+              {#each group.entries as entry (entry.key)}
+                <div class="env-row">
+                  <div class="env-key-col">
+                    <label class="env-key">{entry.key}</label>
+                    {#if entry.required_by && entry.required_by.length > 0}
+                      <span class="env-meta">cerut de: {entry.required_by.join(', ')}</span>
+                    {:else if entry.optional_for && entry.optional_for.length > 0}
+                      <span class="env-meta env-meta-optional">optional pentru: {entry.optional_for.join(', ')}</span>
+                    {/if}
+                  </div>
+                  <div class="env-value-col">
+                    {#if editingKey === entry.key}
+                      <input
+                        type={editingShow ? 'text' : 'password'}
+                        class="env-input"
+                        bind:value={editingValue}
+                        placeholder="(lasa gol pentru sterge)"
+                      />
+                      <button class="btn btn-ghost btn-sm" onclick={() => editingShow = !editingShow}>
+                        {editingShow ? 'Hide' : 'Show'}
+                      </button>
+                      <button class="btn btn-primary btn-sm" onclick={saveOne} disabled={saving}>
+                        {saving ? '...' : 'Salveaza'}
+                      </button>
+                      <button class="btn btn-ghost btn-sm" onclick={cancelEdit}>Anuleaza</button>
+                    {:else}
+                      <span class="env-status status-{entry.status}">
+                        {#if entry.status === 'set'}
+                          {entry.masked ? '••••• (set)' : entry.value}
+                        {:else if entry.status === 'placeholder'}
+                          {entry.value} (placeholder)
+                        {:else}
+                          (gol)
+                        {/if}
+                      </span>
+                      <button class="btn btn-ghost btn-sm" onclick={() => startEdit(entry)}>
+                        Set
+                      </button>
+                      {#if entry.status !== 'unset'}
+                        <button class="btn btn-ghost btn-sm" onclick={() => clearOne(entry)}>
+                          Clear
+                        </button>
+                      {/if}
+                    {/if}
+                  </div>
+                </div>
+              {/each}
             </div>
-          {/each}
-        </div>
-        <div class="save-row">
-          <button class="btn btn-primary" onclick={saveEnv} disabled={saving}>
-            {saving ? 'Saving...' : 'Save Changes'}
-          </button>
-          {#if saveMessage}
-            <span class="save-msg">{saveMessage}</span>
-          {/if}
-        </div>
+          </div>
+        {/each}
+
+        {#if saveMessage}
+          <div class="save-msg">{saveMessage}</div>
+        {/if}
       {/if}
     </div>
 
@@ -190,17 +317,17 @@
       <div class="scripts-list">
         <div class="script-item">
           <div class="script-info">
+            <h4>setup-env.js</h4>
+            <p>Initializeaza/sincronizeaza .env din .env.example. Idempotent.</p>
+          </div>
+          <code class="script-cmd">node scripts/setup-env.js</code>
+        </div>
+        <div class="script-item">
+          <div class="script-info">
             <h4>init-db.js</h4>
             <p>Initialize the Centre database.</p>
           </div>
           <code class="script-cmd">npm run init-db</code>
-        </div>
-        <div class="script-item">
-          <div class="script-info">
-            <h4>Setup Wizard</h4>
-            <p>Ruleaza procesul de setup robOS.</p>
-          </div>
-          <code class="script-cmd">bash scripts/setup.sh</code>
         </div>
       </div>
     </div>
@@ -262,6 +389,7 @@
   .hint {
     font-size: var(--text-sm);
     margin-top: var(--space-2);
+    color: var(--color-muted);
   }
 
   .hint code {
@@ -276,8 +404,8 @@
   }
 
   .section-intro p {
-    margin: 0;
-    color: var(--color-muted);
+    margin: 0 0 var(--space-2) 0;
+    color: var(--color-text);
     font-size: var(--text-sm);
   }
 
@@ -288,31 +416,91 @@
     font-size: var(--text-xs);
   }
 
+  .auth-error {
+    padding: var(--space-3) var(--space-4);
+    background: var(--color-warning-bg, #fef3c7);
+    border: 1px solid var(--color-warning, #f59e0b);
+    border-radius: var(--radius-md);
+    font-size: var(--text-sm);
+    margin-bottom: var(--space-4);
+  }
+
+  .env-group {
+    margin-bottom: var(--space-6);
+  }
+
+  .env-group-title {
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--color-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin: 0 0 var(--space-3) 0;
+    padding-bottom: var(--space-2);
+    border-bottom: 1px solid var(--color-border);
+  }
+
   .env-list {
     display: flex;
     flex-direction: column;
     gap: var(--space-3);
-    margin-bottom: var(--space-5);
   }
 
   .env-row {
     display: flex;
     align-items: center;
     gap: var(--space-4);
+    padding: var(--space-2) 0;
+  }
+
+  .env-key-col {
+    width: 280px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
   }
 
   .env-key {
-    width: 200px;
     font-family: var(--font-mono);
     font-size: var(--text-sm);
     font-weight: 500;
-    flex-shrink: 0;
   }
 
-  .env-value-wrapper {
+  .env-meta {
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+  }
+
+  .env-meta-optional {
+    font-style: italic;
+  }
+
+  .env-value-col {
     flex: 1;
     display: flex;
+    align-items: center;
     gap: var(--space-2);
+  }
+
+  .env-status {
+    flex: 1;
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-md);
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    min-height: 1.6em;
+  }
+
+  .status-unset {
+    color: var(--color-muted);
+    font-style: italic;
+  }
+
+  .status-placeholder {
+    color: var(--color-warning, #f59e0b);
   }
 
   .env-input {
@@ -330,15 +518,19 @@
     box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
   }
 
+  .save-msg {
+    font-size: var(--text-sm);
+    color: var(--color-text);
+    padding: var(--space-3) var(--space-4);
+    background: var(--color-bg);
+    border-radius: var(--radius-md);
+    margin-top: var(--space-4);
+  }
+
   .save-row {
     display: flex;
     align-items: center;
     gap: var(--space-3);
-  }
-
-  .save-msg {
-    font-size: var(--text-sm);
-    color: var(--color-success);
   }
 
   .mcp-editor {

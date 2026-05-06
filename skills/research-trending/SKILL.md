@@ -31,6 +31,12 @@ outputs:
   - projects/research-trending/{date}-{slug}/brief.md
   - projects/research-trending/{date}-{slug}/sources.md
   - data/skill-telemetry.ndjson (appended)
+secrets_required:
+  - FIRECRAWL_API_KEY
+secrets_optional:
+  - OPENAI_API_KEY
+  - XAI_API_KEY
+  - YOUTUBE_API_KEY
 ---
 
 # Output Discipline

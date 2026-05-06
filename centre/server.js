@@ -4,6 +4,10 @@ import { join, extname, resolve, sep } from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 
+// Load .env into process.env BEFORE any module reads process.env at import time.
+import { loadEnv } from './lib/env-loader.js';
+loadEnv();
+
 import { listTasks, createTask, getTask, updateTask, deleteTask } from './api/tasks.js';
 import { listJobs, createJob, updateJob, deleteJob, triggerRun, getHistory, getRunLog, getStatus as getCronStatus } from './api/cron.js';
 import { listSkills, listCatalog } from './api/skills.js';
@@ -16,6 +20,7 @@ import { handleSse } from './api/events.js';
 import { getSkillStats, getCostBreakdown, getQualityStats } from './api/analytics.js';
 import { closeDb } from './lib/db.js';
 import { startScheduler, stopScheduler } from './lib/cron-scheduler.js';
+import { checkBearer, getAuthToken } from './lib/auth.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -120,12 +125,49 @@ function serveStatic(res, filePath) {
 }
 
 /**
+ * Endpoints that require Bearer auth. Match by (method, pathname-pattern).
+ * Each entry is a function: (method, pathname) => boolean.
+ *
+ * Rule of thumb: ANY mutation, ANY endpoint that bears or touches secrets,
+ * ANY endpoint that triggers code execution. Read-only informational endpoints
+ * (memory list, audit history, activity log, connections-health, skill list)
+ * are NOT protected — they expose no secrets.
+ */
+// Surfaces with secret/RCE consequences — auth-required NOW.
+// Lower-impact mutations (tasks, cron, memory) intentionally NOT yet behind
+// auth — adding it requires updating every Svelte island to send the token.
+// Tracked in AGENTS.md as open thread "Token auth coverage Phase B".
+const AUTH_REQUIRED = [
+  // Settings — both reads and writes. getEnv leaks key list (which secrets
+  // are configured); setEnv writes secrets. Both gated.
+  (m, p) => p === '/api/settings/env' && (m === 'GET' || m === 'PUT'),
+  (m, p) => p === '/api/settings/mcp' && m === 'PUT',
+  // Skill execution — RCE vector if forged.
+  (m, p) => /^\/api\/skills\/[^/]+\/run$/.test(p) && m === 'POST',
+];
+
+function requiresAuth(method, pathname) {
+  return AUTH_REQUIRED.some(test => test(method, pathname));
+}
+
+/**
  * Route API requests.
  */
 async function handleApi(req, res, pathname, query) {
   const method = req.method;
 
+  // Auth gate (before any handler)
+  if (requiresAuth(method, pathname)) {
+    const fail = checkBearer(req);
+    if (fail) return error(res, fail.message, fail.status);
+  }
+
   try {
+    // Auth bootstrap — UI fetches the token here on init
+    if (pathname === '/api/auth/token' && method === 'GET') {
+      return json(res, getAuthToken(req, PORT));
+    }
+
     // Tasks
     if (pathname === '/api/tasks' && method === 'GET') {
       return json(res, listTasks(query));
@@ -250,8 +292,9 @@ async function handleApi(req, res, pathname, query) {
     }
     if (pathname === '/api/settings/env' && method === 'PUT') {
       const body = await readBody(req);
-      setEnv(body);
-      return json(res, { ok: true });
+      const result = setEnv(body);
+      if (!result.ok) return error(res, result.error, 400);
+      return json(res, result);
     }
     if (pathname === '/api/settings/mcp' && method === 'GET') {
       return json(res, getMcp());

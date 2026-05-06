@@ -19,6 +19,7 @@ const __dirname = dirname(__filename);
 const ROBOS_ROOT = join(__dirname, '..');
 const SKILLS_DIR = join(ROBOS_ROOT, 'skills');
 const INDEX_FILE = join(SKILLS_DIR, '_index.json');
+const REQUIRED_SECRETS_FILE = join(ROBOS_ROOT, 'data', 'required-secrets.json');
 
 function readSkill(skillDir, name) {
   const skillMd = join(skillDir, 'SKILL.md');
@@ -94,6 +95,54 @@ function buildIndex() {
     throw e;
   }
   console.log(`[OK] skills/_index.json regenerat: ${skills.length} skills, ${Object.keys(triggerMap).length} triggers`);
+
+  // Aggregate secrets declared by skill frontmatter into data/required-secrets.json.
+  // Consumed by:
+  //   - scripts/setup-env.js → adds missing slots to .env when skills declare new keys
+  //   - centre/api/settings.js → "required_by: [skills]" badges in dashboard UI
+  buildRequiredSecrets(skills);
+}
+
+function buildRequiredSecrets(skills) {
+  const byKey = {}; // key → { required_by: [], optional_for: [] }
+
+  for (const skill of skills) {
+    for (const k of (skill.secrets_required || [])) {
+      if (!byKey[k]) byKey[k] = { required_by: [], optional_for: [] };
+      if (!byKey[k].required_by.includes(skill.name)) {
+        byKey[k].required_by.push(skill.name);
+      }
+    }
+    for (const k of (skill.secrets_optional || [])) {
+      if (!byKey[k]) byKey[k] = { required_by: [], optional_for: [] };
+      if (!byKey[k].optional_for.includes(skill.name)) {
+        byKey[k].optional_for.push(skill.name);
+      }
+    }
+  }
+
+  // Sort skill names for stable diffs
+  for (const meta of Object.values(byKey)) {
+    meta.required_by.sort();
+    meta.optional_for.sort();
+  }
+
+  const payload = {
+    generated_at: new Date().toISOString(),
+    keys: Object.keys(byKey).sort(),
+    by_key: byKey,
+  };
+
+  // Atomic write
+  const tmp = REQUIRED_SECRETS_FILE + '.tmp';
+  try {
+    writeFileSync(tmp, JSON.stringify(payload, null, 2) + '\n', 'utf-8');
+    renameSync(tmp, REQUIRED_SECRETS_FILE);
+  } catch (e) {
+    try { unlinkSync(tmp); } catch {}
+    throw e;
+  }
+  console.log(`[OK] data/required-secrets.json regenerat: ${payload.keys.length} key-uri din skills`);
 }
 
 buildIndex();

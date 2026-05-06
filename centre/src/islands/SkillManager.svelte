@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { apiFetch } from '../lib/api-client';
+
   interface Skill {
     name: string;
     version: string;
@@ -22,7 +24,7 @@
     running = true;
     runMessage = '';
     try {
-      const res = await fetch(`/api/skills/${selectedSkill.name}/run`, {
+      const res = await apiFetch(`/api/skills/${selectedSkill.name}/run`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({}),

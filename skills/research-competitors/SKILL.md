@@ -32,6 +32,8 @@ outputs:
   - projects/research-competitors/{date}-{slug}/matrix.md
   - projects/research-competitors/{date}-{slug}/raw/{competitor}.json
   - data/skill-telemetry.ndjson (appended)
+secrets_required:
+  - FIRECRAWL_API_KEY
 ---
 
 # Output Discipline

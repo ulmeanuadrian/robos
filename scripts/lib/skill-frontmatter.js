@@ -95,6 +95,8 @@ export const PUBLIC_SKILL_FIELDS = [
   'modes',
   'output_discipline',
   'concurrency_pattern',
+  'secrets_required',
+  'secrets_optional',
 ];
 
 /**
@@ -109,6 +111,7 @@ export function normalizeSkillRecord(fm, fallbackName) {
   const isArrayField = (k) => [
     'triggers', 'negative_triggers', 'multi_angle_triggers',
     'context_loads', 'inputs', 'outputs', 'modes',
+    'secrets_required', 'secrets_optional',
   ].includes(k);
 
   const record = {

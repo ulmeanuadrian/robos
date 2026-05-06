@@ -353,3 +353,38 @@ Nu sunt suprascrise niciodata de update-uri sau scripturi:
 - `cron/jobs/*`
 - `data/*` (baza de date SQLite + cache-uri)
 - `.env`
+
+---
+
+## Secret management (.env e singura sursa de adevar)
+
+**Regula:** orice secret in robOS — API keys, parole, tokeni, ID-uri, signing keys — traieste in `.env`. Nicaieri altundeva. Nu in cod hardcoded, nu in `.mcp.json` ca valoare inline, nu in `clients/*/`, nu in fisiere de skill, nu in `data/*`.
+
+### Lifecycle
+
+1. **Bootstrap:** la prima rulare, `node scripts/setup-env.js` copiaza `.env.example` in `.env`. Idempotent — re-rularea nu suprascrie valorile existente.
+2. **Auto-discovery skill secrets:** skill-urile declara cheile lor in frontmatter (`secrets_required` / `secrets_optional`). `rebuild-index.js` agrega in `data/required-secrets.json`. Urmatorul `setup-env.js` adauga slot-urile lipsa in `.env` cu marker `# added by setup-env <date>`.
+3. **Token auth dashboard:** `ROBOS_DASHBOARD_TOKEN` (64 chars hex) e auto-generat la primul `setup-env.js`. Pe orice endpoint sensitive (`/api/settings/env`, `/api/settings/mcp` PUT, `/api/skills/*/run`) serverul cere `Authorization: Bearer <token>`.
+4. **UI:** dashboard tab Settings → Environment listeaza toate slot-urile, grupate pe categorie (Core / Skills / Distribution), cu badge "cerut de: <skill>". Valorile secrete (`KEY`/`TOKEN`/`SECRET`/`PASSWORD`/...) NU sunt afisate niciodata — UI arata doar `set` / `unset` / `placeholder`. Operatorul apasa **Set** ca sa scrie o valoare noua.
+
+### Atomic write
+
+`PUT /api/settings/env` foloseste `parseEnv → mutate → renderEnv → atomic rename`:
+- Comentariile si banner-ele din `.env` sunt **preservate** (vechiul handler le pierdea).
+- Backup-ul ultimei stari salvate in `.env.bak` (single rolling backup).
+- Atomic — daca scrierea esueaza, `.env` ramane neatins.
+
+### Threat model
+
+- Server bind 127.0.0.1 by default → fara expunere LAN.
+- Browser malicios pe localhost (CSRF) blocat de Bearer token + Origin check pe `/api/auth/token`.
+- Token-ul nu e persistat in `localStorage` (XSS protection); UI il citeste o data per page load din `/api/auth/token` (same-origin gated).
+- Valorile secrete nu parasesc `.env` prin GET API — `getEnv()` intoarce `value: null` pentru orice cheie care contine `KEY/TOKEN/SECRET/PASSWORD/PASS/PRIVATE/CREDENTIAL/DSN/AUTH`.
+
+### Open thread — Phase B auth coverage
+
+Endpoint-urile de tasks/cron/memory mutations nu sunt acum sub Bearer auth (UI islands ar trebui rescrise sa foloseasca `apiFetch()` din `centre/src/lib/api-client.ts`). Risc rezidual: browser malicios poate scrie task-uri/cron/memory daca user-ul vizita `evil.com`. Mitigation curent: bind 127.0.0.1 + scope limitat de actiuni. Phase B: convertire toate islands → `apiFetch()` + extindere `AUTH_REQUIRED` la toate mutations.
+
+### Pentru studenti (operatorii care cumpara robOS)
+
+Studentul instaleaza robOS, ruleaza `setup-env.js` (sau `setup.sh` care-l include), primeste un `.env` cu toate slot-urile + token auto-generat. Populeaza cheile pe care le foloseste (Firecrawl pentru research, Whatsapp pentru tool-whatsapp, etc.). Sectiunea **DISTRIBUTION** ramane goala — e doar pentru autorul care distribuie robOS comercial.
