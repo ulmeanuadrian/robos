@@ -19,7 +19,7 @@ context_loads:
   - brand/audience.md (reads, daca destinatarul e in audienta)
   - context/learnings.md (section tool-whatsapp)
 inputs:
-  - to (required: numar de telefon in format E.164, ex: +40775341146)
+  - to (required: numar de telefon in format E.164, ex: +40712345678)
   - message (required: textul mesajului)
   - mode (optional: cloud-api | wa-link, default: detectat din .env)
   - media_url (optional: URL public catre imagine/video/document)

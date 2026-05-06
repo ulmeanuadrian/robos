@@ -235,7 +235,7 @@ async function backgroundRefresh(currentJwt) {
 
 // ----------------------------------------------------------------------------
 // Dev mode detection — read .env, look for ROBOS_DEV=1.
-// Adrian-only escape; not documented in customer .env.example.
+// Vendor dev escape; not documented in customer .env.example.
 // ----------------------------------------------------------------------------
 
 function isDevMode(rootDir) {
