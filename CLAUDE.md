@@ -99,6 +99,58 @@ When the user signals they're done ("done", "that's it", "signing off", "bye", c
 
 ---
 
+## Verification Discipline
+
+robOS impune o disciplina de verificare bazata pe **OM-AI Protocol** din [Grammar of Intelligence](https://grammarofintelligence.org/protocol.html). Doua mecanisme principale: Shadow Mode (gate inainte de generare) si Calibration Indicator (gate inainte de close).
+
+### Shadow Mode
+
+Activat automat prin hook cand prompt-ul contine semnale de **factual-claim work**: "scrie copy", "scrie LP", "tabel comparativ", "pozitionare", "compara X cu Y", "claim despre robOS". Activat manual cu fraza "shadow mode", "intra in shadow", "verifica strict".
+
+Text Protocol verbatim: **"NU rescrii textul meu. NU creezi continut nou. Indici doar inconsistente, presupuneri, lipsuri, intrebari importante."**
+
+In robOS, Shadow Mode aplica acelasi spirit la generarea de continut despre robOS / brand / clients:
+- NU generez claim-uri non-verificate.
+- Listez ce stiu sigur (cu file:line sau URL), ce presupun, ce intrebari ar trebui raspunse inainte de generare.
+- Astept input-ul operatorului inainte sa continue cu generarea.
+
+Detalii in [skills/mode-shadow/SKILL.md](skills/mode-shadow/SKILL.md).
+
+### Calibration Indicator
+
+La sfarsitul oricarei sarcini non-triviale (doc-writing, copy/LP, plan, audit, decizie strategica), inainte de a marca task-ul completed, raspund la 3 intrebari:
+
+1. **Pot explica in 3 pasi ce am facut?** — daca nu, am facut prea mult sau prea putin clar.
+2. **Mi s-a schimbat gandirea pe parcurs?** — daca da, noteaza schimbarea (pentru decision-journal). Daca nu, suspect ca am skipt verificarea.
+3. **Am principiu + exemplu pentru fiecare claim?** — daca un claim n-are un exemplu concret sau o sursa, e suspect.
+
+Output format la final: 3 linii compacte, "Calibration: (1) ... (2) ... (3) ...".
+
+Skip Calibration pentru: lookups simple, edits triviale, Q&A conversational.
+
+### Confidence Tagging
+
+Cand afirm un fapt tehnic despre robOS / brand / cod:
+- **Verificat** — cu file:line sau tool call in conversatia curenta.
+- **Presupun** — bazat pe pattern recognition, NU verificat.
+- **Nu stiu** — preferat asupra improvizatiei. Cer permisiunea sa verific sau intreb operatorul.
+
+"Nu stiu" e raspuns de prima clasa. Mai bine intrerup operatorul cu o intrebare decat sa inventez.
+
+### Decision Journal
+
+Pentru hallucinations corectate, decizii strategice, schimbari de protocol: append la [context/decision-journal.md](context/decision-journal.md) in formatul Meta-Decision Journal (Task / AI Proposal / Operator Decision / Reasoning / Future Adjustment).
+
+NU pentru Q&A trivial sau munca zilnica — aia merge in `context/memory/YYYY-MM-DD.md`.
+
+### Cross-references
+
+- [context/CONTRACT.md](context/CONTRACT.md) — OM-AI Contract: ce delegez, ce nu delegez, Safety Trigger.
+- [context/decision-journal.md](context/decision-journal.md) — registru de decizii non-triviale.
+- [skills/mode-shadow/SKILL.md](skills/mode-shadow/SKILL.md) — Shadow Mode invocabil ca skill.
+
+---
+
 ## Key Files
 
 | File | Purpose |
