@@ -1,5 +1,47 @@
 # Changelog
 
+## [0.5.0] - 2026-05-06
+
+### Launcher unic + cron leader lock + in-place update + PowerShell parity
+
+Inspirat de `centre.sh` din Agentic OS dar adaptat la stack-ul nostru. Transforma UX-ul zilnic de la "4 comenzi separate" la "1 comanda".
+
+**Faza 1 — Launcher (`scripts/robos.js`):**
+- One-command launch: setup-if-needed → start dashboard → open browser → state save
+- Idempotent: probe port → reuse if alive (fara double-spawn vs `start.sh`)
+- Compatible cu `scripts/start.sh` (acelasi PID file `.command-centre/server.pid`, acelasi log path, acelasi port precedence)
+- Cross-platform: detached spawn cu fd-based stdio (parent exit ~0.7s)
+- Comenzi: `--status`, `--stop`, `--setup-only`, `--no-browser`, `--clean`, `--install-shortcut`, `--uninstall-shortcut`
+- State machine la `data/launcher-state.json` (atomic write, schema_version migration, corruption recovery)
+- Wrappers: `scripts/robos` (bash), `scripts/robos.cmd` (Windows), `scripts/robos.ps1` (PowerShell)
+- Optional shortcut: `--install-shortcut` adauga `robos` la `.zshrc`/`.bashrc`/PowerShell `$PROFILE` (idempotent via markers)
+
+**Faza 2 — Cron polish:**
+- **Leader lock** (`centre/lib/cron-leader-lock.js`): doar un proces scheduleaza la un moment dat. Heartbeat 10s, stale detection 30s, re-entrant pentru acelasi PID, release la stopScheduler. Daemon-ul standalone si Centre dashboard concureaza prin acelasi lock — primul venit e leader.
+- **`[SILENT]` smart suppression**: jobs care produc `[SILENT]` in output suprima notification (jobs de monitoring "all clear"). Failure-urile NU se suprima.
+- **Cross-platform notify** (`centre/lib/notify.js`): `node-notifier` optional + fallback OS-native (osascript / notify-send / PowerShell NotifyIcon). Best-effort, niciodata throw.
+
+**Faza 3 — Update in-place + Worker endpoints:**
+- **`/version`** (Worker, public GET): returneaza `{current_version, minimum_version, changelog_url, released_at}`.
+- **`/update-token`** (Worker, POST cu JWT): valideaza JWT cu cheia publica (acceptat pana la 7 zile post-expiry pentru update-uri stale), elibereaza download token nou (24h TTL), refoloseste tabela `download_tokens`.
+- **`scripts/update.js`** (cross-platform Node): GET version → comparare semver → confirmare → stop dashboard daca ruleaza → backup user content in `data/.update-backup/{ts}/` → POST update-token → download tarball → extract cu system tar → apply selectiv (NICIODATA atinge `brand/`, `context/`, `clients/`, `projects/`, `cron/jobs/`, `data/`, `.env`, `connections.md`) → cleanup staging → restart dashboard → migrarea schemei se aplica automat la next start.
+- **`scripts/update.ps1`** + **`scripts/update.cmd`** — pereche Windows
+- **`scripts/setup.ps1`** + **`scripts/robos.ps1`** — pereche PowerShell pentru toate launcher comenzile
+
+**README rescris** cu:
+- Quickstart 30 secunde pentru student tarball
+- Tabel comenzi launcher (status/stop/clean/etc)
+- Sectiune "Datele tale sunt in siguranta" cu lista completa fisiere protejate
+- Sectiune Update separata: tarball flow (update.js) vs dev flow (update.sh)
+
+**Welcome email** (licensing/src/lib/email.js): pasi reduceti de la 5 la 4, mentioneaza optional `--install-shortcut`.
+
+**Test integrare verificat:**
+- robos.js full lifecycle (setup-only, launch, reuse, stop) pe Windows
+- Concurenta cron leader lock cu 2 procese simultan — doar leader scheduleaza
+- `[SILENT]` detection: empty/non-silent/silent/case-insensitive/partial-match
+- update.js detecteaza /version 404 (Worker live e v0.4.0) cu mesaj clar
+
 ## [0.4.1] - 2026-05-06
 
 ### Distribution hygiene — kit student curat
