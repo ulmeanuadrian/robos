@@ -13,6 +13,8 @@ import { handleRebind } from './endpoints/rebind.js';
 import { handleVerify } from './endpoints/verify.js';
 import { handleDownload } from './endpoints/download.js';
 import { handleCreateLicense } from './endpoints/create-license.js';
+import { handleVersion } from './endpoints/version.js';
+import { handleUpdateToken } from './endpoints/update-token.js';
 import {
   handleAdminAuthCallback,
   handleAdminLogout,
@@ -61,6 +63,7 @@ export default {
       // -----------------------------------------------------------------
       if (host === env.DOMAIN_API) {
         if (path === '/health') return json({ ok: true, version: env.CURRENT_ROBOS_VERSION });
+        if (path === '/version' && request.method === 'GET') return handleVersion(request, env);
 
         if (request.method === 'POST') {
           const { privateKey, publicKey } = await getKeys(env);
@@ -69,6 +72,7 @@ export default {
           if (path === '/refresh') return handleRefresh(request, env, privateKey, publicKey);
           if (path === '/rebind') return handleRebind(request, env, privateKey);
           if (path === '/verify') return handleVerify(request, env, publicKey);
+          if (path === '/update-token') return handleUpdateToken(request, env, publicKey);
           if (path === '/internal/licenses/create') return handleCreateLicense(request, env);
         }
 
