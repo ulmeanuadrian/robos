@@ -24,44 +24,13 @@ import { fileURLToPath } from 'url';
 import { homedir } from 'os';
 import { appendNdjson } from './lib/ndjson-log.js';
 import { logHookError } from './lib/hook-error-sink.js';
+import { redactSensitive } from './lib/redact.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const ROBOS_ROOT = join(__dirname, '..');
 const ACTIVITY_LOG = join(ROBOS_ROOT, 'data', 'activity-log.ndjson');
 const MAX_ENTRIES = 500; // ~150KB max — captureaza ~10-20 sesiuni
-
-/**
- * Redact sensitive token shapes before persisting to activity log.
- *
- * Activity log writes user prompts and assistant text to disk readable
- * via the dashboard `/api/system/activity` endpoint. Without redaction,
- * accidentally pasted credentials would persist for ~10-20 sessions in
- * cleartext on disk.
- *
- * Patterns covered:
- *   - Anthropic / OpenAI / Stripe-style: sk-ant-*, sk-, sk_test_, sk_live_
- *   - Firecrawl: fc-*
- *   - Google API: AIza*
- *   - GitHub PATs: ghp_*, gho_*, ghu_*, ghs_*, ghr_*
- *   - JWT-shaped: eyJ.*\..*\..*
- *   - Generic Bearer prefix: Bearer <token>
- *
- * @param {string} text
- * @returns {string}
- */
-function redactSensitive(text) {
-  if (typeof text !== 'string' || !text) return text;
-  return text
-    .replace(/sk-ant-[A-Za-z0-9_-]{20,}/g, 'sk-ant-****')
-    .replace(/sk-[A-Za-z0-9_-]{20,}/g, 'sk-****')
-    .replace(/sk_(test|live)_[A-Za-z0-9]{20,}/g, 'sk_$1_****')
-    .replace(/fc-[A-Za-z0-9]{20,}/g, 'fc-****')
-    .replace(/AIza[A-Za-z0-9_-]{20,}/g, 'AIza****')
-    .replace(/gh[pousr]_[A-Za-z0-9]{20,}/g, 'gh*_****')
-    .replace(/eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+/g, 'eyJ****.****.****')
-    .replace(/Bearer\s+[A-Za-z0-9._-]{20,}/gi, 'Bearer ****');
-}
 
 /**
  * Deriva path-ul transcriptului Claude Code din session_id si cwd.
