@@ -111,6 +111,16 @@ fi
 # Asigura directorul de memorie
 mkdir -p "$ROBOS_ROOT/context/memory"
 
+# Asigura directorul de audits (skill-ul sys-audit scrie aici)
+mkdir -p "$ROBOS_ROOT/context/audits"
+touch "$ROBOS_ROOT/context/audits/.gitkeep"
+
+# Seed decision-journal.md din template daca lipseste (nu suprascrie)
+if [ ! -f "$ROBOS_ROOT/context/decision-journal.md" ] && [ -f "$ROBOS_ROOT/context/decision-journal.template.md" ]; then
+    cp "$ROBOS_ROOT/context/decision-journal.template.md" "$ROBOS_ROOT/context/decision-journal.md"
+    echo "[OK] Creat context/decision-journal.md din template"
+fi
+
 # Done
 echo ""
 echo "==================================="

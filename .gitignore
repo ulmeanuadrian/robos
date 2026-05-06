@@ -8,6 +8,9 @@ context/USER.md
 context/learnings.md
 context/learnings/
 context/memory/
+context/decision-journal.md
+context/audits/*.md
+!context/audits/.gitkeep
 projects/*
 !projects/.gitkeep
 clients/*/
