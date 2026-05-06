@@ -1,0 +1,54 @@
+name = "robos-api"
+main = "src/index.js"
+compatibility_date = "2026-05-01"
+compatibility_flags = ["nodejs_compat"]
+
+account_id = "590c9db5a887d9430502a1810f8cb29f"
+
+# Routes — Worker raspunde la api.robos.vip + admin.robos.vip + robos.vip/dl/*
+# `custom_domain = true` creeaza automat DNS + SSL fara zone_id explicit
+[[routes]]
+pattern = "api.robos.vip"
+custom_domain = true
+
+[[routes]]
+pattern = "admin.robos.vip"
+custom_domain = true
+
+[[routes]]
+pattern = "dl.robos.vip"
+custom_domain = true
+
+# D1 — base de date relationala
+# Bind id se completeaza dupa `wrangler d1 create robos-licenses`
+[[d1_databases]]
+binding = "DB"
+database_name = "robos-licenses"
+database_id = "90864362-3d64-4af0-b044-e20dbad5acd2"
+
+# R2 — stocare tarballs
+[[r2_buckets]]
+binding = "TARBALLS"
+bucket_name = "robos-tarballs"
+
+# KV — pentru cache + rate limiting (sessions sunt in D1)
+[[kv_namespaces]]
+binding = "CACHE"
+id = "a5fd869a5e034e4ea41d590bcc1ddbd1"
+
+# Variabile de environment (NEsensibile)
+[vars]
+DOMAIN_PRIMARY = "robos.vip"
+DOMAIN_API = "api.robos.vip"
+DOMAIN_ADMIN = "admin.robos.vip"
+DOMAIN_DOWNLOAD = "dl.robos.vip"
+ADMIN_EMAIL = "ulmeanu.a@gmail.com"
+RESEND_FROM_EMAIL = "noreply@robos.vip"
+RESEND_FROM_NAME = "robOS"
+CURRENT_ROBOS_VERSION = "0.4.0"
+
+# Secretele se seteaza separat via:
+#   wrangler secret put LICENSE_JWT_PRIVATE_KEY < data/keys/jwt-private.pem
+#   wrangler secret put RESEND_API_KEY
+#   wrangler secret put LICENSE_INTERNAL_API_TOKEN
+# (Nu apar in wrangler.toml — sunt in env-ul Worker-ului runtime)

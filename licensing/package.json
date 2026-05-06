@@ -1,0 +1,19 @@
+{
+  "name": "robos-licensing",
+  "version": "0.1.0",
+  "description": "Cloudflare Worker pentru licensing robOS — bind, refresh, rebind, verify, download, admin",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "deploy:dry": "wrangler deploy --dry-run",
+    "tail": "wrangler tail",
+    "schema:apply:remote": "wrangler d1 execute robos-licenses --file=schema.sql --remote",
+    "schema:apply:local": "wrangler d1 execute robos-licenses --file=schema.sql --local",
+    "keys:generate": "node scripts/generate-jwt-keys.js"
+  },
+  "devDependencies": {
+    "wrangler": "^4.88.0"
+  }
+}
