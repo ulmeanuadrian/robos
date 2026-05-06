@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# robOS launcher — bash wrapper. Delega la node scripts/robos.js
+set -euo pipefail
+exec node "$(cd "$(dirname "$0")" && pwd)/robos.js" "$@"
