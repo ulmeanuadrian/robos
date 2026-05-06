@@ -11,10 +11,10 @@ robOS nu inlocuieste Claude. E un layer deasupra. Tabelul de mai jos arata ce fa
 |                                 | Acumuleaza in timp — robOS detecteaza pattern-uri  |
 |                                 | recurente si propune sa devina reguli permanente.  |
 +---------------------------------+----------------------------------------------------+
-| Generare cod, scriere,          | Cod si fisiere scrise direct in repo-ul tau, in    |
-| editare fisiere                 | git, cu istoric verificabil. Nu copy-paste din     |
-|                                 | chat. Backup automat la fiecare schimbare in       |
-|                                 | data/memory-backups/.                              |
+| Generare cod, scriere,          | Editeaza direct fisierele din repo-ul instalat,    |
+| editare fisiere                 | nu copy-paste din chat. Output-urile (memorie,     |
+|                                 | brand, clients, projects) sunt fisiere locale pe   |
+|                                 | disk-ul tau, separabile si exportabile oricand.    |
 +---------------------------------+----------------------------------------------------+
 | Foloseste tool-uri              | Skill router: limbaj natural ("scrie un articol",  |
 | (Read, Edit, Bash, Grep, etc.)  | "audit", "level up") matchat deterministic la      |
