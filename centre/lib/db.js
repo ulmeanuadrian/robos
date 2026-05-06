@@ -67,11 +67,23 @@ function runMigrations(db) {
     const sql = readFileSync(join(migrationsDir, file), 'utf-8');
     const stripped = sql.replace(/^\s*--[^\n]*\n/gm, '').trim();
     if (stripped) {
-      const migrate = db.transaction(() => {
-        db.exec(sql);
+      // Tolerate "duplicate column" errors: schema.sql may already create
+      // columns that older migrations also ALTER ADD. For fresh installs,
+      // schema.sql wins; the migration is effectively a no-op. We still
+      // mark schema_version so future runs skip cleanly.
+      try {
+        const migrate = db.transaction(() => {
+          db.exec(sql);
+          db.prepare('INSERT OR REPLACE INTO schema_version (version) VALUES (?)').run(version);
+        });
+        migrate();
+      } catch (err) {
+        const msg = String(err.message || err);
+        const benign = /duplicate column name|already exists/i.test(msg);
+        if (!benign) throw err;
+        console.warn(`[migrations] ${file} skip (already applied via schema.sql): ${msg.split('\n')[0]}`);
         db.prepare('INSERT OR REPLACE INTO schema_version (version) VALUES (?)').run(version);
-      });
-      migrate();
+      }
     } else {
       db.prepare('INSERT OR REPLACE INTO schema_version (version) VALUES (?)').run(version);
     }
