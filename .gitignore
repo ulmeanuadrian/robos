@@ -18,7 +18,14 @@ cron/jobs/*
 !cron/jobs/.gitkeep
 cron/logs/
 cron/status/
-.env
+
+# Env: ignore all variants except the committed template
+.env*
+!.env.example
+
+# Second brain notes — operator-authored knowledge (template ships empty)
+context/notes/
+!context/notes/.gitkeep
 
 # Runtime
 .command-centre/

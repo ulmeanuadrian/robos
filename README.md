@@ -219,6 +219,30 @@ Fiecare zi primeste un fisier: `context/memory/YYYY-MM-DD.md` cu sectiunile:
 
 ---
 
+## Second brain (knowledge persistent)
+
+Layer de cautare peste tot ce scrii — notite atomice + jurnale + audituri + learnings — indexat in SQLite FTS5, deschis si in Obsidian daca vrei viewer vizual.
+
+**Cele 3 straturi:**
+- **Markdown** = sursa de adevar la `context/notes/` (template-ul livreaza folder gol)
+- **SQLite FTS5** = motor de cautare derivat (rebuild oricand din markdown)
+- **Obsidian** = viewer optional (deschide direct folder-ul `context/`, niciun import)
+
+**Salvare:** "noteaza X", "tine minte X", "memoreaza X", "salveaza asta", "fixeaza in memorie", "pune in notite", "ia nota despre X" — sau doar scrie natural cu prefix "Decizie:" / "Regula:" si Stop hook ([scripts/note-candidates.js](scripts/note-candidates.js)) detecteaza candidati pe care ii confirmi in batch la urmatoarea sesiune.
+
+**Cautare:** "ai mai notat despre X", "ce stim despre X", "recall X", "cauta in notite X" → top-K rezultate cu snippets BM25-ranked.
+
+**Sub capota:**
+- Schema: [centre/migrations/004_notes.sql](centre/migrations/004_notes.sql) — tabele `notes`, `notes_fts`, `note_tags`, `note_links`, `note_candidates`
+- Indexer: `node scripts/notes-index.js [--rebuild|--dry-run|--file <path>]`
+- Search CLI: `node scripts/notes-search.js "query" [--limit N] [--source memory|note|audit] [--tag T] [--json]`
+- Skills: [skills/sys-capture-note](skills/sys-capture-note/SKILL.md), [skills/sys-recall](skills/sys-recall/SKILL.md)
+- Disable auto-capture: `ROBOS_CANDIDATES_DISABLED=1`
+
+Cost pentru student la install: zero. `setup.sh` ruleaza `init-db.js` care aplica migrarea automat. Fara dependinte noi.
+
+---
+
 ## Cron / joburi programate
 
 **Arhitectura (v0.3.0)**: scheduler-ul ruleaza **in-process in dashboard-ul Centre**. Cand pornesti `bash scripts/start.sh`, cron-ul porneste cu el. **Sursa de adevar**: tabela SQLite `cron_jobs`.
