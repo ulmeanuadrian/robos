@@ -1,0 +1,31 @@
+# Files/dirs excluded from `git archive` (= excluded from student tarball).
+# These remain in the repository for the author but are NOT distributed.
+#
+# Trigger: licensing/scripts/build-base-tarball.js runs `git archive HEAD`
+# which respects export-ignore. Result: a leaner, safer tarball for students.
+
+# Cloudflare Worker source code — author-only (Worker runs at api.robos.vip)
+licensing/ export-ignore
+
+# Internal tests with author paths / assumptions
+tests/ export-ignore
+
+# Personal scratchpad / brand backups (already in .gitignore but belt-and-braces)
+paperclip/ export-ignore
+
+# Internal planning docs (if/when added)
+docs/internal/ export-ignore
+
+# Author-only memory and notes (already in .gitignore for tracked content)
+# context/notes/ export-ignore  # already gitignored, belt-and-braces redundant
+
+# Line-ending normalization for cross-platform Windows/Mac/Linux students
+*.md text eol=lf
+*.js text eol=lf
+*.sh text eol=lf
+*.json text eol=lf
+*.cmd text eol=crlf
+*.bat text eol=crlf
+*.db binary
+*.tar binary
+*.gz binary
