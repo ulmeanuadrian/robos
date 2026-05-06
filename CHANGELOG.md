@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.4.1] - 2026-05-06
+
+### Distribution hygiene — kit student curat
+
+Bug critic descoperit la testarea install-ului ca student: tarball-ul v0.4.0 livra date personale ale autorului si avea install incomplet pe Windows.
+
+**Fix-uri:**
+- `brand/*.md` ship ca template-uri goale (HTML comments) — sys-onboard le populeaza prin starter packs
+- `data/robos.db` untracked — se creeaza prin `init-db.js` cu schema completa (notes + FTS5)
+- `licensing/wrangler.toml` — sterse PII (`ADMIN_EMAIL`); mutat in wrangler secrets
+- `skills/_catalog/tool-whatsapp/SKILL.md` — sterse numar telefon hardcoded; pointeaza la `.env`
+- `.gitattributes` cu `export-ignore` pentru `licensing/`, `tests/`, `paperclip/` — student tarball mai mic, fara surse Worker
+- `scripts/setup.js` cross-platform (Node) + `setup.cmd` pentru Windows; vechiul `setup.sh` delega la `setup.js`
+- `welcomeEmail` cu prerequisites Node.js + Claude Code + pas explicit setup
+
+**Impact:** student tarball v0.4.1 = 223 fisiere (vs 254 in v0.4.0), zero PII, install identic Windows/Mac/Linux.
+
 ## [0.4.0] - 2026-05-06
 
 ### Concurrency framework — 5 patterns documentate + 8 skills paralelizate
