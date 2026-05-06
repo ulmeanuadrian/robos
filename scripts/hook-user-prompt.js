@@ -248,6 +248,68 @@ function buildSkillRouteHint(prompt) {
   ].join('\n');
 }
 
+/**
+ * Detecteaza prompt-uri de tip factual-claim (despre robOS / brand / clients) si
+ * injecteaza Verification Discipline reminder. Bazat pe Shadow Mode din OM-AI Protocol.
+ *
+ * Matching:
+ *  - Strong-and-narrow phrases: "tabel comparativ/ascii", "vs robos", "claude vs robos", etc.
+ *  - Conjunctive: ("scrie copy/lp/landing" sau "fa-mi un tabel") + "robos" prezent in prompt.
+ *
+ * Returneaza string sau null. Fara side-effects, fara I/O.
+ */
+function normalizeForMatch(s) {
+  return (s || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function buildVerificationHint(prompt) {
+  const norm = normalizeForMatch(prompt);
+  if (!norm) return null;
+
+  const strongPhrases = [
+    'tabel comparat',
+    'tabel ascii',
+    'claude vs robos',
+    'robos vs claude',
+    'vs robos',
+    'feature robos',
+    'features robos',
+    'lp pentru robos',
+    'lp despre robos',
+    'pozition robos',
+  ];
+
+  let matched = strongPhrases.find(p => norm.includes(p));
+
+  if (!matched && norm.includes('robos')) {
+    const copyKeywords = [
+      'scrie copy', 'scrie lp', 'scrie landing',
+      'fa-mi lp', 'fa lp',
+      'fa-mi un tabel', 'fa un tabel',
+    ];
+    matched = copyKeywords.find(k => norm.includes(k));
+  }
+
+  if (!matched) return null;
+
+  return [
+    '[VERIFICATION DISCIPLINE — factual-claim context detected]',
+    `Trigger: "${matched}"`,
+    'Inainte de generare:',
+    '  1. Listeaza ce stii VERIFICAT (cu file:line / Glob / Read in conversatia curenta) vs ce PRESUPUI.',
+    '  2. Pentru orice path, feature, cifra sau pret mentionate in output, verifica EXISTENTA / SURSA inainte sa le afirmi.',
+    '  3. Daca ai >2 presupuneri neverificate, intra in Shadow Mode (skills/mode-shadow/SKILL.md) — listeaza-le, NU genera.',
+    '  4. La final, raspunde la Calibration Indicator (3 intrebari, vezi CLAUDE.md / Verification Discipline).',
+    'Cross-refs: context/CONTRACT.md, context/decision-journal.md, .gitignore (pentru claim-uri despre persistenta).',
+    '[/VERIFICATION DISCIPLINE]',
+  ].join('\n');
+}
+
 async function main() {
   let payload = {};
   try {
@@ -279,6 +341,10 @@ async function main() {
   // Section 2: Skill route hint (la fiecare prompt unde matches)
   const skillHint = buildSkillRouteHint(prompt);
   if (skillHint) sections.push(skillHint);
+
+  // Section 3: Verification Discipline reminder (factual-claim contexts despre robOS)
+  const verificationHint = buildVerificationHint(prompt);
+  if (verificationHint) sections.push(verificationHint);
 
   if (sections.length === 0) {
     process.exit(0);
