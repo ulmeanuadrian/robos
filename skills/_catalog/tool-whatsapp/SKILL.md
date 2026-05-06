@@ -113,4 +113,4 @@ Append in `context/learnings.md` la `## tool-whatsapp`:
 
 - Pentru template messages (mesaje aprobate de Meta cu placeholder), foloseste `type: template` in payload — diferit de text. Nu suportat in versiunea curenta.
 - Pentru bulk send (>50 destinatari), foloseste rate limiting: 1 mesaj/secunda pentru cont basic Cloud API.
-- Adrian foloseste WhatsApp ca CTA principal (per brand/positioning.md). Numarul de business: +40775341146 — nu folosi acest numar ca destinatar in skill, doar ca expeditor sau referinta.
+- Daca operatorul foloseste WhatsApp ca CTA principal (per brand/positioning.md), citeste numarul propriu din `WHATSAPP_PHONE_NUMBER_ID` in `.env` — nu hardcoda numere de telefon in skill.

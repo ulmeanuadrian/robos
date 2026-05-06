@@ -42,7 +42,6 @@ DOMAIN_PRIMARY = "robos.vip"
 DOMAIN_API = "api.robos.vip"
 DOMAIN_ADMIN = "admin.robos.vip"
 DOMAIN_DOWNLOAD = "dl.robos.vip"
-ADMIN_EMAIL = "ulmeanu.a@gmail.com"
 RESEND_FROM_EMAIL = "noreply@robos.vip"
 RESEND_FROM_NAME = "robOS"
 CURRENT_ROBOS_VERSION = "0.4.0"
@@ -51,4 +50,5 @@ CURRENT_ROBOS_VERSION = "0.4.0"
 #   wrangler secret put LICENSE_JWT_PRIVATE_KEY < data/keys/jwt-private.pem
 #   wrangler secret put RESEND_API_KEY
 #   wrangler secret put LICENSE_INTERNAL_API_TOKEN
+#   wrangler secret put ADMIN_EMAIL  (pentru notificari admin — PII, nu in vars)
 # (Nu apar in wrangler.toml — sunt in env-ul Worker-ului runtime)
