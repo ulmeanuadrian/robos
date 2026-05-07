@@ -52,11 +52,27 @@ export function welcomeEmail({ email, downloadUrl, isBundle }) {
 
 <p style="font-size: 14px; color: #666;">(link valabil 7 zile, doar pentru tine)</p>
 
-<h3 style="margin-top: 32px; margin-bottom: 8px;">Inainte de instalare — verifici ca ai:</h3>
-<ol>
-  <li><b>Node.js v20 sau mai nou</b> — <a href="https://nodejs.org">nodejs.org</a> (descarca LTS-ul, install obisnuit)</li>
-  <li><b>Claude Code CLI</b> — <a href="https://claude.com/claude-code">claude.com/claude-code</a> (Mac/Linux: comanda curl; Windows: PowerShell)</li>
-</ol>
+<h3 style="margin-top: 32px; margin-bottom: 8px;">Inainte de instalare — ai nevoie de 2 lucruri:</h3>
+
+<p style="margin: 8px 0;"><b>1. Node.js v20+</b> — copy-paste comanda potrivita in terminal:</p>
+<table style="border-collapse: collapse; margin: 8px 0 16px 0; font-family: -apple-system, monospace; font-size: 13px;">
+  <tr><td style="padding: 4px 12px 4px 0; vertical-align: top;"><b>Mac</b></td>
+      <td style="padding: 4px 0;"><code style="background: #f5f5f5; padding: 2px 6px; border-radius: 3px;">brew install node</code></td></tr>
+  <tr><td style="padding: 4px 12px 4px 0; vertical-align: top;"><b>Windows</b></td>
+      <td style="padding: 4px 0;"><code style="background: #f5f5f5; padding: 2px 6px; border-radius: 3px;">winget install OpenJS.NodeJS.LTS</code></td></tr>
+  <tr><td style="padding: 4px 12px 4px 0; vertical-align: top;"><b>Linux</b></td>
+      <td style="padding: 4px 0;"><code style="background: #f5f5f5; padding: 2px 6px; border-radius: 3px;">curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash - &amp;&amp; sudo apt install -y nodejs</code></td></tr>
+</table>
+
+<p style="margin: 8px 0;"><b>2. Claude Code CLI</b> — copy-paste in terminal:</p>
+<table style="border-collapse: collapse; margin: 8px 0 16px 0; font-family: -apple-system, monospace; font-size: 13px;">
+  <tr><td style="padding: 4px 12px 4px 0; vertical-align: top;"><b>Mac/Linux</b></td>
+      <td style="padding: 4px 0;"><code style="background: #f5f5f5; padding: 2px 6px; border-radius: 3px;">curl -fsSL https://claude.ai/install.sh | sh</code></td></tr>
+  <tr><td style="padding: 4px 12px 4px 0; vertical-align: top;"><b>Windows</b></td>
+      <td style="padding: 4px 0;"><code style="background: #f5f5f5; padding: 2px 6px; border-radius: 3px;">irm https://claude.ai/install.ps1 | iex</code></td></tr>
+</table>
+
+<p style="font-size: 13px; color: #666;">Dupa fiecare instalare, deschide o fereastra <b>noua</b> de terminal (PATH refresh).</p>
 
 <h3 style="margin-top: 24px; margin-bottom: 8px;">Instalare (5 minute):</h3>
 <ol>
@@ -89,9 +105,18 @@ ${productLine.replace(/<[^>]+>/g, '')}
 Descarca robOS de aici (link valabil 7 zile):
 ${downloadUrl}
 
-INAINTE DE INSTALARE — verifici ca ai:
-  1. Node.js v20+  → https://nodejs.org
-  2. Claude Code CLI → https://claude.com/claude-code
+INAINTE DE INSTALARE — ai nevoie de 2 lucruri:
+
+  1. Node.js v20+ — copy-paste in terminal:
+       Mac:     brew install node
+       Windows: winget install OpenJS.NodeJS.LTS
+       Linux:   curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash - && sudo apt install -y nodejs
+
+  2. Claude Code CLI — copy-paste in terminal:
+       Mac/Linux: curl -fsSL https://claude.ai/install.sh | sh
+       Windows:   irm https://claude.ai/install.ps1 | iex
+
+  Dupa fiecare instalare, deschide o fereastra NOUA de terminal (PATH refresh).
 
 INSTALARE (5 minute):
   1. Click pe link -> primesti robos-{version}.tar.gz
