@@ -121,7 +121,7 @@ Session: N deliverables, M decisions  ← linia de inchidere
 
 ## 3. Skill triggers — ce sa scrii pentru fiecare
 
-robOS are 17 skills instalate. Fiecare se activeaza prin limbaj natural — nu trebuie sa stii nume tehnice. Hook-ul `skill-route` matcheaza ce scrii cu trigger-ele si imi da hint.
+robOS are 22 skills instalate. Fiecare se activeaza prin limbaj natural — nu trebuie sa stii nume tehnice. Hook-ul `skill-route` matcheaza ce scrii cu trigger-ele si imi da hint.
 
 ### sys-* (operatii sistem)
 
@@ -164,6 +164,21 @@ robOS are 17 skills instalate. Fiecare se activeaza prin limbaj natural — nu t
 | Vrei sa... | Spune ceva ca... | Skill |
 |-----------|-----------------|-------|
 | Rescrii text sa nu sune AI | "umanizeaza", "suna prea AI" | tool-humanizer |
+
+### sys-* (second brain — nou v0.4+)
+
+| Vrei sa... | Spune ceva ca... | Skill |
+|-----------|-----------------|-------|
+| Salvez o nota in second brain | "noteaza asta", "tine minte", "salveaza" | sys-capture-note |
+| Caut in note + jurnale | "ai mai notat despre X", "recall X", "ce stim despre X" | sys-recall |
+
+### mode-* (cognitive switches — nou v0.4+)
+
+| Vrei sa... | Spune ceva ca... | Skill |
+|-----------|-----------------|-------|
+| Verifica strict inainte sa generezi | "shadow mode", "verifica strict", "nu rescrii" | mode-shadow |
+| Pune intrebari, nu solutii | "facilitator mode", "intreaba-ma intai" | mode-facilitator |
+| Ce as face EU, nu AI | "anti-dependence", "ce as face eu" | mode-anti-dependence |
 
 ### Reguli pentru triggers
 
@@ -212,7 +227,7 @@ Restart server → migreaza in DB.
 
 ## 5. Dashboard — cele 8 tab-uri
 
-Toate la http://localhost:3001 dupa `bash scripts/start.sh`.
+Toate la http://localhost:3001 dupa `bash scripts/robos` (sau `scripts\robos.cmd` pe Windows).
 
 | Tab | Cand sa intri | Ce gasesti |
 |-----|---------------|-----------|

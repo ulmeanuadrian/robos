@@ -93,17 +93,17 @@ Linkul de download e:
 
 ## Pas 2 — Descarca si dezarhiveaza
 
-Click pe buton → primesti `robos-0.4.1.tar.gz` (~300 KB).
+Click pe buton → primesti `robos-0.5.0.tar.gz` (~300 KB).
 
 Dezarhiveaza-l:
 
 - **Mac**: dublu-click pe fisier in Finder. Apare folder `robOS/`.
-- **Linux**: dublu-click in file manager, sau `tar xzf robos-0.4.1.tar.gz` in terminal.
+- **Linux**: dublu-click in file manager, sau `tar xzf robos-0.5.0.tar.gz` in terminal.
 - **Windows**:
   - Dublu-click pe `.tar.gz` → daca Windows nu stie sa-l deschida nativ, instaleaza
     [7-Zip](https://www.7-zip.org/) (gratuit) sau foloseste:
     ```
-    tar -xzf robos-0.4.1.tar.gz
+    tar -xzf robos-0.5.0.tar.gz
     ```
     (tar e built-in pe Windows 10/11.)
 
@@ -117,7 +117,7 @@ pentru orice tool linie de comanda.
 
 ---
 
-## Pas 3 — Setup (o singura comanda)
+## Pas 3 — Lansezi robOS (o singura comanda)
 
 Deschide terminal in folder `robOS/`:
 
@@ -125,37 +125,38 @@ Deschide terminal in folder `robOS/`:
 - **Linux**: la fel
 - **Windows**: deschide PowerShell sau Command Prompt, ruleaza `cd C:\robOS`
 
-Apoi ruleaza setup-ul:
+Apoi ruleaza launcher-ul:
 
 | OS | Comanda |
 |---|---|
-| Mac/Linux | `bash scripts/setup.sh` |
-| Windows | `scripts\setup.cmd` |
-| Oricare | `node scripts/setup.js` |
+| Mac/Linux | `bash scripts/robos` |
+| Windows (cmd) | `scripts\robos.cmd` |
+| Windows (PowerShell) | `.\scripts\robos.ps1` |
+| Universal | `node scripts/robos.js` |
 
-Setup-ul ia 1-2 minute (depinde de net) si face automat:
+Launcher-ul face automat la prima rulare (1-2 minute):
 1. Verifica Node + Claude CLI
 2. Instaleaza dependinte (`npm install`)
 3. Build-uieste dashboard-ul (Astro)
-4. Initializeaza baza de date SQLite (`data/robos.db`)
-5. Creeaza `.env` din template
-6. Genereaza index-ul de skills
+4. Initializeaza baza de date SQLite cu schema completa (`data/robos.db`)
+5. Creeaza `.env` din template + auto-genereaza ROBOS_DASHBOARD_TOKEN
+6. Genereaza index-ul de skills (22 skills, 206 triggers)
+7. Porneste dashboard-ul la `http://localhost:3001`
+8. Deschide automat browser-ul
 
-La final vezi:
+La rulari ulterioare (warm), launcher-ul detecteaza dashboard-ul activ si doar redeschide browser-ul (~200ms).
+
+**Optional**: pentru a putea lansa `robos` din orice director:
 ```
-===================================
- robOS e gata.
- Pasi urmatori:
-   1. Deschide claude in acest director
-   2. Scrie: onboard me
-===================================
+node scripts/robos.js --install-shortcut
 ```
+(adauga alias in `~/.zshrc` / `~/.bashrc` / PowerShell `$PROFILE`)
 
 ---
 
 ## Pas 4 — Lansezi Claude Code
 
-In acelasi terminal, in folder `robOS/`:
+In **alta fereastra de terminal**, in acelasi folder `robOS/`:
 
 ```
 claude
@@ -194,17 +195,22 @@ primele 15 minute.
 
 ---
 
-## Pas 6 — *(Optional)* Dashboard local
+## Pas 6 — Dashboard local *(deja pornit la Pas 3)*
 
-Daca vrei UI vizual peste robOS (task-uri, cron, skills, settings, fisiere), pornesti server-ul:
+Dashboard-ul e deja activ la [http://localhost:3001](http://localhost:3001) — l-a pornit launcher-ul
+la Pasul 3. Niciun login, ruleaza local pe 127.0.0.1.
 
+8 tab-uri: Acasa, Task-uri, Program (cron), Skills, Analitice, Fisiere, Sistem, Setari.
+
+Stop dashboard cand termini ziua:
 ```
-cd centre
-npm start
+node scripts/robos.js --stop
 ```
 
-Apoi deschizi [http://localhost:3001](http://localhost:3001) in browser. Niciun login, ruleaza
-local. Dashboard-ul e optional — Claude Code singur acopera 90% din munca.
+Status oricand:
+```
+node scripts/robos.js --status
+```
 
 ---
 
@@ -277,8 +283,23 @@ Cand scrii, include:
 
 ## Cum updatezi robOS
 
-robOS v0.x ramane stabil — bug fix-urile sunt incluse in versiunile minore (0.4.1, 0.4.2, ...) si
-le primesti **gratuit**. La un viitor `v1.0` major, te anunt prin email cu pasii de upgrade.
+Versiunile minore (0.5.1, 0.5.2, ...) si patch-urile sunt **gratuite** — bug fixes + imbunatatiri
+incrementale. La un viitor `v1.0` major, te anunt prin email cu pasii de upgrade.
 
-Nu trebuie sa updatezi proactiv. Daca a aparut o versiune noua si vrei s-o iei, raspunde la welcome
-email — iti trimit link de download nou.
+**Update in-place** (recomandat):
+
+```
+node scripts/update.js
+```
+
+Asta:
+1. Verifica versiunea curenta vs server
+2. Daca exista update, cere confirmare
+3. Backup user content in `data/.update-backup/{timestamp}/`
+4. Descarca tarball nou autentificat cu JWT-ul tau
+5. Aplica preservand `brand/`, `context/`, `projects/`, `clients/`, `cron/jobs/`, `data/`, `.env`
+6. Restarteaza dashboard-ul daca rula
+
+Pe Windows poti folosi `scripts\update.cmd` sau `.\scripts\update.ps1`.
+
+**Datele tale sunt in siguranta**: niciun fisier user (brand, memorie, projects, .env, DB) NU e atins.

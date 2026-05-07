@@ -1,47 +1,77 @@
-# robOS - Ghid rapid
+# robOS — Ghid rapid
 
-## Setup si pornire
+## Pornire si oprire
+
+| Comanda | Ce face |
+|---|---|
+| `bash scripts/robos` (Mac/Linux) | Setup + dashboard + browser, intr-un singur pas |
+| `scripts\robos.cmd` (Windows) | Idem |
+| `node scripts/robos.js` | Universal |
+| `node scripts/robos.js --status` | Diagnostic complet |
+| `node scripts/robos.js --stop` | Opreste dashboard graceful |
+| `node scripts/robos.js --no-browser` | Pornire fara browser auto-deschis |
+| `node scripts/robos.js --clean` | Sterge `centre/dist/` si rebuild |
+| `node scripts/robos.js --install-shortcut` | Adauga `robos` la PATH/profile |
+| `node scripts/update.js` | Update in-place de la server |
+
+## Skills — comenzi gestiune
 
 ```bash
-./scripts/setup.sh          # Prima configurare (Node deps, .env, profil)
-./scripts/start.sh          # Porneste dashboard-ul
-./scripts/stop.sh           # Opreste dashboard-ul
-./scripts/update.sh         # Actualizeaza + detecteaza skills noi
+bash scripts/list-skills.sh           # instalate + disponibile in catalog
+bash scripts/add-skill.sh <name>      # instaleaza din catalog
+bash scripts/remove-skill.sh <name>   # dezinstaleaza (cu confirmare)
+node scripts/rebuild-index.js         # regenereaza skills/_index.json manual
 ```
 
-## Skills
+22 skills out-of-the-box, 206 trigger-uri. Activate prin limbaj natural:
 
-```bash
-./scripts/list-skills.sh              # Arata skills instalate + disponibile
-./scripts/add-skill.sh <name>         # Instaleaza din catalog
-./scripts/remove-skill.sh <name>      # Dezinstaleaza (cu confirmare)
-```
-
-Skills se activeaza prin limbaj natural. Exemple:
-- "onboard me" sau "ajuta-ma sa incep" -> `sys-onboard`
-- "plan de zi" sau "plan my day" -> `sys-daily-plan`
-- "audit" sau "cum stau" -> `sys-audit`
-- "level up" sau "ce sa automatizez" -> `sys-level-up`
-- "write a blog post about X" -> `content-blog-post`
-- "research competitors for X" -> `research-competitors`
-- "humanize this" -> `tool-humanizer`
+| Spune... | Skill |
+|---|---|
+| "onboard me" / "ajuta-ma sa incep" | `sys-onboard` |
+| "plan de zi" / "morning routine" | `sys-daily-plan` |
+| "audit" / "cum stau" | `sys-audit` (scor 4C, 0-100) |
+| "level up" / "ce sa automatizez" | `sys-level-up` |
+| "scrie un articol despre X" | `content-blog-post` |
+| "scrie copy pentru landing" | `content-copywriting` |
+| "fa posturi din asta" | `content-repurpose` |
+| "voce de brand" / "ton brand" | `brand-voice` |
+| "cui ii vand" / "icp" | `brand-audience` |
+| "pozitionare" / "diferentiere" | `brand-positioning` |
+| "umanizeaza textul" | `tool-humanizer` |
+| "competitor research" | `research-competitors` |
+| "ce e trend in X" | `research-trending` |
+| "noteaza asta" / "tine minte" | `sys-capture-note` |
+| "ai mai notat despre X" | `sys-recall` |
+| "creeaza un skill" | `sys-skill-builder` |
+| "shadow mode" / "verifica strict" | `mode-shadow` |
+| "facilitator mode" | `mode-facilitator` |
+| "anti-dependence" / "ce as face eu" | `mode-anti-dependence` |
+| "gata" / "done" / "pa" | `sys-session-close` |
 
 ## Clienti
 
 ```bash
-./scripts/add-client.sh <slug> ["Nume Afisat"]
-# Creeaza: clients/<slug>/ cu brand, context, projects, cron
+bash scripts/add-client.sh <slug> ["Nume Afisat"]
+# Creeaza: clients/<slug>/ cu brand, context, projects, cron izolate
+cd clients/<slug> && claude
 ```
 
-## Cron / Joburi programate
+## Cron / joburi programate
+
+Scheduler-ul ruleaza **in-process in dashboard** (in centre/server.js). Cand `robos` porneste, cron porneste cu el. Sursa de adevar: tabela SQLite `cron_jobs`.
 
 ```bash
-./scripts/start-crons.sh     # Porneste daemonul cron
-./scripts/stop-crons.sh      # Opreste daemonul
-./scripts/status-crons.sh    # Arata joburile si ultimele rulari
+# Vezi joburi + ultima rulare
+node scripts/robos.js --status     # sumar
+# Sau dashboard tab Schedule la http://localhost:3001/schedule/
 ```
 
-Format fisier job (`cron/jobs/<name>.json`):
+3 default jobs livrate:
+- `audit-startup` — zilnic 08:00, scaneaza memorie ultimele 7 zile
+- `session-timeout-detector` — la 15 min, marcheaza sesiuni abandonate
+- `learnings-aggregator` — luni 09:00, review pattern-uri din learnings.md
+
+Adauga job custom: dashboard tab Schedule → buton "+ Job nou", sau JSON in `cron/jobs/<slug>.json`:
 ```json
 {
   "name": "daily-blog-post",
@@ -52,49 +82,70 @@ Format fisier job (`cron/jobs/<name>.json`):
 }
 ```
 
+**Leader lock**: doar un proces scheduleaza la un moment dat. `[SILENT]` token in output → notification suprimata.
+
 ## Structura directorului
 
 ```
 .
-├── brand/              # Context de brand (voce, audienta, pozitionare)
-├── centre/             # Dashboard (nu edita manual)
+├── brand/              # Context de brand (voce, audienta, pozitionare, samples)
+├── centre/             # Dashboard (Astro + Svelte) — nu edita manual
 ├── clients/            # Workspace-uri per client
 ├── context/
 │   ├── SOUL.md         # Personalitate agent
 │   ├── USER.md         # Profilul tau
-│   ├── priorities.md   # Prioritati curent trimestru
+│   ├── CONTRACT.md     # OM-AI Contract (delegare)
+│   ├── priorities.md   # Prioritati trimestru
 │   ├── learnings.md    # Feedback per-skill
 │   ├── audits/         # Istoric scoruri 4C
-│   └── memory/         # Jurnale zilnice
+│   ├── memory/         # Jurnale zilnice (YYYY-MM-DD.md)
+│   └── notes/          # Second brain (markdown + SQLite FTS5)
 ├── connections.md      # Inventar tool-uri conectate
 ├── cron/
-│   ├── jobs/           # Definitii joburi programate
-│   └── logs/           # Loguri de executie
+│   ├── defaults/       # Joburi standard livrate
+│   ├── jobs/           # Joburi custom
+│   ├── logs/           # Loguri executie
+│   └── status/         # PID daemon, status fisiere
+├── data/               # SQLite + cache + telemetry + state files
 ├── projects/           # Output din skills
-├── scripts/            # Scripturi de management
+├── scripts/            # Setup, robos, update, management skills + clients
 ├── skills/
-│   ├── _catalog/       # Skills disponibile (catalog + starter packs)
+│   ├── _index.json     # Generated: registry single-source-of-truth
+│   ├── _catalog/       # Skills disponibile + starter packs brand
 │   └── <skill>/        # Skills instalate
-├── AGENTS.md           # Reguli partajate
-├── CLAUDE.md           # Instructiuni Claude Code
-└── .env                # API keys (nu se comit)
+├── AGENTS.md           # Reguli partajate (limba, output, categorii)
+├── CLAUDE.md           # Instructiuni Claude Code (lifecycle sesiune)
+└── .env                # API keys (gitignored, niciodata in repo)
 ```
 
 ## Fluxul zilnic
 
-1. Dimineata: "plan de zi" -> planifica pe baza memoriei si prioritatilor
-2. Lucreaza in Claude Code -> skills se activeaza automat
-3. Seara: "gata" -> `sys-session-close` salveaza memoria
-4. Saptamanal: "audit" -> verifica scor 4C si progres
+1. **Dimineata**: scrii "plan de zi" → 3 prioritati construite din memorie + audit recent
+2. **Lucrezi**: skills se activeaza automat la triggers. Dashboard la `localhost:3001`.
+3. **Seara**: scrii "gata" / "done" → `sys-session-close` salveaza memoria curat
+4. **Saptamanal**: "audit" → vezi unde scor-ul 4C scade
 
-## Memory
+## Memory & second brain
 
-Jurnalele se creeaza automat la `context/memory/YYYY-MM-DD.md`.
-Fiecare sesiune urmareste: Goal, Deliverables, Decisions, Open Threads.
+- Jurnalele zilnice: `context/memory/YYYY-MM-DD.md` (Goal/Deliverables/Decisions/Open Threads)
+- Note atomice: `context/notes/YYYY/MM/{id}-{slug}.md` + SQLite FTS5 index
+- Activity log cross-session: `data/activity-log.ndjson` (rotation 500)
 
 ## Tips
 
-- Incepe cu "onboard me" daca e prima data -- te configureaza in 15 min
-- Completeaza `brand/voice.md` prima -- deblocheaza calitatea tuturor skills
-- Ruleaza "audit" regulat ca sa vezi ce mai ai de imbunatatit
-- Foloseste `context/learnings.md` ca sa corectezi greseli recurente
+- Incepe cu "onboard me" daca e prima data — te configureaza in 15 min cu 5 intrebari
+- Completeaza `brand/voice.md` prima — deblocheaza calitatea tuturor skills content-*
+- Ruleaza "audit" saptamanal — tracking scor 4C
+- Foloseste `context/learnings.md` pentru corectie pattern recurent
+- `robos --install-shortcut` o data si poti lansa `robos` din orice director
+
+## Troubleshooting
+
+```bash
+node scripts/robos.js --status              # diagnostic complet (PID, port, version, etc.)
+cat .command-centre/server.log              # log dashboard
+cat data/hook-errors.ndjson                 # erori hook-uri (rotated 500)
+sqlite3 data/robos.db "SELECT * FROM schema_version"  # verifica migrari aplicate
+```
+
+Pentru probleme specifice, vezi `docs/operator-handbook.md` sectiunea Troubleshooting sau scrie la adrian@robos.vip.
