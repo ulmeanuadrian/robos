@@ -10,6 +10,10 @@ licensing/ export-ignore
 # Internal tests with author paths / assumptions
 tests/ export-ignore
 
+# Author-only test environment toolkit (creeaza medii de test izolate
+# pe acelasi laptop ca dev install — nu se livreaza la studenti)
+scripts/test-env/ export-ignore
+
 # Personal scratchpad / brand backups (already in .gitignore but belt-and-braces)
 paperclip/ export-ignore
 
