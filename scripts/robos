@@ -1,4 +1,19 @@
 #!/usr/bin/env bash
 # robOS launcher — bash wrapper. Delega la node scripts/robos.js
 set -euo pipefail
+
+if ! command -v node >/dev/null 2>&1; then
+    echo "EROARE: Node.js nu e instalat. robOS necesita Node >= 20." >&2
+    echo "Instaleaza de la https://nodejs.org (descarca LTS)." >&2
+    echo "Dupa instalare, deschide o fereastra noua de terminal si reincearca." >&2
+    exit 1
+fi
+
+NODE_MAJOR=$(node -v | sed 's/^v//' | cut -d. -f1)
+if [ "$NODE_MAJOR" -lt 20 ]; then
+    echo "EROARE: Node.js $(node -v) e prea vechi. robOS necesita Node >= 20." >&2
+    echo "Upgrade: descarca LTS de la https://nodejs.org sau prin nvm: 'nvm install 20'" >&2
+    exit 1
+fi
+
 exec node "$(cd "$(dirname "$0")" && pwd)/robos.js" "$@"
