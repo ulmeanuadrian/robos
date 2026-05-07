@@ -33,14 +33,26 @@ data/
 data/*.db
 data/*.db-shm
 data/*.db-wal
+data/.update-staging/
+data/.update-backup/
 node_modules/
 centre/node_modules/
 centre/dist/
 *.pid
 
+# Build artifacts (tarballs intermediate + final)
+licensing/build/
+
 # Logs
 *.log
 cron/logs/
+
+# Test environments (created by scripts/test-env/new.cmd in user home, but
+# also document here in case symlinked)
+robos-tests/
+
+# Author-only documentation reference (not for distribution, untracked)
+docs/init/
 
 # OS
 .DS_Store
