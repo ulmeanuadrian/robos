@@ -62,4 +62,8 @@
   <AudioInput>Disable</AudioInput>
   <VideoInput>Disable</VideoInput>
   <ProtectedClient>Enable</ProtectedClient>
+
+  <!-- 8 GB RAM (default sandbox = 4 GB). Claude install + npm install +
+       astro build cer mai mult — cu 4 GB primesti 'Out of memory' la Claude. -->
+  <MemoryInMB>8192</MemoryInMB>
 </Configuration>
