@@ -263,8 +263,8 @@ Probabil e o eroare de Claude Code, nu de robOS. Ruleaza `claude --version` si v
 logat corect (`claude` te intreaba la prima rulare).
 
 ### Vrei sa testezi din nou onboarding-ul de la zero
-Sterge `brand/voice.md`, `brand/audience.md`, `brand/positioning.md`, `context/USER.md` (sau
-restoreaza din git) si scrie din nou `onboard me`.
+Sterge `brand/voice.md`, `brand/audience.md`, `brand/positioning.md`, `context/USER.md` si scrie
+din nou `onboard me`. (Tip: fa o copie a folder-ului robOS inainte sa incepi, ca backup.)
 
 ---
 

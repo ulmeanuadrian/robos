@@ -94,7 +94,7 @@ robOS adauga valoare reala cand:
 - Lucrezi cu **5+ clienti** (multi-client, cost fix, fara per-seat)
 - Memoria **trebuie sa supravietuiasca** sesiuni / zile / saptamani
 - Ai **protocoale** de respectat (audit zilnic, brand voice, validari pre-publish)
-- Vrei **datele tale** la tine, in git, exportabile (nu in cloud Anthropic)
+- Vrei **datele tale** la tine, in fisiere markdown locale, exportabile (nu in cloud Anthropic)
 - Operezi un workflow **repetabil** (content production, research, automation)
 - Vrei **decizii cumulative** (note candidates → confirmate → cautate via FTS5)
 

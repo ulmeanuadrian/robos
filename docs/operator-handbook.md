@@ -45,7 +45,7 @@ robOS:
 3. Te intreaba feedback ("Cum a mers?")
 4. Loghez feedback in `learnings.md` (daca dai)
 5. Finalizez memoria zilei cu pattern-ul `Session: N deliverables, M decisions`
-6. Verific `git status`, te intreb daca commit
+6. Verific `git status` (daca ai git initializat) si te intreb daca commit. **Git e optional pentru robOS** — daca n-ai git, sari tacit peste pasul asta.
 7. Output sumar 2-3 linii
 
 **Lazy:** inchizi fereastra fara sa zici nimic.
@@ -244,7 +244,7 @@ Toate la http://localhost:3001 dupa `bash scripts/robos` (sau `scripts\robos.cmd
 
 - **Activitate** (default open): cross-session activity log. Filtru text + refresh. Cel mai util zilnic.
 - **Audituri**: history pentru startup audits, session timeouts, learnings reviews.
-- **Memorie**: editor pentru fisierele zilnice. Save scrie direct in `context/memory/YYYY-MM-DD.md` — istoricul ramane prin git (commit-eaza dupa modificari mari). Pentru rollback fast: `git diff context/memory/YYYY-MM-DD.md` + `git checkout -- ...`.
+- **Memorie**: editor pentru fisierele zilnice. Save scrie direct in `context/memory/YYYY-MM-DD.md`. **Daca folosesti git** (optional — pe robOS instalat din tarball trebuie sa-l initializezi tu cu `git init`): istoricul ramane prin git, rollback rapid cu `git diff` + `git checkout -- ...`. **Daca NU folosesti git**: fa backup manual al folder-ului robOS la inceput de saptamana / inainte de schimbari mari.
 - **Learnings**: viewer pentru `context/learnings.md` (read-only).
 - **Conexiuni**: testeaza chei API live (Firecrawl, OpenAI, X AI, WhatsApp, Anthropic). Click "Verifica acum".
 
@@ -260,7 +260,7 @@ Toate la http://localhost:3001 dupa `bash scripts/robos` (sau `scripts\robos.cmd
 - ✅ **Inchide sesiunile cu "gata"** pentru memoria curata. Lazy e ok ocazional.
 - ✅ **Verifica activity log** cand revii dupa 1-2 zile — vezi exact ce ai facut.
 - ✅ **Pune `.env` cu chei reale** pentru research-* si brand-voice (auto-scrape) sa functioneze.
-- ✅ **Push regulat catre git** — robOS e centrat pe filesystem, git e backup-ul tau.
+- ✅ **Backup regulat al folder-ului robOS** — robOS e centrat pe filesystem. Optional: daca instalezi git si faci `git init` in folder, ai istoric versionat (recomandat dar opt-in). Daca nu, fa o copie a folder-ului saptamanal pe alt drive / cloud.
 
 ### Don'ts
 

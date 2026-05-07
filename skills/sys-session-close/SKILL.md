@@ -126,6 +126,9 @@ Ruleaza tacit urmatoarele:
 
 6. Ruleaza: git status --short
    Captureaza fisierele modificate (NU comite — userul decide la Step 3).
+   **DACA git nu e instalat sau folder-ul nu e repo** (eroare "not a git repo" sau "command not found"):
+   seteaza `git_changes: []` si continua silentios. NU afisa eroare userului.
+   robOS e proiectat sa functioneze fara git — git e optional pentru istoric versionat.
 
 7. Returneaza DOAR acest JSON, nimic altceva:
 {
@@ -184,7 +187,10 @@ Sari la Step 3.
 
 ---
 
-# Step 3: Git commit prompt (main thread, conditional)
+# Step 3: Git commit prompt (main thread, conditional, OPTIONAL)
+
+**Git e optional pentru robOS.** Studentii cu instalare din tarball n-au initial git in folder
+si nici nu trebuie. Acest pas se ruleaza DOAR daca userul a `git init`-uit deja.
 
 Daca JSON-ul de la sub-agent are `git_changes` non-gol:
 
@@ -193,7 +199,7 @@ Spune: "Sunt modificari ne-comise: {lista scurta din git_changes}. Vrei sa fac c
 - **Da**: ruleaza `git add` + `git commit` cu mesaj descriptiv. Comanda asta E vizibila — userul a autorizat-o.
 - **Nu**: nimic. Sub-agentul a logat deja in Open Threads.
 
-Daca `git_changes` e gol, sari tacit acest pas.
+Daca `git_changes` e gol (NU e repo git, sau git nu e instalat), sari **tacit** acest pas — nu mentiona git deloc.
 
 ---
 
