@@ -44,7 +44,7 @@ DOMAIN_ADMIN = "admin.robos.vip"
 DOMAIN_DOWNLOAD = "dl.robos.vip"
 RESEND_FROM_EMAIL = "noreply@robos.vip"
 RESEND_FROM_NAME = "robOS"
-CURRENT_ROBOS_VERSION = "0.4.0"
+CURRENT_ROBOS_VERSION = "0.5.0"
 
 # Secretele se seteaza separat via:
 #   wrangler secret put LICENSE_JWT_PRIVATE_KEY < data/keys/jwt-private.pem
