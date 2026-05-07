@@ -2,9 +2,16 @@
 # robOS launcher — bash wrapper. Delega la node scripts/robos.js
 set -euo pipefail
 
+OS="$(uname -s 2>/dev/null || echo unknown)"
+
+# Node check
 if ! command -v node >/dev/null 2>&1; then
     echo "EROARE: Node.js nu e instalat. robOS necesita Node >= 20." >&2
-    echo "Instaleaza de la https://nodejs.org (descarca LTS)." >&2
+    case "$OS" in
+        Darwin) echo "Ruleaza: brew install node" >&2 ;;
+        Linux)  echo "Ruleaza: curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash - && sudo apt install -y nodejs" >&2 ;;
+        *)      echo "Descarca de la: https://nodejs.org" >&2 ;;
+    esac
     echo "Dupa instalare, deschide o fereastra noua de terminal si reincearca." >&2
     exit 1
 fi
@@ -12,7 +19,19 @@ fi
 NODE_MAJOR=$(node -v | sed 's/^v//' | cut -d. -f1)
 if [ "$NODE_MAJOR" -lt 20 ]; then
     echo "EROARE: Node.js $(node -v) e prea vechi. robOS necesita Node >= 20." >&2
-    echo "Upgrade: descarca LTS de la https://nodejs.org sau prin nvm: 'nvm install 20'" >&2
+    case "$OS" in
+        Darwin) echo "Upgrade: brew install node && brew link --overwrite node" >&2 ;;
+        Linux)  echo "Upgrade: curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash - && sudo apt install -y nodejs" >&2 ;;
+        *)      echo "Descarca LTS de la: https://nodejs.org" >&2 ;;
+    esac
+    exit 1
+fi
+
+# Claude Code CLI check
+if ! command -v claude >/dev/null 2>&1; then
+    echo "EROARE: Claude Code CLI nu e instalat. robOS ruleaza prin Claude Code." >&2
+    echo "Ruleaza: curl -fsSL https://claude.ai/install.sh | sh" >&2
+    echo "Dupa instalare, deschide o fereastra noua de terminal si reincearca." >&2
     exit 1
 fi
 
