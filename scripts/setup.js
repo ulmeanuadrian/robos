@@ -17,7 +17,7 @@
 // where Claude can do a proper interview instead of single-line readline.
 
 import { execSync, spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, copyFileSync, statSync } from 'node:fs';
+import { existsSync, mkdirSync, copyFileSync, statSync, chmodSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { platform } from 'node:os';
@@ -128,6 +128,37 @@ function ensureDirs() {
   ok('Directoare context/ + projects/ + cron/ pregatite');
 }
 
+function ensureScriptsExecutable() {
+  // On Mac/Linux: ensure bash wrappers have +x bit (git on Windows may have
+  // dropped it if core.fileMode=false on commit machine). No-op on Windows
+  // (chmod is meaningless on NTFS, but Node fakes the call without error).
+  if (platform() === 'win32') return;
+  const wrappers = [
+    'scripts/robos',
+    'scripts/setup.sh',
+    'scripts/start.sh',
+    'scripts/stop.sh',
+    'scripts/update.sh',
+    'scripts/start-crons.sh',
+    'scripts/status-crons.sh',
+    'scripts/stop-crons.sh',
+    'scripts/add-skill.sh',
+    'scripts/remove-skill.sh',
+    'scripts/list-skills.sh',
+    'scripts/add-client.sh',
+  ];
+  let chmoded = 0;
+  for (const rel of wrappers) {
+    const path = join(ROOT, rel);
+    if (!existsSync(path)) continue;
+    try {
+      chmodSync(path, 0o755);
+      chmoded++;
+    } catch { /* ignore — best effort */ }
+  }
+  if (chmoded > 0) ok(`Scripts +x pe ${chmoded} wrappers (Mac/Linux)`);
+}
+
 function seedDecisionJournal() {
   const target = join(ROOT, 'context', 'decision-journal.md');
   const template = join(ROOT, 'context', 'decision-journal.template.md');
@@ -160,5 +191,6 @@ setupCentre();
 setupEnv();
 rebuildSkillsIndex();
 ensureDirs();
+ensureScriptsExecutable();
 seedDecisionJournal();
 nextSteps();

@@ -19,13 +19,27 @@ docs/internal/ export-ignore
 # Author-only memory and notes (already in .gitignore for tracked content)
 # context/notes/ export-ignore  # already gitignored, belt-and-braces redundant
 
-# Line-ending normalization for cross-platform Windows/Mac/Linux students
-*.md text eol=lf
-*.js text eol=lf
-*.sh text eol=lf
-*.json text eol=lf
+# Line-ending normalization for cross-platform Windows/Mac/Linux students.
+# Default: normalize all text to LF in repo. Bash scripts on Mac fail with
+# CRLF ("$'\r': command not found"). Windows-specific files get CRLF explicitly.
+* text=auto eol=lf
+
+# Windows-specific scripts — keep CRLF
 *.cmd text eol=crlf
 *.bat text eol=crlf
+*.ps1 text eol=crlf
+
+# Binary files
 *.db binary
 *.tar binary
 *.gz binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+
+# Executable bit preservation: scripts without extension that must be runnable
+# on Mac/Linux. git uses index +x bit when core.fileMode=true.
+scripts/robos text eol=lf
