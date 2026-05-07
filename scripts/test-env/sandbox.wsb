@@ -1,0 +1,65 @@
+<Configuration>
+  <!-- Windows Sandbox config pentru testare robOS ca student fresh.
+       Double-click pe acest fisier deschide un sandbox cu:
+       - Folder licensing/build/ mapat read-only la C:\Users\WDAGUtilityAccount\Desktop\robos-build
+         (asa ai tarball-ul gata, fara download)
+       - Clipboard partajat (poti copia comenzi din host in sandbox)
+       - Network activ (pentru install Node, Claude, npm install, license bind)
+
+       Cum folosesti:
+       1. Activeaza Windows Sandbox (Windows Pro/Enterprise/Education):
+          Settings → Apps → Optional features → "Windows Sandbox" enable
+          (sau PowerShell admin: Enable-WindowsOptionalFeature -Online -FeatureName "Containers-DisposableClientVM" -All)
+       2. Restart laptop
+       3. Double-click pe acest fisier (.wsb) → Sandbox porneste in ~5 secunde
+       4. In sandbox, vezi pe Desktop folder "robos-build" cu tarball-ul
+
+       Pasi student fresh in sandbox (PowerShell):
+
+       IMPORTANT: Windows Sandbox NU vine cu winget pre-instalat (limitare
+       cunoscuta — Sandbox e Windows fara Microsoft Store). Pe Windows real,
+       winget functioneaza si comanda din welcomeEmail merge. In sandbox,
+       folosesti download direct sub:
+
+       a. Install Node.js (download .msi direct):
+          $url = "https://nodejs.org/dist/v22.11.0/node-v22.11.0-x64.msi"
+          $out = "$env:TEMP\node.msi"
+          Invoke-WebRequest -Uri $url -OutFile $out
+          Start-Process msiexec.exe -ArgumentList "/i `"$out`" /qn /norestart" -Wait
+          exit  # Inchide PowerShell pentru PATH refresh
+
+       b. (PowerShell NOU) Install Claude Code:
+          irm https://claude.ai/install.ps1 | iex
+          exit
+
+       c. (PowerShell NOU) Extract + lansare robOS:
+          mkdir C:\robos
+          cd C:\robos
+          tar -xzf "C:\Users\WDAGUtilityAccount\Desktop\robos-build\robos-base-v0.5.1.tar.gz"
+          cd robOS
+          .\scripts\robos.cmd
+
+       d. Vezi UX-ul real fresh-student (mesaje, dashboard, onboarding).
+
+       ALTERNATIVA pentru Node — Chocolatey (mai flexibil pentru testare cu mai multe tools):
+          Set-ExecutionPolicy Bypass -Scope Process -Force
+          iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+          choco install nodejs-lts -y
+
+       Cleanup: inchide fereastra sandbox-ului → totul dispare. Reset complet.
+  -->
+
+  <MappedFolders>
+    <MappedFolder>
+      <HostFolder>C:\claude_os\robos\licensing\build</HostFolder>
+      <SandboxFolder>C:\Users\WDAGUtilityAccount\Desktop\robos-build</SandboxFolder>
+      <ReadOnly>true</ReadOnly>
+    </MappedFolder>
+  </MappedFolders>
+
+  <ClipboardRedirection>true</ClipboardRedirection>
+  <Networking>Default</Networking>
+  <AudioInput>Disable</AudioInput>
+  <VideoInput>Disable</VideoInput>
+  <ProtectedClient>Enable</ProtectedClient>
+</Configuration>
