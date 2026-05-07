@@ -47,19 +47,42 @@ robOS rezolva exact asta — si mai mult.
 
 Claude singur e ascutitul cutitelor. robOS e bucataria.
 
-## Memorie — 7 nivele care lucreaza impreuna
+## Memorie — al doilea creier al tau, pe disc-ul tau
+
+Claude tine minte cat dureaza conversatia. robOS tine minte ca un al doilea creier — pe disc-ul tau, cautabil oricand, organizat pe clienti, exportabil ca foldere. Daca ai 1.000 de notite si vrei sa gasesti decizia luata acum 3 luni despre client X, raspunsul vine in 2 secunde.
+
+Niciun produs cloud nu-ti da asta. robOS e local, deci e **al tau**.
+
+### 7 nivele de memorie care lucreaza impreuna
 
 robOS nu are "o" memorie. Are mai multe, fiecare cu rolul ei:
 
 1. **Activitate recenta** — vezi ce-ai facut acum 5 minute, in alta fereastra. Automat, fara sa-i spui sa salveze.
 2. **Memoria zilei** — la sfarsit de zi, ai un sumar curat: ce-ai facut, ce-ai decis, ce ramane. Cititate maine cand revii.
 3. **Sugestii de note** — cand spui "decizia e ca...", "regula e sa...", sistemul detecteaza si te intreaba la urmatoarea sesiune daca vrei sa-l salvezi permanent.
-4. **Notite cautabile** — al doilea creier. Spui "noteaza asta", el salveaza. Spui "ai mai notat despre X", el gaseste in 2 secunde.
+4. **Notite cautabile** — al doilea creier. Spui "noteaza asta", el salveaza. Spui "ai mai notat despre X", el gaseste in 2 secunde, sortat dupa relevanta.
 5. **Istoric audituri** — la fiecare scor 4C, salvezi un punct. Vezi progresul in timp.
 6. **Lectii invatate per metoda** — daca un skill iti gresheste constant ceva, sistemul invata. La saptamana viitoare iti spune "am observat ca de 3 ori am facut greseala X — vrei sa devina regula permanenta?"
 7. **Jurnal de decizii** — pentru decizii mari (strategice, costisitoare), scrii rationamentul. Peste 6 luni il citesti si vezi de ce ai ales asa.
 
 **Rezultat practic**: niciodata nu mai pierzi context. Niciodata nu mai repeti aceeasi explicatie. Sistemul te tine onest.
+
+### Datele tale stau la tine — exportabile, controlabile
+
+- **Toate notitele si jurnalele sunt fisiere simple** intr-un folder pe laptop-ul tau. Le poti deschide cu orice editor, le poti copia, le poti pune pe cloud-ul tau (iCloud, Dropbox, Drive).
+- **Cautarea ruleaza local** pe laptop-ul tau. Nimic nu pleaca la furnizor.
+- **Backup = copy folder.** Daca vrei sa muti pe alt laptop sau sa pastrezi o copie, doar copiezi folder-ul. Atat.
+- **Daca renunti la robOS**, datele raman ale tale — fisiere markdown standard, citibile fara robOS.
+
+### Bonus: deschide cu Obsidian (optional)
+
+Daca folosesti deja [Obsidian](https://obsidian.md) pentru notite, deschide folder-ul de robOS direct ca vault — ai instant:
+- **Graph view** vizual peste toate notitele si conexiunile lor
+- **Backlinks** automate
+- **Tags** cu autocomplete
+- **Mobile** prin Obsidian Sync sau cloud-ul tau
+
+robOS nu cere Obsidian. Daca-l ai deja, se integreaza fara import. Daca nu, robOS functioneaza perfect singur.
 
 ## Ce NU face robOS
 
@@ -86,5 +109,5 @@ Cand:
 
 ---
 
-**Versiune doc:** 3.0 (rescris in limbaj clar, fara jargon tehnic)
+**Versiune doc:** 3.1 (limbaj clar, fara jargon — adaugare sectiune "datele tale stau la tine" + Obsidian opt-in)
 **Acopera robOS:** v0.5.x
