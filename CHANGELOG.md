@@ -1,5 +1,44 @@
 # Changelog
 
+## [0.5.1] - 2026-05-07
+
+### Documentation pass + cleanup hygiene (no behavior change)
+
+Audit complet al pachetului student + actualizare docs cu realitatea verificata la cod.
+
+**Cleanup local (working tree, nu afecteaza tarball anterior)**:
+- Removed: 8 fisiere build artifacts vechi (v0.4.0, v0.4.1 + intermediate v0.5.0 .tar/.noterm.tar) — ~6 MB liberat
+- Removed: `data/test-server-3099.log` (cruft din testare port 3099)
+- Extended `.gitignore`: `licensing/build/`, `data/.update-staging/`, `data/.update-backup/`, `robos-tests/`, `docs/init/`
+
+**LP material rescris** (`docs/claude-vs-robos.md` v2.0):
+- Skill count corectat: 17 → **22** (verificat in `skills/_index.json` count=22)
+- Trigger count: **206** RO+EN (confirmat la generated_at runtime)
+- Versionare: **v0.3.x → v0.5.x**
+- Sectiune NOUA "Ce NOU adauga v0.5": launcher unic, update.js, verification discipline, OS notifications
+- Adaugare row dashboard cu Astro+Svelte + cold start 300ms
+- Adaugare row concurrency framework cu numere reale (8 skills paralelizate, 3-5x wall-clock)
+- Toate claims verificate la cod inainte de afirmare
+
+**Student docs updated** (consistent cu launcher v0.5):
+- `docs/INSTALL.md`: v0.4.1 → v0.5.0; Pas 3 'Setup' → 'Lansezi robOS' (un singur pas); Pas 6 dashboard NU mai e optional; update flow rescris cu `update.js` in-place
+- `docs/cheat-sheet.md`: rewrite complet — toate 22 skills cu trigger primary, comenzi noi launcher/update, sectiune cron actualizata cu leader lock + [SILENT]
+- `docs/operator-handbook.md`: 17 → 22 skills; sectiuni noi sys-* (second brain) + mode-* (cognitive switches); `bash scripts/start.sh` → `bash scripts/robos`
+
+**Admin docs NEW** (`docs/admin-handbook.md`):
+- 10 sectiuni: infrastructura, emitere licente, suport probleme comune, deploy versiune noua, refund/revoke, monitoring (event log, anomalii, wrangler tail), backup + DR (D1 export, JWT key rotation), toolkit local, limitari, resurse
+- Marcat `export-ignore` in `.gitattributes` → NU pleaca la studenti
+- Pereche cu `operator-handbook.md` (pentru student)
+
+**Audit student package** (tarball v0.5.0 final):
+- 242 fisiere, 4 docs shipped (INSTALL, cheat-sheet, claude-vs-robos, operator-handbook)
+- 0 fisiere din scripts/test-env (correct, export-ignored)
+- 0 fisiere admin-handbook (correct, export-ignored)
+- 0 fisiere licensing/ (correct, export-ignored)
+- 0 fisiere paperclip/ (correct, export-ignored)
+- 0 fisiere tests/ (correct, export-ignored)
+- Brand templates HTML-comments-only (no PII)
+
 ## [0.5.0] - 2026-05-06
 
 ### Launcher unic + cron leader lock + in-place update + PowerShell parity
