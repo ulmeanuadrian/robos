@@ -1,21 +1,29 @@
 #!/usr/bin/env node
 // parallel-budget.js — concurrency policy + telemetry helper for robOS skills.
 //
-// Usage:
-//   Library:
-//     const { shouldParallelize, logTelemetry, MAX_PARALLEL_AGENTS } = require('./scripts/parallel-budget');
+// Library: import { shouldParallelize, logTelemetry, MAX_PARALLEL_AGENTS } from './scripts/parallel-budget.js'
+// CLI:
+//   node scripts/parallel-budget.js check <units> <est_seconds_per_unit>
+//   node scripts/parallel-budget.js log <skill> <mode> <agents> <failed> <wall_ms> <fallback> [client]
+//   node scripts/parallel-budget.js stats [skill_name]
 //
-//   CLI:
-//     node scripts/parallel-budget.js check <units> <est_seconds_per_unit>
-//     node scripts/parallel-budget.js log <skill> <mode> <agents> <failed> <wall_ms> <fallback_used>
-//     node scripts/parallel-budget.js stats [skill_name]
+// F20 fix: was CommonJS while everything else in scripts/ is ESM. Converted
+// to native ESM. CLI invocation still works (process.argv check at bottom).
+// F12 fix: was using fs.appendFileSync (no rotation cap). Now routes through
+// appendNdjson for consistent rotation behavior.
 
-const fs = require('fs');
-const path = require('path');
+import { existsSync, readFileSync } from 'node:fs';
+import { join, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { appendNdjson } from './lib/ndjson-log.js';
 
-const MIN_UNITS = 3;
-const MIN_SECONDS_PER_UNIT = 10;
-const MAX_PARALLEL_AGENTS = 8;
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const ROBOS_ROOT = join(__dirname, '..');
+
+export const MIN_UNITS = 3;
+export const MIN_SECONDS_PER_UNIT = 10;
+export const MAX_PARALLEL_AGENTS = 8;
 
 // ADVISORY values — NOT runtime-enforced. The Agent tool in Claude Code
 // is invoked declaratively from SKILL.md prompts and the parent has no
@@ -23,35 +31,34 @@ const MAX_PARALLEL_AGENTS = 8;
 // are kept as a documented policy that skills SHOULD respect when
 // describing "if an agent hangs" behavior; they cannot be programmatically
 // applied today. See AGENTS.md > Concurrency Patterns > Reguli globale.
-const SUBAGENT_TIMEOUT_MS_ADVISORY = 90_000;
-const SUBAGENT_HARD_CAP_MS_ADVISORY = 180_000;
+export const SUBAGENT_TIMEOUT_MS_ADVISORY = 90_000;
+export const SUBAGENT_HARD_CAP_MS_ADVISORY = 180_000;
 
-function shouldParallelize(units, estSecondsPerUnit) {
+const TELEMETRY_PATH = join(ROBOS_ROOT, 'data', 'skill-telemetry.ndjson');
+const TELEMETRY_MAX_LINES = 2000; // archive log — bigger than activity (500)
+
+export function shouldParallelize(units, estSecondsPerUnit) {
   if (typeof units !== 'number' || typeof estSecondsPerUnit !== 'number') return false;
   if (units < MIN_UNITS) return false;
   if (estSecondsPerUnit < MIN_SECONDS_PER_UNIT) return false;
   return true;
 }
 
-function telemetryFile() {
-  return path.join(__dirname, '..', 'data', 'skill-telemetry.ndjson');
-}
-
-function logTelemetry({ skill, mode, agents, agentsFailed, wallClockMs, fallbackUsed, client }) {
-  // Read active client lazily (avoid require cycles + keep this file CommonJS-pure
-  // since client-context is ESM). Read the JSON state directly.
+export function logTelemetry({ skill, mode, agents, agentsFailed, wallClockMs, fallbackUsed, client }) {
+  // Read active client lazily — keep this independent from client-context.js
+  // to avoid circular imports during testing.
   let clientSlug = client || null;
   if (!clientSlug) {
     try {
-      const stateFile = path.join(__dirname, '..', 'data', 'active-client.json');
-      if (fs.existsSync(stateFile)) {
-        const data = JSON.parse(fs.readFileSync(stateFile, 'utf-8'));
+      const stateFile = join(ROBOS_ROOT, 'data', 'active-client.json');
+      if (existsSync(stateFile)) {
+        const data = JSON.parse(readFileSync(stateFile, 'utf-8'));
         if (data && typeof data.slug === 'string') clientSlug = data.slug;
       }
     } catch { /* keep null */ }
   }
 
-  const line = JSON.stringify({
+  const entry = {
     ts: new Date().toISOString(),
     skill,
     mode,
@@ -60,17 +67,16 @@ function logTelemetry({ skill, mode, agents, agentsFailed, wallClockMs, fallback
     wall_clock_ms: Number(wallClockMs) || 0,
     fallback_used: Boolean(fallbackUsed),
     client: clientSlug,
-  });
-  const file = telemetryFile();
-  fs.mkdirSync(path.dirname(file), { recursive: true });
-  fs.appendFileSync(file, line + '\n');
-  return line;
+  };
+
+  // F12 fix: route through appendNdjson — atomic, with rotation cap.
+  appendNdjson(TELEMETRY_PATH, entry, { maxLines: TELEMETRY_MAX_LINES });
+  return JSON.stringify(entry);
 }
 
-function readStats(skillFilter) {
-  const file = telemetryFile();
-  if (!fs.existsSync(file)) return { runs: 0, lines: [] };
-  const lines = fs.readFileSync(file, 'utf8')
+export function readStats(skillFilter) {
+  if (!existsSync(TELEMETRY_PATH)) return { runs: 0, lines: [] };
+  const lines = readFileSync(TELEMETRY_PATH, 'utf8')
     .split('\n')
     .filter(Boolean)
     .map((l) => {
@@ -92,18 +98,9 @@ function readStats(skillFilter) {
   };
 }
 
-module.exports = {
-  shouldParallelize,
-  logTelemetry,
-  readStats,
-  MIN_UNITS,
-  MIN_SECONDS_PER_UNIT,
-  MAX_PARALLEL_AGENTS,
-  SUBAGENT_TIMEOUT_MS_ADVISORY,
-  SUBAGENT_HARD_CAP_MS_ADVISORY,
-};
-
-if (require.main === module) {
+// CLI invocation — only when run directly, not on import.
+const isMainModule = process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1];
+if (isMainModule) {
   const cmd = process.argv[2];
   if (cmd === 'check') {
     const units = parseInt(process.argv[3], 10);
@@ -133,8 +130,8 @@ if (require.main === module) {
     process.exit(0);
   }
   console.log('Usage:');
-  console.log('  node parallel-budget.js check <units> <est_seconds_per_unit>');
-  console.log('  node parallel-budget.js log <skill> <mode> <agents> <failed> <wall_ms> <fallback>');
-  console.log('  node parallel-budget.js stats [skill_name]');
+  console.log('  node scripts/parallel-budget.js check <units> <est_seconds_per_unit>');
+  console.log('  node scripts/parallel-budget.js log <skill> <mode> <agents> <failed> <wall_ms> <fallback> [client]');
+  console.log('  node scripts/parallel-budget.js stats [skill_name]');
   process.exit(1);
 }

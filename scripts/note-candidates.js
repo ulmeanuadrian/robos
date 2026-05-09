@@ -203,7 +203,18 @@ async function main() {
   if (sessionId === 'unknown') process.exit(0);
 
   const transcriptPath = findTranscriptFile(sessionId);
-  if (!transcriptPath) process.exit(0);
+  if (!transcriptPath) {
+    // F17 fix: log to error sink so the operator can diagnose silent breakage
+    // (e.g. Claude Code transcript path changed between releases).
+    try {
+      logHookError('note-candidates:transcript-not-found', new Error('transcript missing'), {
+        sessionId,
+        homedir: homedir(),
+        hint: 'Claude Code transcript not found in ~/.claude/projects/*; auto-capture degraded',
+      });
+    } catch { /* best effort */ }
+    process.exit(0);
+  }
 
   const turns = readLastLines(transcriptPath, 80);
   const texts = extractLastTurnTexts(turns);

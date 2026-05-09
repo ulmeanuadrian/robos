@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync, existsSync, copyFileSync, renameSync } from 'fs';
+import { readFileSync, writeFileSync, existsSync, renameSync } from 'fs';
 import { join } from 'path';
 import { workspaceRoot } from '../lib/config.js';
 import {
@@ -9,6 +9,7 @@ import {
   validateKey,
   valueStatus,
 } from '../../scripts/lib/env-format.js';
+import { atomicWrite } from '../../scripts/lib/atomic-write.js';
 
 const ENV_PATH = join(workspaceRoot, '.env');
 const ENV_BAK_PATH = join(workspaceRoot, '.env.bak');
@@ -201,18 +202,18 @@ export function setEnv(payload) {
   }
 
   // Backup current state with explicit 0o600 mode (S1 fix).
-  // copyFileSync inherits source permissions on POSIX which depends on how .env
-  // was first created — explicit write+mode documents intent and gives consistent
-  // behavior. On Windows mode is ignored (ACL inheritance) but the call is harmless.
   writeFileSync(ENV_BAK_PATH, readFileSync(ENV_PATH), { mode: 0o600 });
+
   const rendered = renderEnv(parsed.entries);
   // Preserve trailing newline if original had one
   const needsTrailingNewline = content.endsWith('\n') && !rendered.endsWith('\n');
-  writeFileSync(ENV_TMP_PATH, rendered + (needsTrailingNewline ? '\n' : ''), {
-    encoding: 'utf-8',
-    mode: 0o600,
-  });
-  renameSync(ENV_TMP_PATH, ENV_PATH);
+
+  // F18 fix: route through atomic-write for Windows EBUSY/EPERM retry +
+  // automatic tmp cleanup. Previously, if .env was open in an editor when
+  // dashboard tried to write, the rename failed silently and .env.tmp stayed
+  // orphan. atomicWrite retries up to 3 times for those errors, surfaces
+  // others, and always cleans up the tmp file.
+  atomicWrite(ENV_PATH, rendered + (needsTrailingNewline ? '\n' : ''), { mode: 0o600 });
 
   return { ok: true, updated: updates.map(u => u.key) };
 }

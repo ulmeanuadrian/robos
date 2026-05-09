@@ -175,7 +175,19 @@ async function main() {
   if (sessionId === 'unknown') process.exit(0);
 
   const transcriptPath = findTranscriptFile(sessionId);
-  if (!transcriptPath) process.exit(0);
+  if (!transcriptPath) {
+    // F17 fix: log to error sink so the operator can diagnose if cross-session
+    // memory bridge silently breaks (e.g. Claude Code transcript path changed).
+    // Throttled: log once per session (sessionId-based) to avoid sink spam.
+    try {
+      logHookError('activity-capture:transcript-not-found', new Error('transcript missing'), {
+        sessionId,
+        homedir: homedir(),
+        hint: 'Claude Code transcript not found in ~/.claude/projects/*; cross-session memory bridge degraded',
+      });
+    } catch { /* best effort */ }
+    process.exit(0);
+  }
 
   const turns = readLastLines(transcriptPath, 80);
   const turn = extractLastTurn(turns);

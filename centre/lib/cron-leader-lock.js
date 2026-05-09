@@ -13,10 +13,11 @@
 //
 // Atomicity: write with flag 'wx' (fail if exists). On race lose, recheck staleness.
 
-import { existsSync, readFileSync, writeFileSync, unlinkSync, mkdirSync } from 'node:fs';
+import { existsSync, readFileSync, unlinkSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { hostname } from 'node:os';
 import { dataDir } from './config.js';
+import { atomicWrite } from '../../scripts/lib/atomic-write.js';
 
 const LOCK_PATH = join(dataDir, 'cron-leader.lock');
 const HEARTBEAT_INTERVAL_MS = 10_000;
@@ -39,7 +40,11 @@ function readLock() {
 }
 
 function writeLock(payload) {
-  writeFileSync(LOCK_PATH, JSON.stringify(payload, null, 2), { encoding: 'utf-8' });
+  // F14 fix: atomic write — heartbeat updates are now safe under crash. Previous
+  // plain writeFileSync left the lock file empty/corrupt if the process crashed
+  // mid-write, allowing two leaders briefly. atomicWrite uses temp+rename with
+  // random suffix so a partial write never overwrites the live lock.
+  atomicWrite(LOCK_PATH, JSON.stringify(payload, null, 2));
 }
 
 function isStale(lock) {

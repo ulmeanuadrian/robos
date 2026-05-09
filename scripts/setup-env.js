@@ -129,6 +129,20 @@ function main() {
     atomicWrite(ENV_PATH, renderEnv(entries) + '\n');
   }
 
+  // F8 fix: detect orphan keys in .env that are NOT in .env.example AND NOT
+  // declared by an installed skill. Likely leftover from a removed skill.
+  // Report only — never auto-delete (operator may have customized values).
+  const orphans = [];
+  const skillSecretSet = new Set(skillSecrets);
+  for (const entry of envParsed.entries) {
+    if (entry.kind !== 'assignment') continue;
+    if (exampleParsed.byKey.has(entry.key)) continue;
+    if (skillSecretSet.has(entry.key)) continue;
+    // Skip well-known runtime/internal keys never in example
+    if (entry.key === 'PORT' || entry.key === 'NODE_ENV' || entry.key === 'DEBUG') continue;
+    orphans.push(entry.key);
+  }
+
   // Reporting
   if (summary.created) {
     console.log('[setup-env] Initialized .env from .env.example');
@@ -139,10 +153,15 @@ function main() {
   }
   if (summary.generated_token) {
     console.log(`[setup-env] Generated ${TOKEN_KEY} (dashboard auth)`);
-    console.log('  Save it from .env if you need it for API requests:');
-    console.log('  Header: Authorization: Bearer <token>');
+    console.log('  Token-ul e in .env. Pentru cereri API: Authorization: Bearer <token>.');
   }
-  if (!summary.created && summary.added.length === 0 && !summary.generated_token) {
+  if (orphans.length > 0) {
+    console.log('');
+    console.log(`[setup-env] ${orphans.length} key(s) orfane in .env (nu sunt in .env.example sau in skills installed):`);
+    for (const k of orphans) console.log(`  ? ${k}`);
+    console.log('  (nu sterg automat — sterge manual daca au ramas dintr-un skill removed)');
+  }
+  if (!summary.created && summary.added.length === 0 && !summary.generated_token && orphans.length === 0) {
     console.log('[setup-env] .env already in sync with .env.example. No changes.');
   }
 }
