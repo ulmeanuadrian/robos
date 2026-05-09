@@ -22,6 +22,38 @@ import { getDb } from './db.js';
 import { emit } from './event-bus.js';
 import { notify, isSilentOutput } from './notify.js';
 
+/**
+ * Parse a command string into argv array. Handles double-quoted segments.
+ * Used for `command`-mode cron jobs to avoid shell:true (S4 fix).
+ *
+ * Examples:
+ *   "node scripts/foo.js"           → ["node", "scripts/foo.js"]
+ *   "node scripts/foo.js --flag"    → ["node", "scripts/foo.js", "--flag"]
+ *   'node "path with spaces.js" -q' → ["node", "path with spaces.js", "-q"]
+ *
+ * Does NOT support shell features (&&, |, >, $VAR). If a job needs those,
+ * convert to a script and call that script instead.
+ */
+function parseCommandArgv(commandStr) {
+  const tokens = [];
+  let i = 0;
+  const s = commandStr.trim();
+  while (i < s.length) {
+    while (i < s.length && /\s/.test(s[i])) i++;
+    if (i >= s.length) break;
+    let token = '';
+    if (s[i] === '"') {
+      i++;
+      while (i < s.length && s[i] !== '"') token += s[i++];
+      if (s[i] === '"') i++;
+    } else {
+      while (i < s.length && !/\s/.test(s[i])) token += s[i++];
+    }
+    tokens.push(token);
+  }
+  return tokens;
+}
+
 const LOGS_DIR = join(workspaceRoot, 'cron', 'logs');
 const MAX_CONCURRENT = 3;
 let running = 0;
@@ -97,13 +129,25 @@ export async function executeJob(job, { trigger = 'scheduled', attempt = 1 } = {
   let spawnCmd, spawnArgs, spawnOpts;
 
   if (useDirectCommand) {
-    spawnCmd = job.command.trim();
-    spawnArgs = [];
+    // S4 fix: parse command into argv + spawn shell:false. shell:true was a
+    // defense-in-depth gap — cron/defaults/*.json could be subverted by a
+    // malicious skill writing a job with shell metacharacters.
+    const argv = parseCommandArgv(job.command);
+    if (argv.length === 0) {
+      console.error(`[cron-runner] empty command pentru ${job.slug}`);
+      running--;
+      return null;
+    }
+    // Cross-platform: when invoking node, use process.execPath instead of
+    // resolving 'node' through PATH. Avoids Windows .cmd shim issues with
+    // shell:false (e.g. nvm-windows) and is more deterministic.
+    spawnCmd = argv[0] === 'node' ? process.execPath : argv[0];
+    spawnArgs = argv.slice(1);
     spawnOpts = {
       cwd,
       stdio: ['ignore', 'pipe', 'pipe'],
       env: { ...process.env },
-      shell: true, // permite syntax `node scripts/foo.js` cu PATH resolution
+      shell: false,
     };
   } else {
     spawnCmd = 'claude';
