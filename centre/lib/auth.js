@@ -59,15 +59,21 @@ export function checkBearer(req) {
  * Used to gate the token-fetch endpoint: only the local UI can read it.
  *
  * Allowed:
- *   - No Origin header at all (curl, server-to-server, native client)
  *   - Origin matches http://127.0.0.1:PORT or http://localhost:PORT
  *
  * Rejected:
+ *   - Missing Origin header (curl, npm dep, vscode ext — F7 fix)
  *   - Any other Origin (cross-site browser fetch)
+ *
+ * F7 fix: previously returned true for missing Origin to support CLI tools.
+ * That defeated the threat model — any local process (Node fetch with no
+ * Origin) could read the dashboard token without auth. CLI tools that
+ * legitimately need API access should authenticate with Bearer token
+ * directly (read from .env), not bootstrap through /api/auth/token.
  */
 export function isSameOrigin(req, port) {
   const origin = req.headers.origin;
-  if (!origin) return true;
+  if (!origin) return false;
   const allowed = new Set([
     `http://127.0.0.1:${port}`,
     `http://localhost:${port}`,
