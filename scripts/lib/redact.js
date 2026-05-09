@@ -26,6 +26,11 @@
  *   - AWS access key id:                    AKIA, ASIA + 16 uppercase
  *   - JWT-shaped (Bearer auth, OIDC):       eyJ.*\..*\..*
  *   - Generic Bearer prefix:                Bearer <token>
+ *   - Generic UPPER_KEY=value (S5 fix):     SECRET_KEY=hunter2 → SECRET_KEY=****
+ *     Catches user-pasted .env-style assignments with custom key names that
+ *     don't match any provider prefix (e.g. STRIPE_RESTRICTED_KEY=rk_live_...,
+ *     DATABASE_PASSWORD=hunter2). Conservative: requires UPPER_SNAKE_CASE,
+ *     min 6-char value, key name 5+ chars.
  */
 
 const PATTERNS = [
@@ -42,6 +47,13 @@ const PATTERNS = [
   [/A(?:KIA|SIA)[A-Z0-9]{16}/g,                             'AKIA****'],
   [/eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+/g,    'eyJ****.****.****'],
   [/Bearer\s+[A-Za-z0-9._-]{20,}/gi,                        'Bearer ****'],
+  // Generic env-style assignment. Conservative: uppercase + underscores only,
+  // 5+ chars in key, 6+ char value, value can contain alphanumerics + common
+  // token chars. Excludes simple integer values (PORT=3001 stays).
+  // Key must contain at least one of: KEY|SECRET|TOKEN|PASS|AUTH|CREDENTIAL
+  // to avoid stripping innocuous CONFIG=foo lines.
+  [/\b([A-Z][A-Z0-9_]{4,}(?:KEY|SECRET|TOKEN|PASS|AUTH|CREDENTIAL|DSN|PRIVATE)[A-Z0-9_]*)=(["']?)([A-Za-z0-9+/=_\-.]{6,})\2/g,
+                                                            '$1=$2****$2'],
 ];
 
 /**
@@ -71,6 +83,14 @@ if (process.argv.includes('--self-test')) {
     ['AKIA' + 'A'.repeat(16),                                   'AKIA****'],
     ['Bearer ' + 'H'.repeat(40),                                'Bearer ****'],
     ['normal text without secrets',                              'normal text without secrets'],
+    // Generic env-style assignment patterns
+    ['STRIPE_RESTRICTED_KEY=rk_live_abc12345',                   'STRIPE_RESTRICTED_KEY=****'],
+    ['DATABASE_PASSWORD=hunter2xyz',                             'DATABASE_PASSWORD=****'],
+    ['MY_API_TOKEN="some_long_token_value"',                     'MY_API_TOKEN="****"'],
+    // Should NOT mangle: short non-secret values OR keys without secret-like substring
+    ['PORT=3001',                                                'PORT=3001'],
+    ['ROBOS_VERSION=2.1.0',                                      'ROBOS_VERSION=2.1.0'],
+    ['CONFIG_NAME=production',                                   'CONFIG_NAME=production'],
   ];
   let failed = 0;
   for (const [input, expected] of cases) {

@@ -51,6 +51,16 @@ function validateJobInput(body, { partial = false } = {}) {
     }
   }
 
+  // S15 fix: clientId is used by cron-runner.js:50 as a filesystem path segment.
+  // Validate it matches the canonical slug format (same regex as
+  // scripts/lib/client-context.js SLUG_RE) to prevent traversal-shaped values
+  // like "../../etc" from setting cwd outside the workspace.
+  if (body.clientId !== undefined && body.clientId !== null && body.clientId !== '') {
+    if (typeof body.clientId !== 'string' || !/^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/.test(body.clientId)) {
+      errors.push('clientId: slug invalid (lowercase, cifre si liniute, fara leading/trailing dash; ex: acme-corp)');
+    }
+  }
+
   return errors;
 }
 

@@ -157,6 +157,13 @@ const AUTH_REQUIRED = [
   (m, p) => /^\/api\/cron\/[^/]+\/run$/.test(p) && m === 'POST',
   // Memory writes (5MB markdown blob — would let attacker corrupt memory).
   (m, p) => /^\/api\/system\/memory\/\d{4}-\d{2}-\d{2}$/.test(p) && m === 'PUT',
+  // S8 fix: file browser reads (memory, brand, clients) — exposes private data.
+  // CORS partially blocks browser cross-origin reads, but extensions with host
+  // permissions bypass; non-browser HTTP clients (curl) bypass entirely.
+  (m, p) => p === '/api/files' && m === 'GET',
+  // S9 fix: activity log endpoint exposes recent prompts + assistant responses
+  // (best-effort redacted but conversational content is sensitive).
+  (m, p) => p === '/api/system/activity' && m === 'GET',
 ];
 
 function requiresAuth(method, pathname) {
@@ -412,8 +419,18 @@ const server = http.createServer(handler);
 // Bind to 127.0.0.1 (loopback) by default — server reachable only from this machine.
 // To expose on LAN intentionally, set ROBOS_CENTRE_HOST=0.0.0.0 (and add auth first).
 const HOST = process.env.ROBOS_CENTRE_HOST || '127.0.0.1';
+const isLoopback = HOST === '127.0.0.1' || HOST === '::1' || HOST === 'localhost';
 server.listen(PORT, HOST, () => {
-  console.log(`robOS Centre ruleaza la http://${HOST}:${PORT} (loopback only — pentru expunere LAN, seteaza ROBOS_CENTRE_HOST + adauga auth)`);
+  if (isLoopback) {
+    console.log(`robOS Centre ruleaza la http://${HOST}:${PORT} (loopback only)`);
+  } else {
+    // S7 fix: previously printed "loopback only" even when bound to 0.0.0.0,
+    // misleading operators who exposed the dashboard for LAN access.
+    console.log(`robOS Centre ruleaza la http://${HOST}:${PORT}`);
+    console.log(`  ATENTIE: HOST=${HOST} expune dashboard-ul pe retea (NU doar loopback).`);
+    console.log(`  - Bearer token e activ pentru endpoint-uri sensitive, dar HTTP nu cripteaza.`);
+    console.log(`  - Foloseste DOAR pe retele de incredere; pentru remote access prefera SSH tunnel.`);
+  }
   // Pornim scheduler-ul cron in-process (inlocuieste cron-daemon.js)
   try {
     startScheduler();

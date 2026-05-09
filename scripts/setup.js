@@ -21,7 +21,7 @@
 // where Claude can do a proper interview instead of single-line readline.
 
 import { execSync, spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, copyFileSync, statSync, chmodSync } from 'node:fs';
+import { existsSync, mkdirSync, copyFileSync, statSync, chmodSync, readFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { platform } from 'node:os';
@@ -180,6 +180,24 @@ function seedDecisionJournal() {
   }
 }
 
+async function refreshLauncherStateVersion() {
+  // F13 fix: launcher-state.last_robos_version drifts when VERSION is bumped
+  // but robos.js doesn't run between setup runs. Refresh proactively here so
+  // setup completion always means launcher-state.last_robos_version === VERSION.
+  const versionPath = join(ROOT, 'VERSION');
+  if (!existsSync(versionPath)) return;
+  const stateLib = join(ROOT, 'scripts', 'lib', 'launcher-state.js');
+  if (!existsSync(stateLib)) return;
+  try {
+    const VERSION = readFileSync(versionPath, 'utf-8').trim();
+    const mod = await import(pathToFileURL(stateLib).href);
+    mod.update({ last_robos_version: VERSION, setup_complete: true });
+    ok(`Launcher state actualizat (version=${VERSION})`);
+  } catch (err) {
+    skip(`Launcher state refresh: ${err.message}`);
+  }
+}
+
 async function setupLicense(opts) {
   if (opts.skipLicense) {
     skip('License bind sarit (--skip-license-bind)');
@@ -281,6 +299,7 @@ async function main() {
   ensureScriptsExecutable();
   seedDecisionJournal();
   await setupLicense(opts);
+  await refreshLauncherStateVersion();
   nextSteps();
 }
 

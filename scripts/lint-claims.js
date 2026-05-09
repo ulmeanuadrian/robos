@@ -49,7 +49,7 @@ const PATH_REGEX = new RegExp(
   '|' +
   '(?:\\]\\(([^)]+)\\))' +                                                        // markdown link
   '|' +
-  `(?:(?:^|[\\s\\(\\["'])(${KNOWN_DIRS_PATTERN})/([\\w./_-]+))`,                // bare path
+  `(?:(?:^|[\\s\\(\\["'])(${KNOWN_DIRS_PATTERN})/([\\w./_-]+))`,                // bare path  // lint-allow:backslash (regex char class)
   'g'
 );
 
