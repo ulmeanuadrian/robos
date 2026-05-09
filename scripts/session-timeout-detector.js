@@ -28,6 +28,7 @@ import { loadEnv } from './lib/env-loader.js';
 import { appendNdjson } from './lib/ndjson-log.js';
 import { isClosed, extractOpenThreads } from './lib/memory-format.js';
 import { getAllMemoryScopes } from './lib/client-context.js';
+import { pruneDirByAge } from './lib/cleanup.js';
 
 // Load .env BEFORE any process.env reads (cron jobs run without parent env)
 loadEnv();
@@ -205,6 +206,15 @@ async function main() {
         abandoned_sessions: abandoned,
         consumed: false,
       }, null, 2));
+    }
+
+    // F5/F10 fix: prune old session-state markers (>30 days) and consumed
+    // recovery files (>7 days). Detector runs every 15 min via cron, so this
+    // keeps disk bounded without a separate cleanup job.
+    const ssPrune = pruneDirByAge(STATE_DIR, 30);
+    const recPrune = pruneDirByAge(RECOVERY_DIR, 7);
+    if (!opts.quiet && (ssPrune.removed > 0 || recPrune.removed > 0)) {
+      console.log(`[session-timeout] prune: session-state removed=${ssPrune.removed}, recovery removed=${recPrune.removed}`);
     }
   }
 
