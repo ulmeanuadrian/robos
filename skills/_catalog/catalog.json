@@ -214,6 +214,42 @@
       "description": "Scaneaza .env si MCP config, identifica conexiunile active si actualizeaza connections.md",
       "core": false,
       "status": "planned"
+    },
+    {
+      "name": "sys-capture-note",
+      "category": "sys",
+      "description": "Salveaza o nota atomica in second brain (markdown + SQLite FTS5). Trigger explicit din partea userului.",
+      "core": true
+    },
+    {
+      "name": "sys-recall",
+      "category": "sys",
+      "description": "Cauta in second brain (note + jurnale + audituri + learnings) prin FTS5 cu citatii la fisier:linie.",
+      "core": true
+    },
+    {
+      "name": "sys-switch-client",
+      "category": "sys",
+      "description": "Comuta workspace-ul activ intre root si un client. Toate skill-urile rezolva brand/, USER.md, learnings, memory, projects din clients/{slug}/ pana la urmatoarea comutare.",
+      "core": true
+    },
+    {
+      "name": "mode-shadow",
+      "category": "mode",
+      "description": "Shadow Mode din OM-AI Protocol. Comutator cognitiv: Claude NU rescrie, NU genereaza continut nou — listeaza inconsistente, presupuneri, lipsuri si intrebari.",
+      "core": true
+    },
+    {
+      "name": "mode-facilitator",
+      "category": "mode",
+      "description": "Facilitator Mode din OM-AI Protocol. In loc sa propun solutii, pun 3-5 intrebari structurate pentru a clarifica gandirea operatorului.",
+      "core": true
+    },
+    {
+      "name": "mode-anti-dependence",
+      "category": "mode",
+      "description": "Anti-Dependence Mode din OM-AI Protocol. Inainte sa propun solutii, intreb operatorul ce ar face el. Previne atrofia cognitiva.",
+      "core": true
     }
   ],
   "starterPacks": [

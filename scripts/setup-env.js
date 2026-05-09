@@ -73,8 +73,10 @@ function main() {
     summary.created = true;
     // continue — we still need to generate token and add skill secrets
   } else {
-    // Backup before any change
-    copyFileSync(ENV_PATH, ENV_BAK_PATH);
+    // Backup before any change. Explicit 0o600 mode (S1 fix) — copyFileSync
+    // inherits source permissions on POSIX (depends on how .env was created),
+    // explicit write+mode documents intent and is consistent.
+    writeFileSync(ENV_BAK_PATH, readFileSync(ENV_PATH), { mode: 0o600 });
   }
 
   let envParsed = parseEnvFile(ENV_PATH);

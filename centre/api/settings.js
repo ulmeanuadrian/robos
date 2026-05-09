@@ -200,8 +200,11 @@ export function setEnv(payload) {
     entry.value = u.value;
   }
 
-  // Backup current state, then atomic write
-  copyFileSync(ENV_PATH, ENV_BAK_PATH);
+  // Backup current state with explicit 0o600 mode (S1 fix).
+  // copyFileSync inherits source permissions on POSIX which depends on how .env
+  // was first created — explicit write+mode documents intent and gives consistent
+  // behavior. On Windows mode is ignored (ACL inheritance) but the call is harmless.
+  writeFileSync(ENV_BAK_PATH, readFileSync(ENV_PATH), { mode: 0o600 });
   const rendered = renderEnv(parsed.entries);
   // Preserve trailing newline if original had one
   const needsTrailingNewline = content.endsWith('\n') && !rendered.endsWith('\n');

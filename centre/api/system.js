@@ -273,9 +273,12 @@ async function pingApi(key, pingFn) {
  *  - spawn fara shell: true (argv passed direct, fara interpretare shell)
  */
 
-// Regex care respinge metacaractere shell periculoase. Acceptat: text obisnuit,
-// punctuatie standard, spatii, caractere romanesti, semne de intrebare/exclamare.
-const ARGS_FORBIDDEN_RE = /[`$;|&<>\\\n\r ]/;
+// Cu spawn shell:false, argv-ul e pasat direct la executabil — shell metacharacters
+// (backtick, $, ;, |, &, <, >, \) NU sunt interpretate. Singurele caractere care pot
+// corupe argv parsing-ul sunt null byte (\0), newlines (\n) si carriage return (\r).
+// Acceptat: text obisnuit, spatii, punctuatie, caractere romanesti, accente.
+// Bug-fix S3: regex anterior bloca spatii — input multi-cuvant returna 400.
+const ARGS_FORBIDDEN_RE = /[\0\n\r]/;
 
 export function runSkill(skillName, body = {}) {
   if (!/^[a-z0-9][a-z0-9-]*$/.test(skillName)) {
@@ -293,7 +296,7 @@ export function runSkill(skillName, body = {}) {
   if (body.args && typeof body.args === 'string') {
     args = body.args.trim();
     if (ARGS_FORBIDDEN_RE.test(args)) {
-      const err = new Error('args: contine caractere interzise (`, $, ;, |, &, <, >, \\, newlines, null)');
+      const err = new Error('args: contine caractere interzise (newlines sau null byte)');
       err.statusCode = 400;
       throw err;
     }

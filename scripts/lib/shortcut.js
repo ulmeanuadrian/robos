@@ -95,9 +95,9 @@ function escape(s) {
 function getPowerShellProfilePaths() {
   const paths = [];
   // PowerShell 5 (Windows PowerShell)
-  const docs = process.env.USERPROFILE
-    ? join(process.env.USERPROFILE, 'Documents')
-    : join(homedir(), 'Documents');
+  // Use os.homedir() for cross-platform safety. On Windows it returns the same
+  // value as %USERPROFILE% but works on Mac/Linux too (lint-portability rule).
+  const docs = join(homedir(), 'Documents');
   paths.push({
     label: 'Windows PowerShell 5',
     path: join(docs, 'WindowsPowerShell', 'Microsoft.PowerShell_profile.ps1'),
