@@ -1,5 +1,8 @@
 # Changelog
 
+> **Acest fisier e developer-facing** — detalii tehnice, file paths, line numbers.
+> Pentru rezumat in limba operatorului: vezi [WHATS-NEW.md](WHATS-NEW.md).
+
 ## [2.0.0] - 2026-05-09
 
 ### Multi-client REAL + Loop Detector + Bearer auth coverage + per-client memory/notes/audit

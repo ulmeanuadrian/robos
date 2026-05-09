@@ -23,6 +23,8 @@ Sistem de operare agentic pentru Claude Code. Da unui singur operator AI memorie
 12. [Troubleshooting](#troubleshooting)
 13. [Stack tehnic](#stack-tehnic)
 
+> **Ce e nou in versiunea curenta**, citeste **[WHATS-NEW.md](WHATS-NEW.md)** — schimbarile importante in limba operatorului (CHANGELOG-ul detaliat e developer-facing).
+>
 > **Pentru utilizare zilnica**, citeste **[docs/operator-handbook.md](docs/operator-handbook.md)** — cum se porneste/inchide o sesiune, cum functioneaza memoria si activity log, ce skill triggers exista, bune practici si troubleshooting.
 >
 > **Pentru pozitionare** (Claude singur vs Claude + robOS), citeste **[docs/claude-vs-robos.md](docs/claude-vs-robos.md)** — tabel ASCII comparativ cu ce face Claude din start si ce adauga robOS la fiecare capacitate.

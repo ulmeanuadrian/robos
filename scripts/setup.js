@@ -11,7 +11,11 @@
 //   6. Rebuild skills index
 //   7. Ensure context/ subfolders exist
 //   8. Seed decision-journal from template (if missing)
-//   9. Print "next steps"
+//   9. License bind (network call, ONCE — first run only). U7 fix: was at
+//      first-prompt time which blocked offline students; now front-loaded so
+//      future prompts work offline. Skipped with --skip-license-bind for
+//      emergencies (offline setup, dev tarball without stamp).
+//   10. Print "next steps"
 //
 // Non-goals: prompting for user name/business — that lives in sys-onboard
 // where Claude can do a proper interview instead of single-line readline.
@@ -19,7 +23,7 @@
 import { execSync, spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, copyFileSync, statSync, chmodSync } from 'node:fs';
 import { join, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { platform } from 'node:os';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -176,6 +180,50 @@ function seedDecisionJournal() {
   }
 }
 
+async function setupLicense(opts) {
+  if (opts.skipLicense) {
+    skip('License bind sarit (--skip-license-bind)');
+    return;
+  }
+  const checkScript = join(ROOT, 'scripts', 'license-check.js');
+  if (!existsSync(checkScript)) {
+    skip('license-check.js absent — sar peste bind');
+    return;
+  }
+  info('Verific + activez licenta (necesita internet la prima rulare)');
+  try {
+    // pathToFileURL: dynamic import on Windows requires file:// URL, not raw path.
+    const mod = await import(pathToFileURL(checkScript).href);
+    const result = await mod.checkLicense(ROOT);
+    if (result.ok) {
+      if (result.just_bound) {
+        ok('Licenta activata — bind hardware salvat. Run-urile urmatoare merg si offline.');
+      } else {
+        ok(`Licenta valida (${result.license_id || 'OK'})`);
+      }
+    } else {
+      console.error('');
+      console.error(c('31', '[FAIL]'), `License: ${result.message || result.code}`);
+      console.error('');
+      if (result.code === 'network_required') {
+        console.error('  → conecteaza la internet si reincearca: node scripts/setup.js');
+      } else if (result.code === 'no_license') {
+        console.error('  → aceasta arhiva nu contine .license-stamp. Daca esti dev/evaluator,');
+        console.error('    ruleaza: node scripts/setup.js --skip-license-bind');
+        console.error('    Daca esti customer, descarca tarball-ul din emailul de cumparare.');
+      } else if (result.action === 'contact_support') {
+        console.error('  → contact: adrian@robos.vip');
+      }
+      process.exit(1);
+    }
+  } catch (err) {
+    console.error('');
+    console.error(c('33', '[ATENTIE]'), 'License check a aruncat exceptie:', err.message);
+    console.error('  Continui setup-ul — hook-ul de licenta va incerca bind la primul prompt.');
+    console.error('  Pentru offline-only setup: rerun cu --skip-license-bind.');
+  }
+}
+
 function nextSteps() {
   console.log('');
   console.log(c('1', '==================================='));
@@ -191,14 +239,53 @@ function nextSteps() {
   console.log(c('1', '==================================='));
 }
 
+function parseArgs() {
+  const args = process.argv.slice(2);
+  return {
+    skipLicense: args.includes('--skip-license-bind'),
+    help: args.includes('--help') || args.includes('-h'),
+  };
+}
+
+function printHelp() {
+  console.log('robOS setup — cross-platform installer.');
+  console.log('');
+  console.log('Usage:');
+  console.log('  node scripts/setup.js                    # full setup');
+  console.log('  node scripts/setup.js --skip-license-bind  # offline / dev / evaluator');
+  console.log('  node scripts/setup.js --help');
+  console.log('');
+  console.log('Steps:');
+  console.log('  1. Node version check (>=22.12.0)');
+  console.log('  2. Claude Code CLI check');
+  console.log('  3. centre/ npm install + Astro build + DB init');
+  console.log('  4. Bootstrap .env from .env.example');
+  console.log('  5. Rebuild skills index');
+  console.log('  6. License bind (network — once)');
+}
+
 // Main
-header();
-checkNode();
-checkClaude();
-setupCentre();
-setupEnv();
-rebuildSkillsIndex();
-ensureDirs();
-ensureScriptsExecutable();
-seedDecisionJournal();
-nextSteps();
+async function main() {
+  const opts = parseArgs();
+  if (opts.help) {
+    printHelp();
+    return;
+  }
+  header();
+  checkNode();
+  checkClaude();
+  setupCentre();
+  setupEnv();
+  rebuildSkillsIndex();
+  ensureDirs();
+  ensureScriptsExecutable();
+  seedDecisionJournal();
+  await setupLicense(opts);
+  nextSteps();
+}
+
+main().catch((err) => {
+  console.error('');
+  console.error(c('31', '[FAIL]'), err.message);
+  process.exit(1);
+});

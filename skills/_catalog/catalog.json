@@ -272,6 +272,16 @@
       "name": "creator",
       "description": "Creatori de continut, YouTuberi, autori de newsletter",
       "files": ["voice.md", "audience.md", "positioning.md"]
+    },
+    {
+      "name": "smb",
+      "description": "SMB / business local (servicii, retail, trade) — owner-operator + echipa mica",
+      "files": ["voice.md", "audience.md", "positioning.md"]
+    },
+    {
+      "name": "b2b-saas",
+      "description": "B2B SaaS — produs software pentru echipe tehnice / developer-first",
+      "files": ["voice.md", "audience.md", "positioning.md"]
     }
   ]
 }

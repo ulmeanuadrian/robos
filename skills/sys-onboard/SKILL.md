@@ -29,7 +29,7 @@ context_loads:
   - connections.md (writes)
   - context/learnings.md (section sys-onboard)
 inputs:
-  - starter_pack (optional: consultant, agency, ecommerce, creator, other)
+  - starter_pack (optional: consultant, agency, ecommerce, creator, smb, b2b-saas, other)
 outputs:
   - Populated brand/ files
   - context/USER.md, context/priorities.md, connections.md
@@ -52,21 +52,26 @@ Daca user accepta re-run, continua. Altfel stop.
 ```
 Hai sa te configuram. Ce tip de munca faci?
 
-1. Consultant / Coach  — solo expert, vinzi cunostinte si servicii
-2. Agency              — echipa de 2-10 face client work
-3. E-commerce          — vinzi produse fizice / digitale online
-4. Creator             — content-first business (YouTube, newsletter, courses)
-5. Other               — descriu eu
+1. Consultant / Coach   — solo expert, vinzi cunostinte si servicii
+2. Agency               — echipa de 2-10 face client work
+3. E-commerce           — vinzi produse fizice / digitale online
+4. Creator              — content-first business (YouTube, newsletter, courses)
+5. SMB local            — service / retail / trade business cu echipa mica
+6. B2B SaaS             — produs software pentru echipe tehnice
+7. Other                — descriu eu
 ```
 
-**Optiunile 1-4:** Copy starter pack files din `skills/_catalog/starter-packs/{type}/` → `brand/`:
+**Optiunile 1-6:** Copy starter pack files din `skills/_catalog/starter-packs/{type}/` → `brand/`:
 - `voice.md` → `brand/voice.md`
 - `audience.md` → `brand/audience.md`
 - `positioning.md` → `brand/positioning.md`
 
+Mapping: 1→consultant, 2→agency, 3→ecommerce, 4→creator, 5→smb, 6→b2b-saas.
+
 Spune: "Loaded {type} starter pack into brand/. Personalizam acum."
 
-**Optiunea 5:** Intreaba "Descrie business-ul in 2-3 propozitii" si foloseste consultant pack ca template structural, dar continutul rescris dupa descriere.
+**Optiunea 7 (Other):** Intreaba "Descrie business-ul in 2-3 propozitii" + 1 intrebare diagnostica:
+"Cu cine vorbesti cel mai des: clienti finali (B2C), alte business-uri (B2B), sau o piata specifica?". Pe baza raspunsului alege starter pack-ul cel mai apropiat ca template structural, apoi rescrie continutul conform descrierii business-ului.
 
 ---
 
@@ -284,6 +289,8 @@ Pe baza starter pack + Q5, ruleaza un skill live:
 | agency | research-competitors | Trebuie sa stie market-ul |
 | ecommerce | content-copywriting | Trebuie product copy |
 | creator | content-repurpose | Are content de atomizat |
+| smb | brand-positioning | Trebuie diferentiator local clar |
+| b2b-saas | content-copywriting | Trebuie pagini docs/landing care convertesc dezvoltatori |
 | other | sys-goal-breakdown | Universal value |
 
 Spune: "Sa punem asta la treaba. Rulez {skill} cu contextul tau real."

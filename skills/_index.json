@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-09T15:09:14.767Z",
+  "generated_at": "2026-05-09T19:17:36.500Z",
   "count": 23,
   "by_category": {
     "brand": 3,
@@ -997,7 +997,7 @@
         "context/learnings.md (section sys-onboard)"
       ],
       "inputs": [
-        "starter_pack (optional: consultant, agency, ecommerce, creator, other)"
+        "starter_pack (optional: consultant, agency, ecommerce, creator, smb, b2b-saas, other)"
       ],
       "outputs": [
         "Populated brand/ files",
@@ -1009,7 +1009,7 @@
       "concurrency_pattern": "multi-asset-generation (soft-fail variant)",
       "secrets_required": [],
       "secrets_optional": [],
-      "last_modified": "2026-05-05T20:21:29.825Z"
+      "last_modified": "2026-05-09T19:15:35.361Z"
     },
     {
       "name": "sys-recall",
