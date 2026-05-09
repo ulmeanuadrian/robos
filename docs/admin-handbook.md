@@ -296,7 +296,7 @@ scripts\test-env\cleanup.cmd -Name test-001    # cleanup unul
 scripts\test-env\cleanup.cmd -All -Force       # cleanup tot
 ```
 
-Default: `ROBOS_DEV=1` skip license. Plus `-RealLicense` pentru bind real.
+Bind real obligatoriu. Test envs folosesc `~/.robos/license.jwt` al instalarii dev (sau `.license-stamp` proaspat copiat in test folder inainte de setup).
 
 ### `licensing/scripts/build-base-tarball.js`
 

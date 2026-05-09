@@ -1,6 +1,6 @@
 # scripts/test-env/list.ps1 — Listeaza medii de test active.
 #
-# Output: Name, Version, Port, Dashboard status, License mode
+# Output: Name, Version, Port, Dashboard status
 
 [CmdletBinding()]
 param(
@@ -21,8 +21,8 @@ if (-not $tests) {
 }
 
 Write-Host ""
-Write-Host ("{0,-20} {1,-8} {2,-6} {3,-12} {4}" -f 'Name', 'Version', 'Port', 'Dashboard', 'License') -ForegroundColor Yellow
-Write-Host ("-" * 65)
+Write-Host ("{0,-20} {1,-8} {2,-6} {3}" -f 'Name', 'Version', 'Port', 'Dashboard') -ForegroundColor Yellow
+Write-Host ("-" * 55)
 
 foreach ($test in $tests) {
     $robosDir = Join-Path $test.FullName 'robOS'
@@ -32,14 +32,12 @@ foreach ($test in $tests) {
     $versionFile = Join-Path $robosDir 'VERSION'
     $version = if (Test-Path $versionFile) { (Get-Content $versionFile -Raw).Trim() } else { '?' }
 
-    # Port + license from .env
+    # Port from .env
     $envFile = Join-Path $robosDir '.env'
     $port = '?'
-    $licenseMode = 'real'
     if (Test-Path $envFile) {
         $portLine = Get-Content $envFile | Where-Object { $_ -match '^PORT\s*=\s*(\d+)' }
         if ($portLine) { $port = ($portLine -replace '^PORT\s*=\s*','').Trim() }
-        if (Get-Content $envFile | Where-Object { $_ -match '^ROBOS_DEV\s*=\s*1' }) { $licenseMode = 'dev' }
     }
 
     # Dashboard status
@@ -55,6 +53,6 @@ foreach ($test in $tests) {
         }
     }
 
-    Write-Host ("{0,-20} {1,-8} {2,-6} {3,-12} {4}" -f $test.Name, "v$version", $port, $status, $licenseMode)
+    Write-Host ("{0,-20} {1,-8} {2,-6} {3}" -f $test.Name, "v$version", $port, $status)
 }
 Write-Host ""

@@ -2,21 +2,20 @@
 #
 # Locatie default: %USERPROFILE%\robos-tests\active\test-NNN\robOS\
 # Port: auto-incrementat (3002, 3003, ...) — niciodata 3001 (rezervat dev install)
-# Licensing: default ROBOS_DEV=1 (skip bind). Foloseste -RealLicense pentru bind real.
+# Licensing: bind real cu ~/.robos/license.jwt al instalarii dev.
+#   Pentru test cu licenta proaspata: copiaza .license-stamp generat in test-folder/robOS/ INAINTE de setup.
 # Sursa: cea mai recenta tarball din C:\claude_os\robos\licensing\build\robos-base-v*.tar.gz
 #
 # Usage:
-#   .\scripts\test-env\new.ps1                    # auto name, auto port, dev mode
+#   .\scripts\test-env\new.ps1                    # auto name, auto port
 #   .\scripts\test-env\new.ps1 -Name "v0.5.0-uat" # custom name
 #   .\scripts\test-env\new.ps1 -Port 3010         # custom port
-#   .\scripts\test-env\new.ps1 -RealLicense       # bind real (atentie ~/.robos/license.jwt)
 #   .\scripts\test-env\new.ps1 -Source path       # custom tarball
 
 [CmdletBinding()]
 param(
     [string]$Name,
     [int]$Port = 0,
-    [switch]$RealLicense,
     [string]$Source,
     [string]$TestRoot = (Join-Path $env:USERPROFILE 'robos-tests')
 )
@@ -80,7 +79,7 @@ if (Test-Path $testDir) {
 Write-Info "Creez mediu test: $testDir"
 Write-Info "Sursa tarball: $(Split-Path -Leaf $Source)"
 Write-Info "Port: $Port"
-Write-Info "Mod licenta: $(if ($RealLicense) { 'REAL (bind)' } else { 'DEV (skip)' })"
+Write-Info "Mod licenta: REAL bind (foloseste ~/.robos/license.jwt sau .license-stamp daca-l copiezi inainte de setup)"
 Write-Host ""
 
 New-Item -ItemType Directory -Path $testDir -Force | Out-Null
@@ -104,9 +103,6 @@ $envExample = Join-Path $robosDir '.env.example'
 $envFile = Join-Path $robosDir '.env'
 $content = Get-Content $envExample -Raw
 $content = $content -replace 'PORT=3001', "PORT=$Port"
-if (-not $RealLicense) {
-    $content += "`n# Test environment — skip license bind`nROBOS_DEV=1`n"
-}
 [System.IO.File]::WriteAllText($envFile, $content)
 
 # Build summary

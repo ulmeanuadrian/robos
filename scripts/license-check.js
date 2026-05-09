@@ -234,35 +234,10 @@ async function backgroundRefresh(currentJwt) {
 }
 
 // ----------------------------------------------------------------------------
-// Dev mode detection — read .env, look for ROBOS_DEV=1.
-// Vendor dev escape; not documented in customer .env.example.
-// ----------------------------------------------------------------------------
-
-function isDevMode(rootDir) {
-  if (process.env.ROBOS_DEV === '1') return true;
-  try {
-    const envPath = join(rootDir, '.env');
-    if (!existsSync(envPath)) return false;
-    const lines = readFileSync(envPath, 'utf-8').split('\n');
-    for (const line of lines) {
-      const m = line.trim().match(/^ROBOS_DEV\s*=\s*(.*)$/);
-      if (m) return m[1].replace(/^["']|["']$/g, '').trim() === '1';
-    }
-    return false;
-  } catch {
-    return false;
-  }
-}
-
-// ----------------------------------------------------------------------------
 // Main entry
 // ----------------------------------------------------------------------------
 
 export async function checkLicense(rootDir) {
-  if (isDevMode(rootDir)) {
-    return { ok: true, license_id: 'dev', expires_at: 0, dev: true };
-  }
-
   // 1. Try existing JWT
   if (existsSync(LICENSE_PATH)) {
     let jwt;

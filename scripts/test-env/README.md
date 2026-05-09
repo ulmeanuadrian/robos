@@ -14,8 +14,8 @@ Vrei sa:
 ```
 %USERPROFILE%\robos-tests\
   active\
-    test-001\robOS\        ← v0.5.0, port 3002, dev mode
-    test-002\robOS\        ← v0.5.0, port 3003, dev mode
+    test-001\robOS\        ← v0.5.0, port 3002
+    test-002\robOS\        ← v0.5.0, port 3003
     v0.5.0-uat\robOS\      ← named test
 ```
 
@@ -36,7 +36,6 @@ Configurabil cu `-TestRoot <path>` pe orice script.
 |---|---|---|
 | `-Name <str>` | `test-NNN` auto-incrementat | Nume custom (ex: `v0.5.0-uat`) |
 | `-Port <int>` | `3001 + N` (deci 3002, 3003...) | Port custom |
-| `-RealLicense` | absent (= ROBOS_DEV=1) | NU adauga ROBOS_DEV → bind real (atentie ~/.robos/license.jwt) |
 | `-Source <path>` | cea mai recenta din `licensing\build\` | Tarball custom |
 | `-TestRoot <path>` | `%USERPROFILE%\robos-tests` | Locatie custom container |
 
@@ -65,17 +64,15 @@ claude
 .\scripts\test-env\cleanup.ps1 -Name test-001
 ```
 
-## Modul DEV (default) vs REAL
+## Licensing — bind real obligatoriu
 
-**Default**: `.env` are `ROBOS_DEV=1` → hook-ul de licenta intoarce `ok=true` fara verificare. Niciun bind, niciun network call. Sigur — `~/.robos/license.jwt` (al instalarii dev) NU e atins.
+Test envs fac bind real (nu mai exista mecanism de skip). Hook-ul citeste `~/.robos/license.jwt`. Pe acelasi laptop e jwt-ul instalarii dev → test-ul **foloseste licenta dev**.
 
-**`-RealLicense`**: ROBOS_DEV NU e adaugat. Hook-ul citeste `~/.robos/license.jwt`. Pe acelasi laptop e jwt-ul instalarii dev → test-ul **foloseste licenta dev**. Daca vrei sa testezi un bind nou cu o licenta proaspata, trebuie:
+Daca vrei sa testezi un bind nou cu o licenta proaspata:
 1. Genereaza licenta noua prin `https://admin.robos.vip/`
-2. Inlocuieste `.license-stamp` din test cu seed JWT-ul nou (descarcat de la `dl.robos.vip/{token}`)
-3. Backup `~/.robos/license.jwt` → ceva tip `.dev-backup` (script-ul nostru NU face asta automat — manual)
+2. Copiaza seed JWT-ul nou (descarcat de la `dl.robos.vip/{token}`) ca `.license-stamp` in `test-NNN/robOS/` INAINTE de setup
+3. Backup `~/.robos/license.jwt` → ceva tip `.dev-backup` (script-ul NU face asta automat — manual)
 4. Restaureaza dupa test
-
-Use-case rar. 95% din timp `-RealLicense` e gresit pentru testare iterativa — foloseste default.
 
 ## Edge cases
 

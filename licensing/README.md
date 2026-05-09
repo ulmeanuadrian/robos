@@ -131,4 +131,4 @@ Ruleaza la fiecare prompt din hook-ul `UserPromptSubmit`. Validare offline cu ch
 - Refresh (la 60d din 90d)
 - Hardware change (rebind)
 
-Dev mode: setezi `ROBOS_DEV=1` in `.env` → hook-ul intoarce `ok=true` fara verificare. Doar pentru autorul robOS, nu documentat in `.env.example` DISTRIBUTION.
+Niciun bypass / dev escape. Pentru testare locala genereaza o licenta proaspata via `https://admin.robos.vip/` si foloseste seed JWT-ul ca `.license-stamp`.
