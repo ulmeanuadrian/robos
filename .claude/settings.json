@@ -37,6 +37,17 @@
           }
         ]
       }
+    ],
+    "PostToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/scripts/hook-post-tool.js\"",
+            "timeout": 3
+          }
+        ]
+      }
     ]
   },
   "_note": "robOS project-level hooks. Merged with user's global settings.json. Hooks here enforce session lifecycle and skill routing — see scripts/hook-user-prompt.js."

@@ -11,6 +11,7 @@ robOS impune comportament prin **hooks** Claude Code (configurate in `.claude/se
 | Hook | Script | Rol |
 |------|--------|-----|
 | `UserPromptSubmit` | [scripts/hook-user-prompt.js](scripts/hook-user-prompt.js) | (a) la primul prompt al sesiunii: injecteaza STARTUP CONTEXT (memorie azi, recovery flags, open threads, instructiuni-prioritare); (b) la fiecare prompt: ruleaza skill-route.js si injecteaza SKILL ROUTER hint daca matcheaza un trigger. |
+| `PostToolUse` | [scripts/hook-post-tool.js](scripts/hook-post-tool.js) | Loop detector: hash-uieste fiecare tool call (tool_name + canonical input). N apeluri identice consecutive (default 3) → injecteaza `[LOOP DETECTOR]` warning in context. Al doilea warning escalat la 2N calls. State per-session in `data/session-state/{sid}-tools.json`. Exempt default: TodoWrite. |
 | `Stop` (1) | [scripts/checkpoint-reminder.js](scripts/checkpoint-reminder.js) | Ridica reminder cand memoria zilei nu a primit scriere recent. Escalation in 3 trepte; al 3-lea unheeded blocheaza Stop pana cand operatorul scrie memoria. |
 | `Stop` (2) | [scripts/activity-capture.js](scripts/activity-capture.js) | Captureaza turn-ul curent in `data/activity-log.ndjson` (rotation 500 entries). Bridge cross-session — urmatorul prompt vede ce s-a intamplat ieri/saptamana trecuta. |
 
