@@ -302,10 +302,37 @@ async function main() {
     process.exit(0);
   }
 
-  // Validate JWT exists
-  const jwt = readJwt();
+  // Validate JWT exists. U26 fix: previously hard-failed if missing. Now,
+  // attempt a fresh first-run bind (license-check.js → tryFirstRunBind) so
+  // student on a new laptop can update without manual robos.js bind step.
+  let jwt = readJwt();
   if (!jwt) {
-    fail(`Nu gasesc ${join(homedir(), '.robos', 'license.jwt')}.\nLicenta nu e activata pe acest device. Ruleaza Claude Code o data ca sa faci bind, apoi re-incearca.`);
+    info(`License JWT lipseste — incerc bind initial pentru acest device...`);
+    try {
+      const checkScript = join(ROOT, 'scripts', 'license-check.js');
+      if (existsSync(checkScript)) {
+        const { pathToFileURL } = await import('node:url');
+        const mod = await import(pathToFileURL(checkScript).href);
+        const result = await mod.checkLicense(ROOT);
+        if (result.ok) {
+          jwt = readJwt();
+          if (jwt) {
+            ok(`License bind reusit — ${result.license_id}. Continui update-ul.`);
+          }
+        }
+      }
+    } catch (err) {
+      // fall through to fail message
+    }
+    if (!jwt) {
+      fail(
+        `Nu gasesc ${join(homedir(), '.robos', 'license.jwt')}.\n` +
+        `Licenta nu e activata pe acest device. Optiuni:\n` +
+        `  1. Ruleaza Claude Code in directorul robOS o data — face bind automat.\n` +
+        `  2. Daca .license-stamp lipseste, descarca tarball-ul proaspat din emailul de cumparare.\n` +
+        `  3. Pentru evaluare/dev fara licenta: re-instaleaza din git clone (skip update flow).`
+      );
+    }
   }
 
   // Validate system tar available

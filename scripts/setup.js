@@ -243,14 +243,18 @@ async function setupLicense(opts) {
 }
 
 function nextSteps() {
-  console.log('');
-  console.log(c('1', '==================================='));
-  console.log(c('1', ' robOS e gata.'));
+  // U21 fix: print blank lines + bordered banner so success is unmissable
+  // even when npm install scrolled the success message off-screen.
+  for (let i = 0; i < 3; i++) console.log('');
+  const border = '='.repeat(60);
+  console.log(c('1', border));
+  console.log(c('32', '  [OK] robOS SETUP COMPLET'));
+  console.log(c('1', border));
   console.log('');
   console.log(' Pasi urmatori:');
   console.log('   1. Deschide ' + c('36', 'claude') + ' in acest director (sau VS Code cu extensia Claude Code)');
   console.log('   2. Scrie: ' + c('36', 'onboard me'));
-  console.log('   3. Raspunzi la 5 intrebari (~15 min) si robOS e configurat.');
+  console.log('   3. Raspunzi la 5 intrebari (~15-25 min) si robOS e configurat.');
   console.log('');
   console.log(' Optional: editeaza .env pentru a adauga chei API (Firecrawl, OpenAI, etc.).');
   console.log(' Optional: porneste dashboard-ul cu ' + c('36', 'npm start --prefix centre'));

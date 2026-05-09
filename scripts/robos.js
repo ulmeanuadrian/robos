@@ -8,6 +8,9 @@
 //   node scripts/robos.js --clean      # rebuild centre/dist from scratch
 //   node scripts/robos.js --stop       # stop running dashboard
 //   node scripts/robos.js --status     # print status (alive/dead, pid, port)
+//   node scripts/robos.js --doctor     # diagnose hooks + lint + smoke (U22)
+//   node scripts/robos.js --triggers <kw>  # search skill triggers (U29)
+//   node scripts/robos.js --reset-onboarding  # backup brand/+context, restore templates (U25)
 //
 // Compatibility with scripts/start.sh:
 //   Both use the same PID file (.command-centre/server.pid) and read PORT from
@@ -43,7 +46,8 @@ const info = (m) => console.log(c('36', '[..]'), m);
 const warn = (m) => console.log(c('33', '[!!]'), m);
 const fail = (m) => { console.error(c('31', '[FAIL]'), m); process.exit(1); };
 
-const args = new Set(process.argv.slice(2));
+const argv = process.argv.slice(2);
+const args = new Set(argv);
 const FLAGS = {
   setupOnly: args.has('--setup-only'),
   noBrowser: args.has('--no-browser'),
@@ -52,7 +56,16 @@ const FLAGS = {
   status: args.has('--status'),
   installShortcut: args.has('--install-shortcut'),
   uninstallShortcut: args.has('--uninstall-shortcut'),
+  doctor: args.has('--doctor'),
+  triggers: args.has('--triggers'),
+  resetOnboarding: args.has('--reset-onboarding'),
 };
+
+function getFlagValue(name) {
+  const idx = argv.indexOf(name);
+  if (idx < 0 || idx + 1 >= argv.length) return null;
+  return argv[idx + 1];
+}
 
 // ----------------------------------------------------------------------------
 // .env loader (minimal — just for PORT)
@@ -155,6 +168,197 @@ function commandStop() {
     ok('Dashboard oprit');
   } catch (e) {
     fail(`Nu pot opri PID ${pid}: ${e.message}`);
+  }
+  process.exit(0);
+}
+
+async function commandResetOnboarding() {
+  // U25 fix: previously, redoing onboarding required manual deletion of brand/
+  // files. Now: backup current brand + USER.md + priorities.md to
+  // .archive/onboarding-backup/{ts}/, then exit so user can re-run "onboard me".
+  const ts = new Date().toISOString().replace(/[:.]/g, '-');
+  const backupDir = join(ROOT, '.archive', 'onboarding-backup', ts);
+  mkdirSync(backupDir, { recursive: true });
+
+  const targets = [
+    'brand/voice.md',
+    'brand/audience.md',
+    'brand/positioning.md',
+    'brand/samples.md',
+    'context/USER.md',
+    'context/priorities.md',
+    'connections.md',
+  ];
+
+  let copied = 0;
+  for (const rel of targets) {
+    const src = join(ROOT, rel);
+    if (!existsSync(src)) continue;
+    const dst = join(backupDir, rel);
+    mkdirSync(dirname(dst), { recursive: true });
+    try {
+      writeFileSync(dst, readFileSync(src));
+      // Reset to template stub (preserve file existence with minimal content)
+      const stub = `# ${rel.split('/').pop().replace(/\.md$/, '').replace(/^./, ch => ch.toUpperCase())}\n\n<!-- Reset by --reset-onboarding ${ts}. Re-run "onboard me" to populate. -->\n`;
+      writeFileSync(src, stub);
+      copied++;
+    } catch (err) {
+      warn(`Skip ${rel}: ${err.message}`);
+    }
+  }
+
+  if (copied === 0) {
+    info('Nimic de resetat — niciun fisier brand/context populat.');
+    process.exit(0);
+  }
+
+  ok(`Onboarding resetat. ${copied} fisier(e) backed-up + restored la stub:`);
+  console.log(`  Backup: ${backupDir}`);
+  console.log('');
+  console.log('Pas urmator: deschide ' + c('36', 'claude') + ' si scrie ' + c('36', 'onboard me'));
+  console.log('Pentru rollback: copiaza fisierele din backup inapoi peste cele actuale.');
+  process.exit(0);
+}
+
+async function commandDoctor() {
+  console.log(c('1', 'robOS doctor — health diagnostic'));
+  console.log('');
+
+  let issues = 0;
+  const check = (label, ok, hint) => {
+    const tag = ok ? c('32', '[OK]  ') : c('31', '[FAIL]');
+    console.log(`  ${tag} ${label}`);
+    if (!ok && hint) console.log(`        ${c('90', '→ ' + hint)}`);
+    if (!ok) issues++;
+  };
+
+  // 1. Required files
+  check('VERSION file', existsSync(join(ROOT, 'VERSION')));
+  check('.env file', existsSync(join(ROOT, '.env')), 'Run: node scripts/setup-env.js');
+  check('skills/_index.json', existsSync(join(ROOT, 'skills', '_index.json')),
+    'Run: node scripts/rebuild-index.js');
+  check('data/robos.db', existsSync(join(ROOT, 'data', 'robos.db')),
+    'Run: node scripts/setup.js');
+  check('.claude/settings.json', existsSync(join(ROOT, '.claude', 'settings.json')),
+    'Hooks not wired — re-run setup');
+
+  // 2. Hook scripts exist
+  const hookScripts = [
+    'hook-user-prompt.js',
+    'hook-post-tool.js',
+    'checkpoint-reminder.js',
+    'activity-capture.js',
+    'note-candidates.js',
+  ];
+  for (const h of hookScripts) {
+    check(`scripts/${h}`, existsSync(join(ROOT, 'scripts', h)));
+  }
+
+  // 3. Recent hook errors
+  const errSink = join(ROOT, 'data', 'hook-errors.ndjson');
+  if (existsSync(errSink)) {
+    try {
+      const lines = readFileSync(errSink, 'utf-8').trim().split('\n').filter(Boolean);
+      if (lines.length > 0) {
+        const recent = lines.slice(-3).map(l => {
+          try { return JSON.parse(l); } catch { return null; }
+        }).filter(Boolean);
+        console.log('');
+        console.log(c('33', `  [WARN]`), `${lines.length} hook errors total. Recent (last 3):`);
+        for (const e of recent) {
+          console.log(c('90', `    - ${e.ts} ${e.source || '?'}: ${(e.message || '').slice(0, 80)}`));
+        }
+      } else {
+        check('hook-errors.ndjson clean', true);
+      }
+    } catch { /* skip */ }
+  } else {
+    check('hook-errors.ndjson absent (no errors recorded)', true);
+  }
+
+  // 4. Smoke quick run (smoke-all)
+  console.log('');
+  console.log(c('1', 'Smoke tests:'));
+  const smokeAll = join(ROOT, 'scripts', 'smoke-all.js');
+  if (existsSync(smokeAll)) {
+    try {
+      const result = execSync(`node "${smokeAll}" --quick`, { cwd: ROOT, stdio: 'pipe', encoding: 'utf-8' });
+      const lastLine = result.trim().split('\n').filter(l => l.includes('green')).pop();
+      if (lastLine) console.log('  ' + lastLine);
+      else console.log('  (smoke output empty)');
+    } catch (e) {
+      console.log(c('31', '  [FAIL]'), 'smoke-all failed. See above.');
+      issues++;
+    }
+  } else {
+    check('scripts/smoke-all.js', false, 'Smoke runner missing');
+  }
+
+  // 5. Lint portability
+  const lintPort = join(ROOT, 'scripts', 'lint-portability.js');
+  if (existsSync(lintPort)) {
+    try {
+      const result = execSync(`node "${lintPort}"`, { cwd: ROOT, stdio: 'pipe', encoding: 'utf-8' });
+      const blockMatch = result.match(/BLOCK:\s+(\d+)/);
+      const warnMatch = result.match(/WARN:\s+(\d+)/);
+      const blocks = blockMatch ? parseInt(blockMatch[1], 10) : -1;
+      const warns = warnMatch ? parseInt(warnMatch[1], 10) : -1;
+      check(`lint-portability (${blocks} BLOCK, ${warns} WARN)`, blocks === 0,
+        blocks > 0 ? 'Cross-platform issues detected — see lint output' : null);
+    } catch {
+      console.log(c('33', '  [WARN]'), 'lint-portability returned non-zero (BLOCK present)');
+      issues++;
+    }
+  }
+
+  console.log('');
+  if (issues === 0) {
+    console.log(c('32', `[OK] Toate verificarile au trecut. robOS e sanatos.`));
+  } else {
+    console.log(c('31', `[FAIL] ${issues} probleme detectate. Vezi sugestiile de mai sus.`));
+  }
+  process.exit(issues === 0 ? 0 : 1);
+}
+
+function commandTriggers() {
+  const keyword = getFlagValue('--triggers');
+  const indexPath = join(ROOT, 'skills', '_index.json');
+  if (!existsSync(indexPath)) {
+    fail('skills/_index.json missing — run: node scripts/rebuild-index.js');
+  }
+  let index;
+  try { index = JSON.parse(readFileSync(indexPath, 'utf-8')); }
+  catch (e) { fail(`Cannot parse _index.json: ${e.message}`); }
+
+  const triggers = index.triggers || {};
+  const allTriggers = Object.keys(triggers).sort();
+
+  let filtered = allTriggers;
+  if (keyword && keyword.trim()) {
+    const kw = keyword.toLowerCase();
+    filtered = allTriggers.filter(t => t.toLowerCase().includes(kw) || (triggers[t] || '').toLowerCase().includes(kw));
+  }
+
+  if (filtered.length === 0) {
+    console.log(`Niciun trigger gasit pentru: "${keyword}"`);
+    process.exit(0);
+  }
+
+  console.log(c('1', `${filtered.length} trigger(s)${keyword ? ` matching "${keyword}"` : ''}:`));
+  console.log('');
+
+  // Group by skill
+  const bySkill = {};
+  for (const t of filtered) {
+    const skill = triggers[t];
+    if (!bySkill[skill]) bySkill[skill] = [];
+    bySkill[skill].push(t);
+  }
+
+  for (const skill of Object.keys(bySkill).sort()) {
+    console.log(c('36', `  [${skill}]`));
+    for (const t of bySkill[skill]) console.log(`    "${t}"`);
+    console.log('');
   }
   process.exit(0);
 }
@@ -271,6 +475,9 @@ async function main() {
   if (FLAGS.uninstallShortcut) await commandUninstallShortcut();
   if (FLAGS.stop) commandStop();
   if (FLAGS.status) await commandStatus();
+  if (FLAGS.doctor) await commandDoctor();
+  if (FLAGS.triggers) commandTriggers();
+  if (FLAGS.resetOnboarding) await commandResetOnboarding();
 
   const port = resolvePort();
   const url = `http://localhost:${port}`;
