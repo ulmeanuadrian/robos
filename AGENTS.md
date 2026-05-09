@@ -52,6 +52,63 @@ La startul sesiunii, compara ce e pe disk (`skills/*/`) cu catalogul (`skills/_c
 
 ---
 
+## Multi-client routing (active-client mechanism)
+
+**Sursa de adevar:** fisier unic `data/active-client.json`. Cand exista si pointeaza la un slug valid (folder existent in `clients/{slug}/`), toate skill-urile rezolva path-urile relative din `clients/{slug}/` in loc de root.
+
+**Scope per client** (route la `clients/{slug}/`):
+- `brand/*` (voice, audience, positioning, samples)
+- `context/USER.md`, `context/learnings.md`, `context/memory/`
+- `projects/` (output skill-uri)
+
+**Global (raman in root mereu):**
+- `context/SOUL.md` (personalitatea Claude e globala)
+- `skills/` (catalogul de skills e instalat o data)
+- `data/*` (DB, telemetry, activity log — cross-client visibility e utila)
+
+### API si CLI
+
+- **Lib:** [scripts/lib/client-context.js](scripts/lib/client-context.js) — `getActiveClient()`, `setActiveClient(slug)`, `clearActiveClient()`, `listClients()`, `resolveContextPath(rel)`, `getMemoryDir()`, `getBrandDir()`, `getProjectsDir()`. Toti consumerii (hooks, daemon cron, dashboard, smoke tests) MUST import de aici, niciodata sa parseze JSON-ul direct.
+- **CLI:** `node scripts/active-client.js [status|list|set <slug>|clear|json]` — wrap-er pentru lib, friendly Romanian output.
+- **Skill:** `sys-switch-client` — trigger-uri "schimba clientul", "trec pe clientul X", "use client X", "client root", "ce client am activ", "list clients".
+
+### Enforcement runtime
+
+Hook-ul `UserPromptSubmit` ([scripts/hook-user-prompt.js](scripts/hook-user-prompt.js)) face DOUA lucruri legate de multi-client:
+
+1. **Banner in startup bundle** (primul prompt): `Workspace activ: client "{slug}"` cu lista de path-uri redirectate.
+2. **Directiva ACTIVE CLIENT pe FIECARE prompt** cand un client e activ — re-instructeaza skill-urile sa rezolve din `clients/{slug}/` chiar si dupa context compaction. Cost ~40 tokens/prompt, neglijabil.
+
+`checkpoint-reminder.js` rezolva `getMemoryDir()` la fel — al treilea reminder unheeded scrie path-ul corect (root sau client) in mesajul de block.
+
+### Self-healing
+
+Daca state-ul pointeaza la un client care a disparut de pe disk (folder sters manual), `getActiveClient()` detecteaza, sterge state-ul, intoarce null. Sistemul revine la root fara crash si fara warning blocant — log-ul (`data/hook-errors.ndjson` daca e cazul) inregistreaza incidentul.
+
+### Skills care scriu vs citesc per-client
+
+- **Skills care SCRIU brand/context** (brand-voice, brand-audience, brand-positioning, sys-onboard) — scriu in `clients/{slug}/brand/` cand directiva e activa. La onboarding pe client nou: `bash scripts/add-client.sh acme-corp` → `node scripts/active-client.js set acme-corp` → `onboard me`.
+- **Skills care CITESC brand** (toate content-*, research-*, sys-audit) — citesc din `clients/{slug}/brand/` automat via directiva.
+- **Skills care lucreaza global** (sys-skill-builder, sys-recall pentru cautare cross-client) — ignora directiva, lucreaza pe `skills/` sau `data/robos.db`.
+
+### Limite cunoscute (v0.5.x)
+
+- `sys-recall` cauta in DB-ul global, nu filtreaza per client. Daca ai notite de la 3 clienti, search-ul le returneaza pe toate. v2 candidate.
+- `audit-startup` cron job (08:00) auditeaza memoria root, nu memoria per-client. v2 va loop-a peste toate `clients/*/context/memory/`.
+- `data/skill-telemetry.ndjson` nu eticheteaza linia cu clientul activ in v0.5.x. v2 candidate.
+
+### Smoke test
+
+[scripts/smoke-multiclient.js](scripts/smoke-multiclient.js) ruleaza 45 assertii peste lib + CLI + edge cases (slug invalid, client lipsa, self-healing). Ruleaza ori de cate ori atingi `client-context.js` sau hook-urile.
+
+```bash
+node scripts/smoke-multiclient.js
+```
+
+Exit 0 = green; exit 1 = revizii necesare. CI-ready.
+
+---
+
 ## Categorii de skills
 
 | Prefix     | Scop                                               |

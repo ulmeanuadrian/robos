@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { apiFetch } from '../lib/api-client';
+
   type AuditEntry = {
     audit_at?: string;
     detected_at?: string;
@@ -113,7 +115,7 @@
     memorySaving = true;
     memoryMessage = '';
     try {
-      const res = await fetch(`/api/system/memory/${selectedDate}`, {
+      const res = await apiFetch(`/api/system/memory/${selectedDate}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content: memoryContent }),

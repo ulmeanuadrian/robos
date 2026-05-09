@@ -1,5 +1,67 @@
 # Changelog
 
+## [0.6.0] - 2026-05-09
+
+### Multi-client REAL + Bearer auth coverage + per-client memory/notes/audit
+
+Audit profund peste tot codul (30+ fisiere citite linie cu linie) a relevat ca multi-client era marketing, nu produs: scaffold-ul de creare exista (`add-client.sh`) dar runtime-ul nu il folosea — niciun skill, hook sau dashboard nu comuta workspace-ul activ. Aceasta versiune transforma multi-client intr-un mecanism real, end-to-end, cu enforcement la fiecare prompt + persistenta cross-sesiune + smoke test 45/45.
+
+**Multi-client real (skill + lib + CLI + hook + dashboard):**
+
+- **`scripts/lib/client-context.js`** nou — single source of truth pentru clientul activ. State in `data/active-client.json`, atomic write, self-healing pe folder lipsa, API: `getActiveClient`, `setActiveClient`, `clearActiveClient`, `listClients`, `resolveContextPath`, `getMemoryDir`/`getBrandDir`/`getProjectsDir`.
+- **`scripts/active-client.js`** nou — CLI Romanian: `status` / `list` / `set <slug>` / `clear` / `json`.
+- **`skills/sys-switch-client/`** nou — skill cu 22 trigger-uri RO+EN ("schimba clientul", "trec pe clientul X", "use client X", "client root", "ce client am activ", "list clients").
+- **`scripts/hook-user-prompt.js`** — la primul prompt: banner `Workspace activ: client "X"` cu lista path-urilor redirectate. La FIECARE prompt cand client activ: directiva `[ACTIVE CLIENT: X]` injectata in context (~40 tokens, supravietuieste compactarii). Memory dir resolvat per active client. Surface zilnic `data/startup-audit.log` cand verdict `ABANDONED_FOUND`.
+- **`scripts/checkpoint-reminder.js`** — memory dir resolvat per active client; mesaj de block (al 3-lea reminder) referentiaza path-ul corect (`clients/{slug}/context/memory/...` sau root).
+- **`centre/api/clients.js`** — refacut sa wrap-uiasca `client-context.js` (era duplicat, citea `_metadata.json` care nu exista). `GET /api/clients` returneaza `active`/`has_brand`/`has_memory`/`name` din USER.md. Endpoint-uri noi: `GET /api/clients/active`, `PUT /api/clients/active`.
+- **`centre/src/islands/ClientSwitcher.svelte`** — dropdown DEAD UI inlocuit cu real switch via `apiFetch` PUT, busy state, error handling, fetch active state, dispatch event `client-change` cu detaliu real.
+- **`scripts/smoke-multiclient.js`** nou — 45 assertii end-to-end (validation slug, set/clear, path routing, CLI integration, self-healing).
+
+**Per-client scope expandat la cron + audit + notes:**
+
+- **`scripts/audit-startup.js`** — loop peste root + toate `clients/*/context/memory/`. Per-scope tracking, `entry.scopes[]` nou, `flatAbandoned` cu tag scope. Cron de 8 dimineata raporteaza acum corect sesiunile abandonate per fiecare client.
+- **`centre/migrations/005_notes_client.sql`** nou — coloana `notes.client_slug` + index. Backwards-compatible (existing notes raman NULL = root).
+- **`scripts/notes-index.js`** — `deriveClientSlug()` din path + walk peste `clients/*` pentru notes/memory/audits/learnings per fiecare client.
+- **`scripts/notes-search.js`** — defaults la activeClient, filter explicit cu `--client SLUG` / `--root` / `--all-clients`. Fara mai mult context bleed intre clienti.
+- **`scripts/parallel-budget.js`** — `logTelemetry({client})` citeste `data/active-client.json` automat. CLI accepta `[client]` arg. Analytics `/api/analytics/costs` returneaza acum cost real per client si pentru sesiunile live (nu doar cron).
+- **`centre/api/system.js`** — memory APIs (`listMemory`, `getMemoryFile`, `saveMemoryFile`) si `getLearnings` route per active client via `getMemoryDir()` + `resolveContextPath()`. Dashboard tab Memorie/Learnings urmeaza activeClient.
+
+**Bearer auth coverage Phase B (CSRF mitigation):**
+
+- **`centre/server.js`** — `AUTH_REQUIRED` extins cu 8 patterns noi. Pana acum doar settings + skill/run erau gated; tasks/cron/memory mutations erau deschise la CSRF (browser malicios pe localhost putea sterge task-uri, schimba cron jobs, scrie memorie).
+- Acum gated: `POST/PATCH/DELETE /api/tasks`, `POST/PATCH/DELETE /api/cron`, `POST /api/cron/.../run`, `PUT /api/system/memory/:date`, `PUT /api/clients/active`.
+- Read-only informational endpoints (memory list, audit-history, activity, connections-health, skills list, dashboard summary) raman deschise.
+- **3 islands convertite la `apiFetch`**: `TaskPanel.svelte`, `CronDashboard.svelte`, `SystemPanel.svelte`. Bearer token automat din `centre/src/lib/api-client.ts`.
+
+**Doc fixes (referinte rupte + inducere in eroare):**
+
+- **`README.md`** — versiune 0.4.0 → 0.6.0; status alpha → beta; sectiune Bearer auth rescrisa cu starea reala (nu mai zice "in roadmap"); referinte la fisiere inexistente sterse (`tests/cron-e2e.sh`, `scripts/update.sh`); dev update simplificat la `git pull && node scripts/setup.js` (idempotent).
+- **`AGENTS.md`** — sectiune noua "Multi-client routing" cu API, scope, enforcement, self-healing, limite cunoscute.
+- **`CLAUDE.md`** — "Active Client Awareness" sub First Interaction.
+- **`docs/claude-vs-robos.md`** — claim multi-client rescris pe realitate (cu comenzi concrete in tabel + sectiune "Multi-client — comenzi naturale").
+
+**Operational hygiene:**
+
+- **`licensing/wrangler.toml`** — `CURRENT_ROBOS_VERSION` 0.5.0 → 0.6.0. `wrangler deploy` necesar la livrare.
+- **`.gitattributes`** — `docs/intel-second-brain-category.md export-ignore` (strategic intel intern, NU pleaca la studenti).
+- **`.mcp.json`** — placeholder URL eliminat (era `api.example.com/mcp`), `{}` clean. Studentul adauga MCP-uri din UI Settings.
+- **`cron/defaults/activity-redact.json`** nou — cron weekly duminica 04:00 ruleaza `redact-activity-log.js` cu pattern-urile curente. Idempotent, deterministic, zero token.
+- **`centre/api/system.js`** `getConnectionHealth` — Firecrawl ping schimbat la `GET /v1/team/credit-usage` (zero credit cost). Inainte: POST `/v1/scrape` consuma 1 credit per dashboard refresh.
+
+**Smoke validation finala:**
+- `node scripts/smoke-multiclient.js` → 45/45 PASS (validation slug, set/clear, path routing, CLI, self-healing)
+- `node scripts/smoke-parallel.js` → structural validation OK
+- `node scripts/audit-startup.js` → multi-scope OK, exit 1 cand abandoned, scope-uri logate corect
+- `npx astro build` (centre) → 8 pagini, zero erori TypeScript / Svelte
+- Live server: `PUT /api/clients/active` fara token → 401; cu token → 200
+- Live server: `POST /api/tasks` fara token → 401 (CSRF protection real)
+
+**Migration path pentru existing installs:**
+- `node scripts/setup.js` aplica migration 005 automatic (incremental, idempotent)
+- Notitele existente raman cu `client_slug=NULL` (root) — ruleaza `node scripts/notes-index.js --rebuild` daca vrei reindex explicit.
+- Hook-urile noi pornesc imediat la urmatoarea sesiune Claude Code (nu necesita restart manual).
+- Comenzi noi pentru operator: `node scripts/active-client.js` (status), `bash scripts/add-client.sh <slug>` (creeaza client), apoi spune in Claude "trec pe clientul <slug>".
+
 ## [0.5.1] - 2026-05-07
 
 ### Documentation pass + cleanup hygiene (no behavior change)

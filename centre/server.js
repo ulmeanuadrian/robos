@@ -15,7 +15,7 @@ import { getAuditHistory, listMemory, getMemoryFile, saveMemoryFile, getLearning
 import { listFiles, readFile } from './api/files.js';
 import { getEnv, setEnv, getMcp, setMcp } from './api/settings.js';
 import { getSummary, getHealth } from './api/dashboard.js';
-import { listClients } from './api/clients.js';
+import { listClients, getActive, setActive } from './api/clients.js';
 import { handleSse } from './api/events.js';
 import { getSkillStats, getCostBreakdown, getQualityStats } from './api/analytics.js';
 import { closeDb } from './lib/db.js';
@@ -133,17 +133,30 @@ function serveStatic(res, filePath) {
  * (memory list, audit history, activity log, connections-health, skill list)
  * are NOT protected — they expose no secrets.
  */
-// Surfaces with secret/RCE consequences — auth-required NOW.
-// Lower-impact mutations (tasks, cron, memory) intentionally NOT yet behind
-// auth — adding it requires updating every Svelte island to send the token.
-// Tracked in AGENTS.md as open thread "Token auth coverage Phase B".
+// Surfaces with secret/RCE/state-mutation consequences — auth-required.
+// Read-only informational endpoints (memory list, audit history, activity log,
+// connection-health, skills list, dashboard summary) remain open — they leak
+// no secrets and the local UI uses them often.
+//
+// Phase B (this build): all mutations on tasks/cron/memory + active-client
+// switching are gated. Islands MUST use apiFetch from src/lib/api-client.ts.
 const AUTH_REQUIRED = [
-  // Settings — both reads and writes. getEnv leaks key list (which secrets
-  // are configured); setEnv writes secrets. Both gated.
+  // Settings — both reads and writes. getEnv leaks key list; setEnv writes secrets.
   (m, p) => p === '/api/settings/env' && (m === 'GET' || m === 'PUT'),
   (m, p) => p === '/api/settings/mcp' && m === 'PUT',
   // Skill execution — RCE vector if forged.
   (m, p) => /^\/api\/skills\/[^/]+\/run$/.test(p) && m === 'POST',
+  // Active client switch — mutates global state visible to every Claude session.
+  (m, p) => p === '/api/clients/active' && m === 'PUT',
+  // Tasks — all mutations (CSRF risk if open).
+  (m, p) => p === '/api/tasks' && m === 'POST',
+  (m, p) => /^\/api\/tasks\/[^/]+$/.test(p) && (m === 'PATCH' || m === 'DELETE'),
+  // Cron — all mutations + manual run trigger (RCE: spawns claude).
+  (m, p) => p === '/api/cron' && m === 'POST',
+  (m, p) => /^\/api\/cron\/[^/]+$/.test(p) && (m === 'PATCH' || m === 'DELETE'),
+  (m, p) => /^\/api\/cron\/[^/]+\/run$/.test(p) && m === 'POST',
+  // Memory writes (5MB markdown blob — would let attacker corrupt memory).
+  (m, p) => /^\/api\/system\/memory\/\d{4}-\d{2}-\d{2}$/.test(p) && m === 'PUT',
 ];
 
 function requiresAuth(method, pathname) {
@@ -317,6 +330,13 @@ async function handleApi(req, res, pathname, query) {
     // Clients
     if (pathname === '/api/clients' && method === 'GET') {
       return json(res, listClients());
+    }
+    if (pathname === '/api/clients/active' && method === 'GET') {
+      return json(res, getActive());
+    }
+    if (pathname === '/api/clients/active' && method === 'PUT') {
+      const body = await readBody(req);
+      return json(res, setActive(body));
     }
 
     // Analytics

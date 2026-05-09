@@ -10,6 +10,7 @@
 //   first_run_at: ISO timestamp    — when setup ran first time
 //   last_launch_at: ISO timestamp  — last time `robos` started successfully
 //   shortcut_installed: boolean    — true if PATH/profile shortcut added
+//   editor_offered: boolean        — true after first-run editor open/hint (one-shot)
 //
 // Migration on read: if schema_version < CURRENT, apply patches in-memory + persist.
 
@@ -33,6 +34,7 @@ const DEFAULTS = Object.freeze({
   first_run_at: null,
   last_launch_at: null,
   shortcut_installed: false,
+  editor_offered: false,
 });
 
 function ensureDataDir() {

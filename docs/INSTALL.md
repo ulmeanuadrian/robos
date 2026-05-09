@@ -25,9 +25,9 @@ Verificare rapida in terminal:
 node --version
 ```
 
-Daca vezi `v20.x.x` sau mai sus, ai. Sari la **0b**.
+Daca vezi `v22.12.x` sau mai sus, ai. Sari la **0b**.
 
-Daca nu ai sau ai versiune mai veche:
+Daca nu ai sau ai versiune mai veche (robOS necesita **Node 22.12+** pentru build-ul dashboard-ului Astro):
 
 - **Windows**: deschide [nodejs.org](https://nodejs.org), descarca **LTS** (butonul verde mare),
   ruleaza installer-ul `.msi` → click Next pana la final → restart terminal.
@@ -39,16 +39,16 @@ Daca nu ai sau ai versiune mai veche:
     ```
     Restart terminal, apoi:
     ```
-    nvm install 20
-    nvm use 20
+    nvm install 22
+    nvm use 22
     ```
 - **Linux (Ubuntu/Debian)**:
   ```
-  curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+  curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
   sudo apt install nodejs
   ```
 
-Verifica din nou: `node --version` → `v20.x.x`.
+Verifica din nou: `node --version` → `v22.12.x` sau mai nou.
 
 ### 0b. Claude Code CLI *(necesita cont Anthropic)*
 
@@ -75,6 +75,20 @@ Apoi ruleaza `claude` in terminal — te logheaza prima data cu contul tau Anthr
 
 **N-ai cont Anthropic?** Creeaza-l la [claude.ai](https://claude.ai). robOS merge cu orice plan
 (Pro / Max / Team / Enterprise / API direct) — diferenta e doar cat folosesti.
+
+### 0c. VSCode *(recomandat, gratis — nu obligatoriu)*
+
+Daca ai VSCode instalat, robOS il deschide automat la primul launch — folderul deja deschis,
+plus terminal integrat unde `claude` primeste file context automat. Mult mai placut decat un
+PowerShell sec.
+
+- Download: [code.visualstudio.com](https://code.visualstudio.com)
+- **Pe macOS dupa instalare**: deschide VSCode → `Cmd+Shift+P` →
+  *"Shell Command: Install 'code' command in PATH"* (o singura data — altfel comanda `code` nu
+  e disponibila in terminal).
+
+Daca nu ai VSCode, robOS functioneaza identic — primesti un hint de install la primul launch
+si poti continua in terminal.
 
 ---
 

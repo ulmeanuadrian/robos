@@ -1,12 +1,12 @@
 {
-  "generated_at": "2026-05-06T08:40:10.067Z",
-  "count": 22,
+  "generated_at": "2026-05-09T15:09:14.767Z",
+  "count": 23,
   "by_category": {
     "brand": 3,
     "content": 3,
     "mode": 3,
     "research": 2,
-    "sys": 10,
+    "sys": 11,
     "tool": 1
   },
   "triggers": {
@@ -207,6 +207,27 @@
     "create a skill": "sys-skill-builder",
     "build a skill": "sys-skill-builder",
     "new skill": "sys-skill-builder",
+    "schimba client": "sys-switch-client",
+    "schimba clientul": "sys-switch-client",
+    "trec pe client": "sys-switch-client",
+    "trec pe clientul": "sys-switch-client",
+    "lucram pentru clientul": "sys-switch-client",
+    "lucrez pentru clientul": "sys-switch-client",
+    "switch client": "sys-switch-client",
+    "switch to client": "sys-switch-client",
+    "use client": "sys-switch-client",
+    "active client": "sys-switch-client",
+    "client activ": "sys-switch-client",
+    "ce client am activ": "sys-switch-client",
+    "which client": "sys-switch-client",
+    "client root": "sys-switch-client",
+    "iesi din client": "sys-switch-client",
+    "back to base": "sys-switch-client",
+    "back to root": "sys-switch-client",
+    "workspace root": "sys-switch-client",
+    "clientii mei": "sys-switch-client",
+    "list clients": "sys-switch-client",
+    "lista clienti": "sys-switch-client",
     "umanizeaza": "tool-humanizer",
     "fa-l natural": "tool-humanizer",
     "sterge pattern ai": "tool-humanizer",
@@ -1074,7 +1095,7 @@
       "output_discipline": "encapsulated",
       "secrets_required": [],
       "secrets_optional": [],
-      "last_modified": "2026-05-05T19:48:46.428Z"
+      "last_modified": "2026-05-07T13:58:41.914Z"
     },
     {
       "name": "sys-session-open",
@@ -1153,6 +1174,57 @@
       "secrets_required": [],
       "secrets_optional": [],
       "last_modified": "2026-05-05T22:13:58.454Z"
+    },
+    {
+      "name": "sys-switch-client",
+      "version": "1.0.0",
+      "category": "sys",
+      "description": "Comuta workspace-ul activ intre root si un client. Toate skill-urile rezolva brand/, context/USER.md, learnings.md, memory/ si projects/ din clients/{slug}/ pana la urmatoarea comutare. Persista intre sesiuni.",
+      "triggers": [
+        "schimba client",
+        "schimba clientul",
+        "trec pe client",
+        "trec pe clientul",
+        "lucram pentru clientul",
+        "lucrez pentru clientul",
+        "switch client",
+        "switch to client",
+        "use client",
+        "active client",
+        "client activ",
+        "ce client am activ",
+        "which client",
+        "client root",
+        "iesi din client",
+        "back to base",
+        "back to root",
+        "workspace root",
+        "clientii mei",
+        "list clients",
+        "lista clienti"
+      ],
+      "negative_triggers": [
+        "creeaza un client",
+        "add client",
+        "client onboarding",
+        "onboard a client",
+        "audit a client",
+        "audit client"
+      ],
+      "multi_angle_triggers": [],
+      "context_loads": [],
+      "inputs": [
+        "target (required for set: slug client; pentru clear: \"root\" / \"base\")"
+      ],
+      "outputs": [
+        "data/active-client.json (set/clear)",
+        "confirmare scurta catre user"
+      ],
+      "modes": [],
+      "output_discipline": "minimal",
+      "secrets_required": [],
+      "secrets_optional": [],
+      "last_modified": "2026-05-08T18:47:18.197Z"
     },
     {
       "name": "tool-humanizer",

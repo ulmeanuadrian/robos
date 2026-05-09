@@ -6,22 +6,30 @@ OS="$(uname -s 2>/dev/null || echo unknown)"
 
 # Node check
 if ! command -v node >/dev/null 2>&1; then
-    echo "EROARE: Node.js nu e instalat. robOS necesita Node >= 20." >&2
+    echo "EROARE: Node.js nu e instalat. robOS necesita Node >= 22.12.0." >&2
     case "$OS" in
         Darwin) echo "Ruleaza: brew install node" >&2 ;;
-        Linux)  echo "Ruleaza: curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash - && sudo apt install -y nodejs" >&2 ;;
+        Linux)  echo "Ruleaza: curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash - && sudo apt install -y nodejs" >&2 ;;
         *)      echo "Descarca de la: https://nodejs.org" >&2 ;;
     esac
     echo "Dupa instalare, deschide o fereastra noua de terminal si reincearca." >&2
     exit 1
 fi
 
-NODE_MAJOR=$(node -v | sed 's/^v//' | cut -d. -f1)
-if [ "$NODE_MAJOR" -lt 20 ]; then
-    echo "EROARE: Node.js $(node -v) e prea vechi. robOS necesita Node >= 20." >&2
+NODE_VERSION=$(node -v | sed 's/^v//')
+NODE_MAJOR=$(echo "$NODE_VERSION" | cut -d. -f1)
+NODE_MINOR=$(echo "$NODE_VERSION" | cut -d. -f2)
+NODE_TOO_OLD=0
+if [ "$NODE_MAJOR" -lt 22 ]; then
+    NODE_TOO_OLD=1
+elif [ "$NODE_MAJOR" -eq 22 ] && [ "$NODE_MINOR" -lt 12 ]; then
+    NODE_TOO_OLD=1
+fi
+if [ "$NODE_TOO_OLD" -eq 1 ]; then
+    echo "EROARE: Node.js $(node -v) e prea vechi. robOS necesita Node >= 22.12.0 (Astro)." >&2
     case "$OS" in
         Darwin) echo "Upgrade: brew install node && brew link --overwrite node" >&2 ;;
-        Linux)  echo "Upgrade: curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash - && sudo apt install -y nodejs" >&2 ;;
+        Linux)  echo "Upgrade: curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash - && sudo apt install -y nodejs" >&2 ;;
         *)      echo "Descarca LTS de la: https://nodejs.org" >&2 ;;
     esac
     exit 1

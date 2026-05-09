@@ -5,6 +5,9 @@ ROBOS_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 PID_DIR="$ROBOS_ROOT/.command-centre"
 PID_FILE="$PID_DIR/server.pid"
 
+# Disable Astro telemetry by default — robOS e local-first.
+export ASTRO_TELEMETRY_DISABLED=1
+
 # Sursa .env (inainte de PORT, ca .env sa poata override-ui)
 if [ -f "$ROBOS_ROOT/.env" ]; then
     set -a

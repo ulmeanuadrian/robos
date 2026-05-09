@@ -50,6 +50,17 @@ If the user opens with a casual greeting ("hey", "morning", "salut", "buna"):
 
 If the user opens with a task, go straight to work.
 
+### Active Client Awareness
+
+Hook-ul `UserPromptSubmit` injecteaza la primul prompt un banner `Workspace activ: client "{slug}"` (sau `root`), si la **fiecare prompt** o directiva `[ACTIVE CLIENT: {slug}]` cand un client e activ. Cand vezi directiva:
+
+- Toate path-urile relative din skill-uri (ex. `brand/voice.md`, `context/USER.md`, `context/memory/`, `projects/`) se rezolva din `clients/{slug}/` — nu din root.
+- `context/SOUL.md`, `skills/` si `data/*` raman globale, indiferent de client.
+
+Daca user-ul cere copy / blog / repurpose si nu stii ce client e activ, citeste banner-ul din STARTUP CONTEXT sau ruleaza `node scripts/active-client.js status`. Niciodata nu inventa folder-ul clientului.
+
+Triggers pentru comutare (routate la skill `sys-switch-client`): "trec pe clientul X", "schimba clientul", "use client X", "client root", "ce client am activ", "list clients".
+
 ---
 
 ## Daily Memory

@@ -43,6 +43,49 @@ const SINGLE_FILES = [
   { path: 'context/learnings.md', source: 'learnings' },
 ];
 
+/**
+ * Derive client slug from workspace-relative path.
+ * `clients/<slug>/...` → '<slug>'; anything else → null.
+ */
+function deriveClientSlug(relPath) {
+  const m = relPath.replace(/\\/g, '/').match(/^clients\/([a-z0-9][a-z0-9-]*[a-z0-9])\//);
+  return m ? m[1] : null;
+}
+
+/**
+ * Build per-client scopes by walking clients/ directory.
+ * Mirrors DEFAULT_SCOPES structure: notes, memory, audits, learnings.
+ */
+function getClientScopes() {
+  const out = [];
+  const clientsDir = join(ROBOS_ROOT, 'clients');
+  if (!existsSync(clientsDir)) return out;
+  let entries;
+  try { entries = readdirSync(clientsDir, { withFileTypes: true }); } catch { return out; }
+  for (const e of entries) {
+    if (!e.isDirectory() || e.name.startsWith('.') || e.name.startsWith('_')) continue;
+    const slug = e.name;
+    const base = `clients/${slug}`;
+    out.push({ dir: `${base}/context/notes`,  source: 'note',      pattern: /\.md$/i });
+    out.push({ dir: `${base}/context/memory`, source: 'memory',    pattern: /^\d{4}-\d{2}-\d{2}\.md$/i, skipDirs: ['_archive'] });
+    out.push({ dir: `${base}/context/audits`, source: 'audit',     pattern: /\.md$/i });
+  }
+  return out;
+}
+
+function getClientSingleFiles() {
+  const out = [];
+  const clientsDir = join(ROBOS_ROOT, 'clients');
+  if (!existsSync(clientsDir)) return out;
+  let entries;
+  try { entries = readdirSync(clientsDir, { withFileTypes: true }); } catch { return out; }
+  for (const e of entries) {
+    if (!e.isDirectory() || e.name.startsWith('.') || e.name.startsWith('_')) continue;
+    out.push({ path: `clients/${e.name}/context/learnings.md`, source: 'learnings' });
+  }
+  return out;
+}
+
 // ---------- Markdown parsing ----------
 
 /**
@@ -187,6 +230,7 @@ function indexFile(db, absPath, source, opts) {
   const title = extractTitle(fm, body, absPath);
   const tags = extractTags(fm, body);
   const links = extractLinks(body);
+  const clientSlug = deriveClientSlug(relPath);
 
   if (opts.dryRun) {
     return {
@@ -196,6 +240,7 @@ function indexFile(db, absPath, source, opts) {
       path: relPath,
       title,
       source,
+      client_slug: clientSlug,
       tagCount: tags.length,
       linkCount: links.length,
     };
@@ -203,8 +248,8 @@ function indexFile(db, absPath, source, opts) {
 
   const upsert = db.transaction(() => {
     db.prepare(`
-      INSERT INTO notes (id, path, title, body, tags, source, frontmatter, mtime_ms, size_bytes, updated_at)
-      VALUES (@id, @path, @title, @body, @tags, @source, @frontmatter, @mtime_ms, @size_bytes, datetime('now'))
+      INSERT INTO notes (id, path, title, body, tags, source, frontmatter, mtime_ms, size_bytes, client_slug, updated_at)
+      VALUES (@id, @path, @title, @body, @tags, @source, @frontmatter, @mtime_ms, @size_bytes, @client_slug, datetime('now'))
       ON CONFLICT(id) DO UPDATE SET
         path        = excluded.path,
         title       = excluded.title,
@@ -214,6 +259,7 @@ function indexFile(db, absPath, source, opts) {
         frontmatter = excluded.frontmatter,
         mtime_ms    = excluded.mtime_ms,
         size_bytes  = excluded.size_bytes,
+        client_slug = excluded.client_slug,
         updated_at  = datetime('now')
     `).run({
       id,
@@ -225,6 +271,7 @@ function indexFile(db, absPath, source, opts) {
       frontmatter: JSON.stringify(fm),
       mtime_ms: mtimeMs,
       size_bytes: sizeBytes,
+      client_slug: clientSlug,
     });
 
     db.prepare('DELETE FROM note_tags WHERE note_id = ?').run(id);
@@ -264,9 +311,12 @@ function runScan(opts) {
   const stats = { scanned: 0, indexed: 0, skipped: 0, errors: 0 };
   const dryRunRows = [];
 
+  const allScopes = [...DEFAULT_SCOPES, ...getClientScopes()];
+  const allSingleFiles = [...SINGLE_FILES, ...getClientSingleFiles()];
+
   const targets = opts.scope
-    ? DEFAULT_SCOPES.filter((s) => s.dir === opts.scope)
-    : DEFAULT_SCOPES;
+    ? allScopes.filter((s) => s.dir === opts.scope)
+    : allScopes;
 
   for (const sc of targets) {
     const absDir = join(ROBOS_ROOT, sc.dir);
@@ -288,7 +338,7 @@ function runScan(opts) {
   }
 
   if (!opts.scope) {
-    for (const sf of SINGLE_FILES) {
+    for (const sf of allSingleFiles) {
       const abs = join(ROBOS_ROOT, sf.path);
       if (!existsSync(abs)) continue;
       stats.scanned++;

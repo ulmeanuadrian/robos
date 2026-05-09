@@ -26,7 +26,7 @@ robOS rezolva exact asta — si mai mult.
 | **Costa pe fiecare raspuns** | Sarcinile repetitive (audit zilnic, validari, rapoarte de monitoring) ruleaza singure, fara plata pe fiecare rulare. Cele mai simple nu mai consuma deloc, ele lucreaza determinist. |
 | **Trebuie sa-l intrebi tu** | El vine la tine. La 8 dimineata vezi raportul ieri. Lunea primesti review pe ce s-a invatat saptamana trecuta. Tu nu trebuie sa initiezi — sistemul opereaza in fundal. |
 | **Fiecare conversatie incepe de la zero** | Fiecare conversatie incepe de unde ai ramas. Claude vine la lucru deja stiind ce-ai facut, ce-ai decis, ce ai promis sa faci. |
-| **Schimbi clientul = re-explici tot** | Schimbi clientul cu o comanda. Vocea, audienta, pozitionarea, jurnalul lui — totul se incarca singur. Costul nu creste cu numarul de clienti. |
+| **Schimbi clientul = re-explici tot** | Spui "trec pe clientul X" si toate skill-urile rezolva automat brand-ul, contextul, memoria si output-ul din folder-ul clientului. Persista intre sesiuni — maine deschizi terminal, esti tot pe X. Costul nu creste cu numarul de clienti. |
 | **Chat in browser** | Tablou de bord pe laptop-ul tau — vezi rapid ce ruleaza, ce-ai facut, unde ai ramas. Nimic in cloud. Datele tale, la tine. |
 | **Lucreaza secvential — un raspuns dupa altul** | Cand sarcina e mare (audit pe 4 dimensiuni, research pe 5 surse, repurposing pe 8 platforme), pune mai multi "lucratori" in paralel. Termini de 3-5 ori mai repede. |
 
@@ -84,6 +84,44 @@ Daca folosesti deja [Obsidian](https://obsidian.md) pentru notite, deschide fold
 
 robOS nu cere Obsidian. Daca-l ai deja, se integreaza fara import. Daca nu, robOS functioneaza perfect singur.
 
+## robOS = pattern-ul Karpathy "LLM Wiki", productizat
+
+In aprilie 2026, [Andrej Karpathy a publicat un gist GitHub](https://gist.github.com/karpathy) numit simplu **"LLM Wiki"** — o idee conceptuala pentru cum sa tii o baza de cunostinte intretinuta de AI, nu de tine. In doua-trei saptamani, mai multi practicanti au scris articole despre cum si-au construit-o singuri (Pilevar pe Medium, Adi Insights, Iakubov). Pattern-ul a devenit viral in cercurile de productivitate / knowledge management.
+
+**robOS nu doar ca implementeaza pattern-ul Karpathy. Il livreaza ambalat, instalabil, cu enforcement.**
+
+### Pattern-ul Karpathy in trei straturi
+
+| Strat | Ce e | In robOS |
+|---|---|---|
+| **Surse brute (raw)** | Fisiere imutabile pe care le bagi in sistem (PDFs, articole, transcripturi, notite) | `context/`, `projects/`, `clients/` — datele tale, intacte |
+| **Wiki (compilat de AI)** | Pagini scrise si mentinute de AI: rezumate, cross-references, cataloagele tale conceptuale | Memoria zilnica, jurnal decizii, learnings, audituri — toate scrise de AI, citite de tine |
+| **Schema (operating manual)** | Fisier `CLAUDE.md` care spune AI-ului cum sa lucreze | `CLAUDE.md` + `AGENTS.md` + frontmatter SKILL.md per skill — **schema multi-nivel, nu single-file** |
+
+### Trei operatii care tin sistemul viu
+
+| Operatie Karpathy | In robOS |
+|---|---|
+| **Ingest** (sursa noua → AI o citeste, updateaza 10-15 pagini) | "salveaza asta" → skill `sys-capture-note` routeaza in folder corect |
+| **Query** (intrebi → AI naviga wiki-ul → raspunde sintetizat) | Conversatie normala, contextul potrivit incarcat de skill router |
+| **Lint** (saptamanal → AI scaneaza contradictii, link-uri lipsa, fix-uri) | `sys-audit` (scor 4C) + cron saptamanal `learnings-aggregator` + `sys-level-up` — **trei niveluri de health check, nu unul** |
+
+### Ce-ti construiesti singur intr-un weekend, robOS iti da in 15 minute
+
+Articolele lui Pilevar / Iakubov / Adi descriu cum si-au construit pattern-ul **manual**, intr-un weekend / o dupa-amiaza / 2 saptamani. robOS te scuteste si adauga:
+
+- **Hooks runtime** — reguli din schema sunt **enforced**, nu doar scrise. Memoria zilei NU se poate uita: hook-ul Stop te impiedica sa inchizi sesiunea fara salvare.
+- **Skills installable** — comanda `/alfred` a lui Pilevar e re-scrisa de fiecare cand uita. In robOS, fiecare skill e o unitate cu versiune, instalabila / dezinstalabila.
+- **Cron deterministic** — articolele nu trateaza partea care ruleaza singura peste noapte. robOS are 3 cron jobs (audit pornire, detector timeout, agregator learnings saptamanal) care nu consuma tokens.
+- **Multi-client real** — toti autorii au un singur vault personal. robOS scaleaza de la 1 client la 10 fara reconstruire: fiecare client are folder-ul lui in `clients/{slug}/` cu propriul brand, context, memorie si output. Spui "trec pe clientul X" → un fisier de stare comuta toate skill-urile sa citeasca din `clients/X/`. State-ul persista cross-sesiune si e self-healing (daca stergi folder-ul clientului, sistemul revine automat la root).
+- **Brand voice context** — niciun articol nu trateaza brand-ul. robOS are `brand/voice.md`, `brand/audience.md`, `brand/positioning.md` — incarcate per skill, la cerere.
+
+### In doua randuri
+
+> **Karpathy a publicat gist-ul in aprilie 2026. Pilevar a construit-o intr-un weekend. robOS o instaleaza in 15 minute, cu update path si fara sa o reconstruiesti la primul client nou.**
+
+Sau, mai pe scurt: **Karpathy ti-a dat ideea. robOS ti-o da in productie.**
+
 ## Ce NU face robOS
 
 - **NU inlocuieste Claude.** Tot reasoning-ul, scrierea, decizia — il fac Claude. robOS e doar harness-ul care-i da memorie si rutine.
@@ -109,5 +147,21 @@ Cand:
 
 ---
 
-**Versiune doc:** 3.1 (limbaj clar, fara jargon — adaugare sectiune "datele tale stau la tine" + Obsidian opt-in)
+## Multi-client — comenzi naturale
+
+Trei intentii, trei moduri de a vorbi cu robOS:
+
+| Vrei | Spune |
+|---|---|
+| Sa vezi pe ce client esti acum | "ce client am activ" / "active client" |
+| Sa comuti pe alt client | "trec pe clientul acme-corp" / "schimba clientul" / "use client acme-corp" |
+| Sa iesi inapoi la workspace-ul de baza | "client root" / "iesi din client" / "back to base" |
+
+In spate, robOS scrie un singur fisier `data/active-client.json`. Toate skill-urile, hook-urile si dashboard-ul citesc de aici. Cand un client e activ, fiecare prompt primeste o directiva care reaminteste skill-urilor sa rezolve `brand/`, `context/USER.md`, `learnings.md`, `memory/` si `projects/` din `clients/{slug}/`. Globale raman doar `SOUL.md` (personalitatea Claude), `skills/` (catalogul) si `data/` (DB + log-uri).
+
+Daca stergi folder-ul unui client de pe disk in mod accidental, sistemul detecteaza la urmatorul prompt si revine automat la root, fara crash.
+
+---
+
+**Versiune doc:** 3.3 (multi-client real — comanda de switch, persistenta cross-sesiune, self-healing pe folder lipsa; surface audit zilnic in startup)
 **Acopera robOS:** v0.5.x

@@ -25,6 +25,10 @@ import { platform } from 'node:os';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
 
+// Disable Astro telemetry by default — child processes inherit this env var.
+// robOS e local-first; nu trimitem date catre Astro nici la setup nici la run.
+process.env.ASTRO_TELEMETRY_DISABLED = '1';
+
 const COLORS = process.stdout.isTTY && !process.env.NO_COLOR;
 const c = (code, text) => COLORS ? `\x1b[${code}m${text}\x1b[0m` : text;
 const ok = (msg) => console.log(c('32', '[OK]'), msg);
@@ -39,9 +43,13 @@ function header() {
 }
 
 function checkNode() {
-  const major = parseInt(process.versions.node.split('.')[0], 10);
-  if (major < 20) {
-    fail(`Detectat Node.js v${process.versions.node}. robOS necesita Node >= 20.\n  Upgrade de la https://nodejs.org sau prin nvm.`);
+  const [major, minor] = process.versions.node.split('.').map((n) => parseInt(n, 10));
+  const tooOld = major < 22 || (major === 22 && minor < 12);
+  if (tooOld) {
+    fail(
+      `Detectat Node.js v${process.versions.node}. robOS necesita Node >= 22.12.0 (Astro dependency).\n` +
+      `  Upgrade de la https://nodejs.org (descarca LTS) sau prin nvm: nvm install 22.12.0`
+    );
   }
   ok(`Node.js v${process.versions.node}`);
 }

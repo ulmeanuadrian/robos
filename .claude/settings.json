@@ -1,5 +1,10 @@
 {
-  "_note": "robOS project-level hooks. Merged with user's global settings.json. Hooks here enforce session lifecycle and skill routing — see scripts/hook-user-prompt.js.",
+  "permissions": {
+    "allow": [
+      "Bash(cmd //c \"tasklist | findstr 44456\")",
+      "Bash(cmd //c \"wmic process where ProcessId=16544 get CommandLine /value 2>nul\")"
+    ]
+  },
   "hooks": {
     "UserPromptSubmit": [
       {
@@ -33,5 +38,6 @@
         ]
       }
     ]
-  }
+  },
+  "_note": "robOS project-level hooks. Merged with user's global settings.json. Hooks here enforce session lifecycle and skill routing — see scripts/hook-user-prompt.js."
 }

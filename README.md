@@ -2,8 +2,8 @@
 
 Sistem de operare agentic pentru Claude Code. Da unui singur operator AI memorie persistenta, skills instalabile, context de brand, scheduler cron si workspace-uri multi-client izolate.
 
-**Versiune actuala:** 0.4.0
-**Status:** alpha — folosibil pentru content/automation, in dezvoltare activa.
+**Versiune actuala:** 0.5.1
+**Status:** beta — folosibil pentru content/automation/multi-client, in dezvoltare activa.
 
 ---
 
@@ -329,7 +329,7 @@ bash scripts/stop-crons.sh      # opreste daemon standalone
 - **Vezi log per run**: tabela istoric → buton "Vezi"
 - **Edit/Delete** din UI
 
-Test end-to-end: `bash tests/cron-e2e.sh` (cu serverul pornit).
+Smoke validare structurala paralelism: `node scripts/smoke-parallel.js`. Smoke multi-client: `node scripts/smoke-multiclient.js`.
 
 ---
 
@@ -373,7 +373,9 @@ Aplicatie statica Astro + Svelte servita de Node, ruleaza la `localhost:3001`.
 
 Cold start sub 300ms. Build static (nu dev server). Update live prin Server-Sent Events.
 
-**Bind default**: `127.0.0.1` (loopback only). Pentru expunere LAN intentionata, seteaza `ROBOS_CENTRE_HOST=0.0.0.0` in `.env` — dar adauga auth inainte (token-based prin `Authorization: Bearer ...` e in roadmap).
+**Bind default**: `127.0.0.1` (loopback only). Pentru expunere LAN intentionata, seteaza `ROBOS_CENTRE_HOST=0.0.0.0` in `.env`.
+
+**Auth Bearer token** este implementat pentru endpoint-uri sensibile (settings/env, settings/mcp, skills/run, mutations pe tasks/cron/memory). Token auto-generat in `ROBOS_DASHBOARD_TOKEN` la `setup-env.js`. UI-ul il citeste o data per page load via `apiFetch()` din [centre/src/lib/api-client.ts](centre/src/lib/api-client.ts) — endpoint-urile de citire informationala (memory list, audit history, skills list, activity log) raman deschise.
 
 ---
 
@@ -398,10 +400,11 @@ Face:
 ### Pentru dev (git clone)
 
 ```bash
-bash scripts/update.sh
+git pull --ff-only
+node scripts/setup.js   # re-aplicam migratii DB + regenerare _index
 ```
 
-Face: backup DB + `git pull --ff-only` + reinstall deps daca centre s-a schimbat + regenerare _index + listeaza skills noi din catalog.
+Atat. Setup-ul e idempotent — re-rulare safe. Daca centre/ s-a schimbat, `npm install` se ruleaza automat in interior.
 
 ### Datele tale sunt in siguranta
 

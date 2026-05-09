@@ -12,9 +12,12 @@
           (sau PowerShell admin: Enable-WindowsOptionalFeature -Online -FeatureName "Containers-DisposableClientVM" -All)
        2. Restart laptop
        3. Double-click pe acest fisier (.wsb) → Sandbox porneste in ~5 secunde
-       4. In sandbox, vezi pe Desktop folder "robos-build" cu tarball-ul
+       4. In Sandbox, deschide folder "robos-build" de pe Desktop, apoi
+          DOUBLE-CLICK pe "open-powershell.cmd" → se deschide PowerShell + STEPS.txt
+          in Notepad cu pasii de install. Copy-paste pas cu pas.
 
-       Pasi student fresh in sandbox (PowerShell):
+       Pasi student fresh in sandbox (DETALIAT in STEPS.txt din folder-ul mapat;
+       reproducere mai jos pentru context, dar STEPS.txt e sursa de adevar):
 
        IMPORTANT: Windows Sandbox NU vine cu winget pre-instalat (limitare
        cunoscuta — Sandbox e Windows fara Microsoft Store). Pe Windows real,
@@ -22,29 +25,37 @@
        folosesti download direct sub:
 
        a. Install Node.js (download .msi direct):
-          $url = "https://nodejs.org/dist/v22.11.0/node-v22.11.0-x64.msi"
+          # IMPORTANT: foloseste >= v22.12.0 (Astro cere asta — robOS dashboard
+          # build esueaza pe v22.11.0 cu "Node.js is not supported by Astro").
+          $url = "https://nodejs.org/dist/v22.12.0/node-v22.12.0-x64.msi"
           $out = "$env:TEMP\node.msi"
           Invoke-WebRequest -Uri $url -OutFile $out
           Start-Process msiexec.exe -ArgumentList "/i `"$out`" /qn /norestart" -Wait
           exit  # Inchide PowerShell pentru PATH refresh
 
        b. (PowerShell NOU) Install Claude Code:
-          irm https://claude.ai/install.ps1 | iex
-          exit
+           Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
+           $s = irm https://claude.ai/install.ps1
+           & ([scriptblock]::Create($s))
+           $env:Path += ";$env:USERPROFILE\.local\bin"
 
-       c. (PowerShell NOU) Extract + lansare robOS:
-          mkdir C:\robos
+       c. Install VSCode (silent, cu addtopath ca robos sa il detecteze):
+          $url = "https://code.visualstudio.com/sha/download?build=stable&os=win32-x64-user"
+          $out = "$env:TEMP\vscode.exe"
+          Invoke-WebRequest -Uri $url -OutFile $out
+          Start-Process $out -ArgumentList "/VERYSILENT","/MERGETASKS=!runcode,addtopath" -Wait
+          exit  # PATH refresh
+
+       d. (PowerShell NOU) Extract + lansare robOS:
+          $env:Path += ";$env:USERPROFILE\.local\bin"
+          mkdir C:\robos -Force
           cd C:\robos
           tar -xzf "C:\Users\WDAGUtilityAccount\Desktop\robos-build\robos-base-v0.5.1.tar.gz"
           cd robOS
           .\scripts\robos.cmd
 
-       d. Vezi UX-ul real fresh-student (mesaje, dashboard, onboarding).
-
-       ALTERNATIVA pentru Node — Chocolatey (mai flexibil pentru testare cu mai multe tools):
-          Set-ExecutionPolicy Bypass -Scope Process -Force
-          iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
-          choco install nodejs-lts -y
+       e. Astepti: VSCode se deschide automat cu folderul robOS, dashboard
+          la localhost:3001. In VSCode: View → Terminal → claude → "onboard me".
 
        Cleanup: inchide fereastra sandbox-ului → totul dispare. Reset complet.
   -->

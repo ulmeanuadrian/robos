@@ -20,28 +20,47 @@
  */
 
 import { getDb, closeDb } from '../centre/lib/db.js';
+import { getActiveClient } from './lib/client-context.js';
 
-const HELP = `Usage: notes-search.js <query> [--limit N] [--source X] [--tag T] [--json]
+const HELP = `Usage: notes-search.js <query> [--limit N] [--source X] [--tag T] [--client SLUG|--all-clients] [--json]
 
 Examples:
-  notes-search.js "SQLite FTS5"
+  notes-search.js "SQLite FTS5"                       # filtered by active client (or root if none)
   notes-search.js "decizie OR regula" --limit 5
   notes-search.js "auth" --source memory --json
+  notes-search.js "X" --client acme-corp              # explicit client scope
+  notes-search.js "X" --all-clients                   # cross-client search
+
+Client scope:
+  Default: active client from data/active-client.json (or root if none active).
+  --client SLUG: explicit slug (overrides active).
+  --all-clients: skip filter, search across root + every client.
 `;
 
 function parseArgs(argv) {
-  const opts = { query: null, limit: 10, source: null, tag: null, json: false };
+  const opts = {
+    query: null, limit: 10, source: null, tag: null, json: false,
+    client: undefined, // undefined = use active; null = root only; string = explicit slug; ALL_CLIENTS sentinel = no filter
+  };
   const positional = [];
   for (let i = 2; i < argv.length; i++) {
     const a = argv[i];
     if (a === '--limit') opts.limit = Math.max(1, Math.min(50, parseInt(argv[++i], 10) || 10));
     else if (a === '--source') opts.source = argv[++i];
     else if (a === '--tag') opts.tag = argv[++i];
+    else if (a === '--client') opts.client = argv[++i];
+    else if (a === '--root') opts.client = null;
+    else if (a === '--all-clients') opts.client = '__ALL__';
     else if (a === '--json') opts.json = true;
     else if (a === '--help' || a === '-h') { process.stdout.write(HELP); process.exit(0); }
     else positional.push(a);
   }
   opts.query = positional.join(' ').trim();
+  // Resolve default: undefined → active client (or root)
+  if (opts.client === undefined) {
+    const active = getActiveClient();
+    opts.client = active ? active.slug : null;
+  }
   return opts;
 }
 
@@ -82,6 +101,18 @@ function search(opts) {
   if (opts.tag) {
     filters.push('EXISTS (SELECT 1 FROM note_tags t WHERE t.note_id = n.id AND t.tag = @tag)');
     params.tag = opts.tag.replace(/^#/, '');
+  }
+  // Client scope filter:
+  //   opts.client = '__ALL__' → no filter (search every note, every client)
+  //   opts.client = null      → root only (n.client_slug IS NULL)
+  //   opts.client = string    → exact match on slug
+  if (opts.client !== '__ALL__') {
+    if (opts.client === null) {
+      filters.push('n.client_slug IS NULL');
+    } else {
+      filters.push('n.client_slug = @client');
+      params.client = opts.client;
+    }
   }
   const whereExtra = filters.length ? `AND ${filters.join(' AND ')}` : '';
 

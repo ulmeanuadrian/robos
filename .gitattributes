@@ -20,6 +20,9 @@ paperclip/ export-ignore
 # Internal planning docs (if/when added)
 docs/internal/ export-ignore
 
+# Strategic intel docs — author-only positioning research
+docs/intel-second-brain-category.md export-ignore
+
 # Admin-only documentation (deploy, refund, monitoring, security ops)
 docs/admin-handbook.md export-ignore
 

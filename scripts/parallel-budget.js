@@ -37,7 +37,20 @@ function telemetryFile() {
   return path.join(__dirname, '..', 'data', 'skill-telemetry.ndjson');
 }
 
-function logTelemetry({ skill, mode, agents, agentsFailed, wallClockMs, fallbackUsed }) {
+function logTelemetry({ skill, mode, agents, agentsFailed, wallClockMs, fallbackUsed, client }) {
+  // Read active client lazily (avoid require cycles + keep this file CommonJS-pure
+  // since client-context is ESM). Read the JSON state directly.
+  let clientSlug = client || null;
+  if (!clientSlug) {
+    try {
+      const stateFile = path.join(__dirname, '..', 'data', 'active-client.json');
+      if (fs.existsSync(stateFile)) {
+        const data = JSON.parse(fs.readFileSync(stateFile, 'utf-8'));
+        if (data && typeof data.slug === 'string') clientSlug = data.slug;
+      }
+    } catch { /* keep null */ }
+  }
+
   const line = JSON.stringify({
     ts: new Date().toISOString(),
     skill,
@@ -46,6 +59,7 @@ function logTelemetry({ skill, mode, agents, agentsFailed, wallClockMs, fallback
     agents_failed: Number(agentsFailed) || 0,
     wall_clock_ms: Number(wallClockMs) || 0,
     fallback_used: Boolean(fallbackUsed),
+    client: clientSlug,
   });
   const file = telemetryFile();
   fs.mkdirSync(path.dirname(file), { recursive: true });
@@ -98,9 +112,9 @@ if (require.main === module) {
     process.exit(0);
   }
   if (cmd === 'log') {
-    const [, , , skill, mode, agents, failed, ms, fallback] = process.argv;
+    const [, , , skill, mode, agents, failed, ms, fallback, client] = process.argv;
     if (!skill || !mode) {
-      console.error('Usage: log <skill> <mode> <agents> <failed> <wall_ms> <fallback>');
+      console.error('Usage: log <skill> <mode> <agents> <failed> <wall_ms> <fallback> [client]');
       process.exit(1);
     }
     const line = logTelemetry({
@@ -108,6 +122,7 @@ if (require.main === module) {
       agents, agentsFailed: failed,
       wallClockMs: ms,
       fallbackUsed: fallback === 'true',
+      client: client || null,
     });
     console.log('logged:', line);
     process.exit(0);

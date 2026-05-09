@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { apiFetch } from '../lib/api-client';
+
   interface CronJob {
     slug: string;
     name: string;
@@ -77,7 +79,7 @@
 
   async function fetchJobs() {
     try {
-      const res = await fetch('/api/cron');
+      const res = await apiFetch('/api/cron');
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       jobs = await res.json();
     } catch {
@@ -89,14 +91,14 @@
 
   async function fetchHistory(slug: string) {
     try {
-      const res = await fetch(`/api/cron/${slug}/history`);
+      const res = await apiFetch(`/api/cron/${slug}/history`);
       if (res.ok) jobHistory[slug] = await res.json();
     } catch { /* ignore */ }
   }
 
   async function toggleJob(slug: string, active: boolean) {
     try {
-      const res = await fetch(`/api/cron/${slug}`, {
+      const res = await apiFetch(`/api/cron/${slug}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ active: active ? 1 : 0 }),
@@ -112,7 +114,7 @@
 
   async function triggerRun(slug: string) {
     try {
-      const res = await fetch(`/api/cron/${slug}/run`, { method: 'POST' });
+      const res = await apiFetch(`/api/cron/${slug}/run`, { method: 'POST' });
       if (!res.ok) throw new Error(await res.text());
       showToast(`Job lansat: ${slug}`);
       // refresh history pe expand
@@ -150,7 +152,7 @@
     saving = true;
     try {
       const payload = { ...formData, active: formData.active ? 1 : 0, clientId: formData.clientId || null };
-      const res = await fetch('/api/cron', {
+      const res = await apiFetch('/api/cron', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -176,7 +178,7 @@
       // Nu trimitem slug-ul (e PK, nu se schimba)
       const { slug, ...payload } = formData;
       const body = { ...payload, active: formData.active ? 1 : 0, clientId: formData.clientId || null };
-      const res = await fetch(`/api/cron/${editingSlug}`, {
+      const res = await apiFetch(`/api/cron/${editingSlug}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
@@ -197,7 +199,7 @@
 
   async function confirmDelete(slug: string) {
     try {
-      const res = await fetch(`/api/cron/${slug}`, { method: 'DELETE' });
+      const res = await apiFetch(`/api/cron/${slug}`, { method: 'DELETE' });
       if (!res.ok) throw new Error(await res.text());
       showDeleteConfirm = null;
       showToast(`Job sters: ${slug}`);
@@ -211,7 +213,7 @@
     showLogModal = { slug, runId };
     logContent = null;
     try {
-      const res = await fetch(`/api/cron/${slug}/runs/${runId}/log`);
+      const res = await apiFetch(`/api/cron/${slug}/runs/${runId}/log`);
       if (!res.ok) throw new Error(await res.text());
       logContent = await res.json();
     } catch (e: any) {

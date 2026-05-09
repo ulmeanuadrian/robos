@@ -52,16 +52,16 @@ export function welcomeEmail({ email, downloadUrl, isBundle }) {
 
 <p style="font-size: 14px; color: #666;">(link valabil 7 zile, doar pentru tine)</p>
 
-<h3 style="margin-top: 32px; margin-bottom: 8px;">Inainte de instalare — ai nevoie de 2 lucruri:</h3>
+<h3 style="margin-top: 32px; margin-bottom: 8px;">Inainte de instalare — ai nevoie de 2 lucruri (+ 1 recomandat):</h3>
 
-<p style="margin: 8px 0;"><b>1. Node.js v20+</b> — copy-paste comanda potrivita in terminal:</p>
+<p style="margin: 8px 0;"><b>1. Node.js v22.12+</b> — copy-paste comanda potrivita in terminal:</p>
 <table style="border-collapse: collapse; margin: 8px 0 16px 0; font-family: -apple-system, monospace; font-size: 13px;">
   <tr><td style="padding: 4px 12px 4px 0; vertical-align: top;"><b>Mac</b></td>
       <td style="padding: 4px 0;"><code style="background: #f5f5f5; padding: 2px 6px; border-radius: 3px;">brew install node</code></td></tr>
   <tr><td style="padding: 4px 12px 4px 0; vertical-align: top;"><b>Windows</b></td>
       <td style="padding: 4px 0;"><code style="background: #f5f5f5; padding: 2px 6px; border-radius: 3px;">winget install OpenJS.NodeJS.LTS</code></td></tr>
   <tr><td style="padding: 4px 12px 4px 0; vertical-align: top;"><b>Linux</b></td>
-      <td style="padding: 4px 0;"><code style="background: #f5f5f5; padding: 2px 6px; border-radius: 3px;">curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash - &amp;&amp; sudo apt install -y nodejs</code></td></tr>
+      <td style="padding: 4px 0;"><code style="background: #f5f5f5; padding: 2px 6px; border-radius: 3px;">curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash - &amp;&amp; sudo apt install -y nodejs</code></td></tr>
 </table>
 
 <p style="margin: 8px 0;"><b>2. Claude Code CLI</b> — copy-paste in terminal:</p>
@@ -73,6 +73,11 @@ export function welcomeEmail({ email, downloadUrl, isBundle }) {
 </table>
 
 <p style="font-size: 13px; color: #666;">Dupa fiecare instalare, deschide o fereastra <b>noua</b> de terminal (PATH refresh).</p>
+
+<p style="margin: 16px 0 8px 0;"><b>3. VSCode</b> <span style="color: #666; font-weight: normal;">(recomandat — gratis)</span></p>
+<p style="font-size: 13px; color: #444; margin: 4px 0;">Daca ai VSCode instalat, robOS il deschide automat la primul launch — vei avea folderul deja deschis si terminal integrat unde Claude primeste file context auto. Nu e obligatoriu, dar e mult mai placut decat un PowerShell sec.</p>
+<p style="font-size: 13px; margin: 4px 0;">Download: <a href="https://code.visualstudio.com" style="color: #0066cc;">code.visualstudio.com</a></p>
+<p style="font-size: 12px; color: #888; margin: 4px 0;">Pe macOS, dupa instalare deschide VSCode → Cmd+Shift+P → "Shell Command: Install 'code' command in PATH" (o singura data).</p>
 
 <h3 style="margin-top: 24px; margin-bottom: 8px;">Instalare (5 minute):</h3>
 <ol>
@@ -105,18 +110,23 @@ ${productLine.replace(/<[^>]+>/g, '')}
 Descarca robOS de aici (link valabil 7 zile):
 ${downloadUrl}
 
-INAINTE DE INSTALARE — ai nevoie de 2 lucruri:
+INAINTE DE INSTALARE — ai nevoie de 2 lucruri (+ 1 recomandat):
 
-  1. Node.js v20+ — copy-paste in terminal:
+  1. Node.js v22.12+ — copy-paste in terminal:
        Mac:     brew install node
        Windows: winget install OpenJS.NodeJS.LTS
-       Linux:   curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash - && sudo apt install -y nodejs
+       Linux:   curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash - && sudo apt install -y nodejs
 
   2. Claude Code CLI — copy-paste in terminal:
        Mac/Linux: curl -fsSL https://claude.ai/install.sh | sh
        Windows:   irm https://claude.ai/install.ps1 | iex
 
   Dupa fiecare instalare, deschide o fereastra NOUA de terminal (PATH refresh).
+
+  3. VSCode (recomandat, gratis): https://code.visualstudio.com
+     Daca ai VSCode, robOS il deschide automat la primul launch — folderul deja
+     deschis + terminal integrat unde Claude primeste file context auto.
+     Pe macOS dupa install: VSCode → Cmd+Shift+P → "Shell Command: Install 'code' in PATH".
 
 INSTALARE (5 minute):
   1. Click pe link -> primesti robos-{version}.tar.gz

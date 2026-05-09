@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { apiFetch } from '../lib/api-client';
+
   interface Task {
     id: string;
     title: string;
@@ -52,7 +54,7 @@
 
   async function updateStatus(newStatus: string) {
     try {
-      const res = await fetch(`/api/tasks/${task.id}`, {
+      const res = await apiFetch(`/api/tasks/${task.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus }),

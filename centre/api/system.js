@@ -2,14 +2,24 @@ import { readFileSync, writeFileSync, existsSync, readdirSync, mkdirSync, statSy
 import { join, resolve, relative } from 'path';
 import { spawn } from 'child_process';
 import { workspaceRoot } from '../lib/config.js';
+import { getMemoryDir, getActiveClient, resolveContextPath } from '../../scripts/lib/client-context.js';
 
-const MEMORY_DIR = join(workspaceRoot, 'context', 'memory');
+// Activity/audit/timeout/learnings-aggregate logs stay GLOBAL — cross-client
+// visibility is useful (the operator audits one disk regardless of which client
+// they're working on). Memory and learnings.md, however, route per active
+// client via getMemoryDir() / resolveContextPath().
 const DATA_DIR = join(workspaceRoot, 'data');
-const LEARNINGS_FILE = join(workspaceRoot, 'context', 'learnings.md');
 const AUDIT_LOG = join(DATA_DIR, 'startup-audit.log');
 const TIMEOUT_LOG = join(DATA_DIR, 'session-timeout.log');
 const LEARNINGS_LOG = join(DATA_DIR, 'learnings-aggregate.log');
 const ACTIVITY_LOG = join(DATA_DIR, 'activity-log.ndjson');
+
+function memoryDir() {
+  return getMemoryDir();
+}
+function learningsFile() {
+  return resolveContextPath('context/learnings.md');
+}
 
 /**
  * Citeste un fisier NDJSON. Returneaza array de obiecte (cele mai recente primele).
@@ -59,13 +69,13 @@ export function getActivity(query = {}) {
  * GET /api/system/memory — list memory files with metadata.
  */
 export function listMemory() {
-  if (!existsSync(MEMORY_DIR)) return [];
-  const files = readdirSync(MEMORY_DIR)
+  if (!existsSync(memoryDir())) return [];
+  const files = readdirSync(memoryDir())
     .filter(f => /^\d{4}-\d{2}-\d{2}\.md$/.test(f))
     .sort()
     .reverse();
   return files.map(f => {
-    const path = join(MEMORY_DIR, f);
+    const path = join(memoryDir(), f);
     const stat = statSync(path);
     const content = readFileSync(path, 'utf-8');
     const sessionCount = (content.match(/^##\s+Session\s+\d+/gm) || []).length;
@@ -90,7 +100,7 @@ export function getMemoryFile(date) {
     err.statusCode = 400;
     throw err;
   }
-  const path = join(MEMORY_DIR, `${date}.md`);
+  const path = join(memoryDir(), `${date}.md`);
   if (!existsSync(path)) return null;
   return {
     date,
@@ -100,7 +110,7 @@ export function getMemoryFile(date) {
 
 /**
  * PUT /api/system/memory/:date — write a memory file.
- * Safety: rejects writes outside MEMORY_DIR; preserves backup of previous version.
+ * Safety: rejects writes outside memoryDir(); preserves backup of previous version.
  */
 export function saveMemoryFile(date, content) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
@@ -119,11 +129,11 @@ export function saveMemoryFile(date, content) {
     throw err;
   }
 
-  if (!existsSync(MEMORY_DIR)) mkdirSync(MEMORY_DIR, { recursive: true });
-  const path = join(MEMORY_DIR, `${date}.md`);
+  if (!existsSync(memoryDir())) mkdirSync(memoryDir(), { recursive: true });
+  const path = join(memoryDir(), `${date}.md`);
 
-  // Verify path stays within MEMORY_DIR (paranoia check)
-  const rel = relative(MEMORY_DIR, resolve(path));
+  // Verify path stays within memoryDir() (paranoia check)
+  const rel = relative(memoryDir(), resolve(path));
   if (rel.startsWith('..') || rel.includes(':')) {
     const err = new Error('path escape detected');
     err.statusCode = 400;
@@ -146,10 +156,10 @@ export function saveMemoryFile(date, content) {
  * GET /api/system/learnings — read context/learnings.md.
  */
 export function getLearnings() {
-  if (!existsSync(LEARNINGS_FILE)) {
+  if (!existsSync(learningsFile())) {
     return { content: '', sections: [] };
   }
-  const content = readFileSync(LEARNINGS_FILE, 'utf-8');
+  const content = readFileSync(learningsFile(), 'utf-8');
 
   // Extract section names (## headers)
   const sections = [...content.matchAll(/^##\s+([^\n]+)/gm)].map(m => m[1].trim());
@@ -171,18 +181,21 @@ export async function getConnectionHealth() {
   const results = {};
   const env = process.env;
 
-  // Firecrawl: GET /v1/scrape with no key would 401; test by hitting health
+  // Firecrawl: GET /v1/team/credit-usage. ZERO credit cost (read-only metadata),
+  // returns 200 with valid key, 401/403 with bad key. Replaces a /v1/scrape ping
+  // that consumed 1 credit per dashboard refresh.
   results.firecrawl = await pingApi(env.FIRECRAWL_API_KEY, async (key) => {
-    const res = await fetch('https://api.firecrawl.dev/v1/scrape', {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ url: 'https://example.com', formats: ['markdown'] }),
+    const res = await fetch('https://api.firecrawl.dev/v1/team/credit-usage', {
+      method: 'GET',
+      headers: { 'Authorization': `Bearer ${key}` },
       signal: AbortSignal.timeout(5000),
     });
-    // 200 = OK, 401/403 = bad key, 402 = no credit (still valid key)
-    if (res.status === 200 || res.status === 402) return 'ok';
+    if (res.status === 200) return 'ok';
     if (res.status === 401 || res.status === 403) return 'error';
-    return `unknown_${res.status}`;
+    // Older accounts may not expose /team — fallback: any non-auth-error response
+    // with a valid-shaped key is "ok-ish".
+    if (res.status >= 400 && res.status < 500 && res.status !== 402) return `unknown_${res.status}`;
+    return res.status >= 200 && res.status < 300 ? 'ok' : `unknown_${res.status}`;
   });
 
   // OpenAI: GET /models

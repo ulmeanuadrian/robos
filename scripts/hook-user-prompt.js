@@ -31,12 +31,13 @@ import { routePrompt } from './skill-route.js';
 import { logHookError } from './lib/hook-error-sink.js';
 import { isClosed, extractOpenThreads as extractOpenThreadsLib } from './lib/memory-format.js';
 import { checkLicense } from './license-check.js';
+import { getActiveClient, getMemoryDir } from './lib/client-context.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const ROBOS_ROOT = join(__dirname, '..');
 const SESSION_STATE_DIR = join(ROBOS_ROOT, 'data', 'session-state');
-const MEMORY_DIR = join(ROBOS_ROOT, 'context', 'memory');
+const STARTUP_AUDIT_LOG = join(ROBOS_ROOT, 'data', 'startup-audit.log');
 
 function todayISO() {
   const d = new Date();
@@ -68,12 +69,14 @@ function isFirstOfSession(sessionId) {
 
 /**
  * Gaseste cel mai recent fisier de memorie (dupa filename, nu mtime).
+ * Resolves through getMemoryDir() — picks client memory if a client is active.
  * Returneaza { date, path, content, hasClosingPattern } sau null.
  */
 function findLatestMemoryFile() {
-  if (!existsSync(MEMORY_DIR)) return null;
+  const memoryDir = getMemoryDir();
+  if (!existsSync(memoryDir)) return null;
 
-  const files = readdirSync(MEMORY_DIR)
+  const files = readdirSync(memoryDir)
     .filter(f => /^\d{4}-\d{2}-\d{2}\.md$/.test(f))
     .sort()
     .reverse();
@@ -81,7 +84,7 @@ function findLatestMemoryFile() {
   if (files.length === 0) return null;
 
   const latest = files[0];
-  const path = join(MEMORY_DIR, latest);
+  const path = join(memoryDir, latest);
   const content = readFileSync(path, 'utf-8');
   const date = latest.replace(/\.md$/, '');
   const hasClosingPattern = isClosed(content);
@@ -90,12 +93,37 @@ function findLatestMemoryFile() {
 }
 
 /**
- * Citeste memoria zilei curente. Returneaza content sau null.
+ * Citeste memoria zilei curente. Resolves per active client.
+ * Returneaza { path, content } sau null.
  */
 function readTodayMemory() {
-  const path = join(MEMORY_DIR, `${todayISO()}.md`);
+  const path = join(getMemoryDir(), `${todayISO()}.md`);
   if (!existsSync(path)) return null;
   return { path, content: readFileSync(path, 'utf-8') };
+}
+
+/**
+ * Reads last entry from data/startup-audit.log (NDJSON).
+ * Returns { audit_at, abandoned, files_audited, verdict } or null.
+ * Filters: only returns entries from the last 24h to keep startup bundle relevant.
+ */
+function readLatestStartupAudit() {
+  if (!existsSync(STARTUP_AUDIT_LOG)) return null;
+  try {
+    const content = readFileSync(STARTUP_AUDIT_LOG, 'utf-8');
+    const lines = content.split('\n').filter(l => l.trim());
+    if (lines.length === 0) return null;
+    const lastLine = lines[lines.length - 1];
+    const entry = JSON.parse(lastLine);
+    if (!entry.audit_at) return null;
+
+    const ageMs = Date.now() - new Date(entry.audit_at).getTime();
+    if (ageMs > 24 * 3600 * 1000) return null; // older than 24h — stale
+
+    return entry;
+  } catch {
+    return null;
+  }
 }
 
 // Open Threads extraction lives in scripts/lib/memory-format.js.
@@ -209,15 +237,28 @@ function readRecentActivity(limit = 5) {
  */
 async function buildStartupBundle() {
   const today = todayISO();
+  const activeClient = getActiveClient();
   const todayMem = readTodayMemory();
   const latest = findLatestMemoryFile();
   const recovery = consumeRecoveryFile();
   const recentActivity = readRecentActivity(5);
   const pendingCandidates = await readPendingCandidates(5);
+  const latestAudit = readLatestStartupAudit();
 
   const lines = [];
   lines.push(`[STARTUP CONTEXT — primul prompt al sesiunii ${today}]`);
   lines.push('');
+
+  // Active client banner — explicit signal at session start.
+  if (activeClient) {
+    lines.push(`Workspace activ: client "${activeClient.slug}" (${activeClient.name}).`);
+    lines.push(`  → brand/, context/USER.md, learnings.md, memory/, projects/ se rezolva din clients/${activeClient.slug}/.`);
+    lines.push(`  → Pentru a iesi: spune "client root".`);
+    lines.push('');
+  } else {
+    lines.push('Workspace activ: root (niciun client).');
+    lines.push('');
+  }
 
   // Protocol PRIMUL — model-ul vede regulile inainte de date.
   lines.push('REGULI DE RASPUNS (cititi inainte de a raspunde):');
@@ -231,6 +272,14 @@ async function buildStartupBundle() {
   // Recovery: STRICT relevant — daca exista, surface-uim concis
   if (recovery && recovery.abandoned_sessions?.length > 0) {
     lines.push(`Recovery flag: ${recovery.abandoned_sessions.length} sesiune(i) anterioara(e) abandonata(e). Mentioneaza userului DOAR daca pare confuz sau intreaba.`);
+    lines.push('');
+  }
+
+  // Startup audit (cron 08:00) — surface DOAR daca sunt sesiuni abandonate in ultimele 7 zile.
+  // Verdict ALL_CLEAN sau NO_DATA → silent (nu spammuim contextul cu OK-uri).
+  if (latestAudit && latestAudit.verdict === 'ABANDONED_FOUND' && Array.isArray(latestAudit.abandoned)) {
+    const dates = latestAudit.abandoned.map(a => a.date).slice(0, 5).join(', ');
+    lines.push(`Audit zilnic (${latestAudit.audit_at.slice(0, 16).replace('T', ' ')}): ${latestAudit.abandoned.length} sesiune(i) neinchise — ${dates}. Mentioneaza la salutare daca user pare confuz; nu intra in detaliu fara cerere.`);
     lines.push('');
   }
 
@@ -282,6 +331,26 @@ async function buildStartupBundle() {
   lines.push('[/STARTUP CONTEXT]');
 
   return lines.join('\n');
+}
+
+/**
+ * Construieste directiva ACTIVE CLIENT — apare la FIECARE prompt cand un client e activ.
+ *
+ * Tine context resolution corect chiar si dupa compactare de context: skill-urile care
+ * citesc brand/voice.md (etc.) sunt re-instructiate la fiecare turn sa rezolve din
+ * clients/{slug}/. Cost ~40 tokens / prompt — neglijabil vs prevenirea unei vocii gresite.
+ */
+function buildActiveClientDirective() {
+  const active = getActiveClient();
+  if (!active) return null;
+
+  return [
+    `[ACTIVE CLIENT: ${active.slug}]`,
+    `Path resolution pentru orice skill rulat acum: brand/, context/USER.md, context/learnings.md, context/memory/, projects/ → din clients/${active.slug}/.`,
+    `Globale (raman root): context/SOUL.md, skills/, data/ (DB, telemetry, activity log).`,
+    `Pentru iesire din workspace-ul clientului: spune "client root" sau "iesi din client".`,
+    `[/ACTIVE CLIENT]`,
+  ].join('\n');
 }
 
 /**
@@ -408,11 +477,16 @@ async function main() {
     sections.push(await buildStartupBundle());
   }
 
-  // Section 2: Skill route hint (la fiecare prompt unde matches)
+  // Section 2: ACTIVE CLIENT directive (la FIECARE prompt cand un client e activ).
+  // Plasata DUPA startup ca sa fie ultima directiva proaspata in context daca skill se trigger-uieste imediat.
+  const clientDirective = buildActiveClientDirective();
+  if (clientDirective) sections.push(clientDirective);
+
+  // Section 3: Skill route hint (la fiecare prompt unde matches)
   const skillHint = buildSkillRouteHint(prompt);
   if (skillHint) sections.push(skillHint);
 
-  // Section 3: Verification Discipline reminder (factual-claim contexts despre robOS)
+  // Section 4: Verification Discipline reminder (factual-claim contexts despre robOS)
   const verificationHint = buildVerificationHint(prompt);
   if (verificationHint) sections.push(verificationHint);
 

@@ -1,0 +1,11 @@
+{
+  "slug": "activity-redact",
+  "name": "Weekly activity log redaction sweep",
+  "schedule": "0 4 * * 0",
+  "command": "node scripts/redact-activity-log.js",
+  "timeout": "60s",
+  "retries": 0,
+  "notify": "on_failure",
+  "enabled": true,
+  "_description": "Re-aplica patternurile curente de redactie peste data/activity-log.ndjson. Util cand redact.js a fost extins cu noi patterns dupa ce log-ul a acumulat entries cu vechiul filtru. Ruleaza duminica la 04:00. Bypass Claude (deterministic), 0 cost token. Idempotent."
+}

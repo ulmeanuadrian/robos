@@ -22,11 +22,11 @@ import { readFileSync, statSync, existsSync, mkdirSync, writeFileSync } from 'fs
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { logHookError } from './lib/hook-error-sink.js';
+import { getMemoryDir } from './lib/client-context.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const ROBOS_ROOT = join(__dirname, '..');
-const MEMORY_DIR = join(ROBOS_ROOT, 'context', 'memory');
 const STATE_DIR = join(ROBOS_ROOT, 'data', 'session-state');
 
 const DEFAULT_THRESHOLD_MIN = parseInt(process.env.ROBOS_CHECKPOINT_MIN || '30', 10);
@@ -41,10 +41,11 @@ function ensureDir(dir) {
 
 /**
  * Determina cand a fost ultima oara cand memoria zilei a fost actualizata.
+ * Resolves through getMemoryDir() — picks client memory if a client is active.
  * Returneaza un timestamp ms sau null daca fisierul nu exista.
  */
 function lastMemoryWriteMs() {
-  const path = join(MEMORY_DIR, `${todayISO()}.md`);
+  const path = join(getMemoryDir(), `${todayISO()}.md`);
   if (!existsSync(path)) return null;
   try {
     return statSync(path).mtimeMs;
@@ -150,6 +151,13 @@ function emitReminder(sessionId, now, reason, sinceWriteMs, state) {
     ? 'Sesiunea ruleaza de mai mult de pragul de checkpoint si memoria zilei nu a fost creata inca.'
     : `Memoria zilei nu a fost actualizata de ${minSince} minute.`;
 
+  // Build client-aware memory path so escalation messages point to the right place.
+  const memoryDir = getMemoryDir();
+  const memoryRel = memoryDir
+    .slice(ROBOS_ROOT.length + 1)
+    .replace(/\\/g, '/');
+  const memoryFileRel = `${memoryRel}/${todayISO()}.md`;
+
   // Escaladare in 3 trepte:
   //  Level 1 (count=1): nudge soft
   //  Level 2 (count=2): URGENT, language stricter
@@ -158,7 +166,7 @@ function emitReminder(sessionId, now, reason, sinceWriteMs, state) {
     // Block decision — Claude Code va impiedica modelul sa termine
     const output = {
       decision: 'block',
-      reason: `${reasonText} Asta e al ${newCount}-lea reminder unheeded — am blocat stop-ul ca sa scrii memoria zilei ACUM. Adauga sectiunile Goal/Deliverables/Decisions/Open Threads in context/memory/${todayISO()}.md, apoi continua. Acest block se ridica automat dupa ce memoria primeste o scriere.`,
+      reason: `${reasonText} Asta e al ${newCount}-lea reminder unheeded — am blocat stop-ul ca sa scrii memoria zilei ACUM. Adauga sectiunile Goal/Deliverables/Decisions/Open Threads in ${memoryFileRel}, apoi continua. Acest block se ridica automat dupa ce memoria primeste o scriere.`,
     };
     process.stdout.write(JSON.stringify(output));
     process.exit(0);
@@ -169,7 +177,7 @@ function emitReminder(sessionId, now, reason, sinceWriteMs, state) {
     `[${urgency}]`,
     reasonText,
     '',
-    'Inainte de urmatorul turn, scrie un mini-checkpoint in `context/memory/' + todayISO() + '.md`:',
+    `Inainte de urmatorul turn, scrie un mini-checkpoint in \`${memoryFileRel}\`:`,
     '  - Adauga la `### Deliverables` ce ai produs (fisiere atinse, decizii)',
     '  - Adauga la `### Open Threads` ce e neterminat',
     '  - Daca nu exista fisier, creeaza-l cu structura standard (## Session N → Goal/Deliverables/Decisions/Open Threads)',

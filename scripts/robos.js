@@ -32,6 +32,10 @@ const PID_FILE = join(PID_DIR, 'server.pid');
 const SERVER_LOG = join(PID_DIR, 'server.log');
 const SERVER_JS = join(ROOT, 'centre', 'server.js');
 
+// Disable Astro telemetry by default — child processes inherit this env var.
+// robOS e local-first; nu trimitem date catre Astro nici la setup nici la run.
+process.env.ASTRO_TELEMETRY_DISABLED = '1';
+
 const COLORS = process.stdout.isTTY && !process.env.NO_COLOR;
 const c = (code, t) => COLORS ? `\x1b[${code}m${t}\x1b[0m` : t;
 const ok = (m) => console.log(c('32', '[OK]'), m);
@@ -337,6 +341,18 @@ async function main() {
   ok(`Dashboard pornit la ${url} (PID ${newPid})`);
   if (!FLAGS.noBrowser) openBrowser(url);
 
+  // First-run editor offer (one-shot): auto-open VSCode if available.
+  // Skips silently when re-launching, when already inside VSCode, or after first offer.
+  const editorMod = await import('./lib/editor.js');
+  const editorOutcome = editorMod.offerEditor({
+    folder: ROOT,
+    alreadyOffered: s.editor_offered,
+    info,
+  });
+  if (editorOutcome === 'opened' || editorOutcome === 'hinted') {
+    state.update({ editor_offered: true });
+  }
+
   // Update state
   const VERSION = existsSync(join(ROOT, 'VERSION'))
     ? readFileSync(join(ROOT, 'VERSION'), 'utf-8').trim()
@@ -349,10 +365,16 @@ async function main() {
     dashboard_port: port,
   });
 
+  // Adapteaza hint-ul de chat la editor: in VSCode → terminal integrat; altfel → fereastra noua.
+  const inVSCode = editorOutcome === 'inside' || editorOutcome === 'opened';
+  const claudeHint = inVSCode
+    ? 'In VSCode: View → Terminal (Ctrl+`) → ruleaza ' + c('36', 'claude')
+    : 'Pentru chat cu Claude: deschide ' + c('36', 'claude') + ' in alta fereastra de terminal';
+
   console.log('');
   console.log(c('1', 'Pasi urmatori:'));
   console.log('  - Dashboard: ' + c('36', url));
-  console.log('  - Pentru chat cu Claude: deschide ' + c('36', 'claude') + ' in alta fereastra de terminal');
+  console.log('  - ' + claudeHint);
   console.log('  - Stop dashboard: ' + c('36', 'node scripts/robos.js --stop'));
 }
 
