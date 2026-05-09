@@ -29,10 +29,11 @@
  * { warning: null } silently. Caller should always exit 0.
  */
 
-import { readFileSync, writeFileSync, existsSync, mkdirSync, renameSync, unlinkSync } from 'fs';
+import { readFileSync, existsSync, mkdirSync, unlinkSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
-import { createHash, randomBytes } from 'crypto';
+import { createHash } from 'crypto';
+import { atomicWrite } from './atomic-write.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -56,16 +57,8 @@ function ensureDir(dir) {
   if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
 }
 
-/**
- * Atomic write via .tmp + rename. Hex random suffix avoids clashes when two
- * PostToolUse hooks fire near-simultaneously (parallel sub-agents).
- */
-function atomicWrite(path, content) {
-  ensureDir(dirname(path));
-  const tmp = `${path}.${randomBytes(4).toString('hex')}.tmp`;
-  writeFileSync(tmp, content);
-  renameSync(tmp, path);
-}
+// atomicWrite extracted to scripts/lib/atomic-write.js (F4 fix — adds Windows
+// EBUSY/EPERM retry + try/finally tmp cleanup). Re-import below.
 
 /**
  * Canonicalize JSON so that {a:1,b:2} and {b:2,a:1} produce identical strings.

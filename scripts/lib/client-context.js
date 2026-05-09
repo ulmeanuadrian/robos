@@ -23,10 +23,10 @@
  * deleted from disk.
  */
 
-import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync, statSync, renameSync, unlinkSync } from 'fs';
+import { readFileSync, existsSync, mkdirSync, readdirSync, statSync, unlinkSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
-import { randomBytes } from 'crypto';
+import { atomicWrite } from './atomic-write.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -42,13 +42,8 @@ function ensureDir(dir) {
   if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
 }
 
-function atomicWrite(path, content) {
-  ensureDir(dirname(path));
-  // Hex tmp suffix to avoid clashes when two processes write concurrently.
-  const tmp = `${path}.${randomBytes(4).toString('hex')}.tmp`;
-  writeFileSync(tmp, content);
-  renameSync(tmp, path);
-}
+// atomicWrite extracted to scripts/lib/atomic-write.js (F4 fix — adds Windows
+// EBUSY/EPERM retry + try/finally tmp cleanup). Imported above.
 
 /**
  * Validate a slug against the canonical regex.

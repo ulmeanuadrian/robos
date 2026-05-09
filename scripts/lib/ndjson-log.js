@@ -8,8 +8,9 @@
  * activity-capture.js, hook-error-sink.js.
  */
 
-import { readFileSync, writeFileSync, appendFileSync, existsSync, mkdirSync, statSync, renameSync, unlinkSync } from 'fs';
+import { readFileSync, writeFileSync, appendFileSync, existsSync, mkdirSync, statSync } from 'fs';
 import { dirname } from 'path';
+import { atomicWrite } from './atomic-write.js';
 
 const DEFAULT_MAX_LINES = 1000;
 
@@ -68,8 +69,11 @@ export function appendNdjson(path, entry, { maxLines = DEFAULT_MAX_LINES } = {})
 
 /**
  * Atomically rotate an NDJSON file to keep only the last `maxLines` entries.
- * Writes to a sibling .tmp, then renames over the original (atomic on
- * NTFS/ext4 for same-volume same-name targets).
+ * Uses scripts/lib/atomic-write.js (random tmp suffix + retry + cleanup).
+ *
+ * F4 fix: previously used non-randomized `.tmp` suffix which raced concurrent
+ * rotations (two processes both rotating same file = data loss). The shared
+ * helper has random hex suffix → no collision.
  */
 function rotateNdjson(path, maxLines) {
   let lines;
@@ -82,13 +86,10 @@ function rotateNdjson(path, maxLines) {
   if (lines.length <= maxLines) return;
 
   const trimmed = lines.slice(-maxLines).join('\n') + '\n';
-  const tmp = path + '.tmp';
   try {
-    writeFileSync(tmp, trimmed, 'utf-8');
-    renameSync(tmp, path);
+    atomicWrite(path, trimmed);
   } catch {
-    // Best-effort: if rotation fails, the file just stays large; reads
-    // still work. Clean up tmp if it's lying around.
-    try { unlinkSync(tmp); } catch {}
+    // Best-effort: if rotation fails (e.g. EACCES after retries), the file
+    // just stays large. Reads still work. atomicWrite already cleans up tmp.
   }
 }
