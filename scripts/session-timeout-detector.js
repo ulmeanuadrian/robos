@@ -24,27 +24,33 @@
 import { readdirSync, readFileSync, writeFileSync, statSync, existsSync, mkdirSync, unlinkSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
+import { loadEnv } from './lib/env-loader.js';
 import { appendNdjson } from './lib/ndjson-log.js';
 import { isClosed, extractOpenThreads } from './lib/memory-format.js';
+import { getAllMemoryScopes } from './lib/client-context.js';
+
+// Load .env BEFORE any process.env reads (cron jobs run without parent env)
+loadEnv();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const ROBOS_ROOT = join(__dirname, '..');
 const STATE_DIR = join(ROBOS_ROOT, 'data', 'session-state');
-const MEMORY_DIR = join(ROBOS_ROOT, 'context', 'memory');
 const DATA_DIR = join(ROBOS_ROOT, 'data');
 const TIMEOUT_LOG = join(DATA_DIR, 'session-timeout.log');
 const RECOVERY_DIR = join(DATA_DIR, 'session-recovery');
 
 function parseArgs() {
   const args = process.argv.slice(2);
-  const opts = { hours: 2, quiet: false };
+  const opts = { hours: 2, quiet: false, dryRun: false };
   for (let i = 0; i < args.length; i++) {
     if (args[i] === '--hours' && args[i + 1]) {
       opts.hours = parseFloat(args[i + 1]) || 2;
       i++;
     } else if (args[i] === '--quiet' || args[i] === '-q') {
       opts.quiet = true;
+    } else if (args[i] === '--dry-run') {
+      opts.dryRun = true;
     }
   }
   return opts;
@@ -58,20 +64,49 @@ function todayISO() {
   return new Date().toISOString().slice(0, 10);
 }
 
-function readLatestMemoryContent() {
-  if (!existsSync(MEMORY_DIR)) return null;
-  const files = readdirSync(MEMORY_DIR)
-    .filter(f => /^\d{4}-\d{2}-\d{2}\.md$/.test(f))
-    .sort()
-    .reverse();
-  if (files.length === 0) return null;
-  const path = join(MEMORY_DIR, files[0]);
-  return {
-    path,
-    date: files[0].replace(/\.md$/, ''),
-    content: readFileSync(path, 'utf-8'),
-    mtimeMs: statSync(path).mtimeMs,
-  };
+/**
+ * Find the most recent memory file across ALL scopes (root + every client).
+ *
+ * F2 fix: previously hardcoded to ROBOS_ROOT/context/memory only, which meant
+ * sessions writing under clients/{slug}/context/memory were silently
+ * misclassified as "abandoned" because their memory files were invisible here.
+ *
+ * Returns the freshest one (by mtimeMs) across all scopes, with a `scope` label
+ * for diagnostics.
+ */
+function readLatestMemoryContentAcrossScopes() {
+  let best = null;
+
+  for (const scope of getAllMemoryScopes()) {
+    if (!existsSync(scope.dir)) continue;
+    let files;
+    try {
+      files = readdirSync(scope.dir).filter(f => /^\d{4}-\d{2}-\d{2}\.md$/.test(f));
+    } catch {
+      continue;
+    }
+    if (files.length === 0) continue;
+
+    files.sort().reverse();
+    const path = join(scope.dir, files[0]);
+    let stat;
+    try { stat = statSync(path); } catch { continue; }
+
+    if (!best || stat.mtimeMs > best.mtimeMs) {
+      let content;
+      try { content = readFileSync(path, 'utf-8'); } catch { continue; }
+      best = {
+        path,
+        date: files[0].replace(/\.md$/, ''),
+        content,
+        mtimeMs: stat.mtimeMs,
+        scope: scope.scope,
+        scopeLabel: scope.label,
+      };
+    }
+  }
+
+  return best;
 }
 
 async function main() {
@@ -106,13 +141,20 @@ async function main() {
         continue;
       }
 
-      // Sesiunea e suficient de batrana — verificam memoria
-      const mem = readLatestMemoryContent();
+      // Sesiunea e suficient de batrana — verificam memoria pe TOATE scope-urile
+      // (root + fiecare client). Bug-fix F2: anterior verificam doar root, deci
+      // sesiunile cu client activ erau clasificate fals abandonate.
+      const mem = readLatestMemoryContentAcrossScopes();
       const memTouchedRecently = mem && (now - mem.mtimeMs) < idleMs;
       const memClosed = mem && isClosed(mem.content);
 
       if (memTouchedRecently || memClosed) {
-        ok.push({ sessionId, ageMin: Math.floor(ageMs / 60000), reason: memClosed ? 'closed' : 'recently_active' });
+        ok.push({
+          sessionId,
+          ageMin: Math.floor(ageMs / 60000),
+          reason: memClosed ? 'closed' : 'recently_active',
+          scope: mem?.scope || 'root',
+        });
         continue;
       }
 
@@ -122,14 +164,19 @@ async function main() {
         sessionId,
         ageMin: Math.floor(ageMs / 60000),
         memDate: mem?.date || null,
+        memScope: mem?.scope || 'root',
         openThreads: threads.slice(0, 5),
       });
 
-      // Cleanup marker-ul abandonat
-      try { unlinkSync(path); } catch { /* ignore */ }
+      // Cleanup marker-ul abandonat (skip in dry-run mode)
+      if (!opts.dryRun) {
+        try { unlinkSync(path); } catch { /* ignore */ }
+      }
     } catch (e) {
-      // Marker corupt — sterge
-      try { unlinkSync(path); } catch { /* ignore */ }
+      // Marker corupt — sterge (skip in dry-run mode)
+      if (!opts.dryRun) {
+        try { unlinkSync(path); } catch { /* ignore */ }
+      }
     }
   }
 
@@ -143,20 +190,22 @@ async function main() {
     verdict,
   };
 
-  appendNdjson(TIMEOUT_LOG, entry);
+  if (!opts.dryRun) {
+    appendNdjson(TIMEOUT_LOG, entry);
 
-  // Daca am detectat sesiuni abandonate, scriem un recovery file timestampat (per batch).
-  // Hook-ul UserPromptSubmit aduna toate fisierele neconsumate la urmatoarea sesiune.
-  // Per-batch evita race-conditions cand mai multe instante de detector ruleaza concurent.
-  if (abandoned.length > 0) {
-    ensureDir(RECOVERY_DIR);
-    const ts = new Date().toISOString().replace(/[:.]/g, '-');
-    const recoveryFile = join(RECOVERY_DIR, `${ts}.json`);
-    writeFileSync(recoveryFile, JSON.stringify({
-      detected_at: new Date().toISOString(),
-      abandoned_sessions: abandoned,
-      consumed: false,
-    }, null, 2));
+    // Daca am detectat sesiuni abandonate, scriem un recovery file timestampat (per batch).
+    // Hook-ul UserPromptSubmit aduna toate fisierele neconsumate la urmatoarea sesiune.
+    // Per-batch evita race-conditions cand mai multe instante de detector ruleaza concurent.
+    if (abandoned.length > 0) {
+      ensureDir(RECOVERY_DIR);
+      const ts = new Date().toISOString().replace(/[:.]/g, '-');
+      const recoveryFile = join(RECOVERY_DIR, `${ts}.json`);
+      writeFileSync(recoveryFile, JSON.stringify({
+        detected_at: new Date().toISOString(),
+        abandoned_sessions: abandoned,
+        consumed: false,
+      }, null, 2));
+    }
   }
 
   if (!opts.quiet) {

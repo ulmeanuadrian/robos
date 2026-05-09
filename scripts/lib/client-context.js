@@ -241,6 +241,35 @@ export function getMemoryDir() {
 }
 
 /**
+ * Get ALL memory scopes (root + every client on disk).
+ *
+ * Use this when a tool needs to scan/audit memory across the whole project,
+ * not just the active scope. Examples: session-timeout-detector (must see
+ * ANY recent session, regardless of which client it ran in), audit-startup
+ * (cross-scope abandoned-session detection).
+ *
+ * @returns {Array<{scope: 'root' | string, dir: string, label: string}>}
+ *   scope = 'root' or client slug; dir = absolute path; label = human-readable.
+ */
+export function getAllMemoryScopes() {
+  const scopes = [{
+    scope: 'root',
+    dir: join(ROBOS_ROOT, 'context', 'memory'),
+    label: 'root',
+  }];
+
+  for (const client of listClients()) {
+    scopes.push({
+      scope: client.slug,
+      dir: join(CLIENTS_DIR, client.slug, 'context', 'memory'),
+      label: `client:${client.slug}`,
+    });
+  }
+
+  return scopes;
+}
+
+/**
  * Convenience: absolute path of brand dir for the active client (or root).
  */
 export function getBrandDir() {
