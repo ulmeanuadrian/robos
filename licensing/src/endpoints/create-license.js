@@ -18,6 +18,28 @@ import {
   generateRandomToken,
   generateShortId,
 } from '../lib/hardware-fingerprint.js';
+
+/**
+ * Constant-time string compare for tokens. S6 fix: replaces `!==` which is
+ * subject to short-circuit evaluation timing leaks. Cloudflare Workers have
+ * crypto.subtle but no node-style timingSafeEqual; this is a portable
+ * implementation using XOR over UTF-8 bytes.
+ */
+function timingSafeEqual(a, b) {
+  if (typeof a !== 'string' || typeof b !== 'string') return false;
+  const aBytes = new TextEncoder().encode(a);
+  const bBytes = new TextEncoder().encode(b);
+  // Compare against the longer length to keep timing length-independent.
+  // Length mismatch still results in false but the loop runs the same time.
+  const len = Math.max(aBytes.length, bBytes.length);
+  let diff = aBytes.length ^ bBytes.length;
+  for (let i = 0; i < len; i++) {
+    const x = i < aBytes.length ? aBytes[i] : 0;
+    const y = i < bBytes.length ? bBytes[i] : 0;
+    diff |= x ^ y;
+  }
+  return diff === 0;
+}
 // Worker NU trimite email — payment app-ul lui Adrian primeste download_url
 // in response si trimite welcome email via SMTP-ul propriu.
 // Templates de email pentru referinta sunt in src/lib/email.js (welcomeEmail)
@@ -30,7 +52,7 @@ export async function handleCreateLicense(request, env) {
   if (!expectedToken) {
     return error('internal_token_not_configured', 500);
   }
-  if (authHeader !== `Bearer ${expectedToken}`) {
+  if (!timingSafeEqual(authHeader, `Bearer ${expectedToken}`)) {
     return error('unauthorized', 401);
   }
 

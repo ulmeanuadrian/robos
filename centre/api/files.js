@@ -48,7 +48,12 @@ function buildTree(dir, relPath, maxDepth = 4) {
   }
 
   return entries
-    .filter(e => !e.name.startsWith('.'))
+    // S11 fix: skip names with path-traversal or separator characters. Belt-
+    // and-braces — readFile already enforces sandboxing via path.relative, but
+    // the tree listing should not expose entries that could confuse downstream
+    // callers. Real filesystems reject these names natively, but NTFS reparse
+    // points / junctions could approximate.
+    .filter(e => !e.name.startsWith('.') && !e.name.includes('/') && !e.name.includes('\\') && !e.name.includes('\0'))
     .sort((a, b) => {
       // Directories first
       if (a.isDirectory() && !b.isDirectory()) return -1;
