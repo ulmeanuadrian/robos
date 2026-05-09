@@ -185,7 +185,17 @@ NU pentru Q&A trivial sau munca zilnica — aia merge in `context/memory/YYYY-MM
 - **Gaseste oportunitati**: spune "level up" sau "ce sa automatizez" -> `sys-level-up`
 - **Sfarsit de zi**: spune "done" sau "gata" -> `sys-session-close`
 
-### Morning Routine (Compound Trigger)
+### Morning Routine (Compound Trigger — model-side)
+
+> **Note (D8 fix):** "morning routine" / "rutina de dimineata" NU sunt trigger-uri
+> in `skills/_index.json`. Compound-ul asta e logica model-side, nu router-side.
+> Functioneaza cat timp model-ul vede aceasta sectiune din CLAUDE.md (deci pe
+> primul prompt al sesiunii). Daca contextul se compacteaza si CLAUDE.md iese din
+> view, frazele "morning routine" cad inapoi la default routing — care va matchui
+> trigger-ul mai specific (`plan de zi` → sys-daily-plan).
+>
+> Pentru a forta compound chiar dupa compaction, ruleaza explicit
+> `plan de zi` apoi `audit`.
 
 When user says "morning routine" or "rutina de dimineata":
 

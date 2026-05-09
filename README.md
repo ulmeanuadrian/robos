@@ -282,7 +282,7 @@ Layer de cautare peste tot ce scrii — notite atomice + jurnale + audituri + le
 - Skills: [skills/sys-capture-note](skills/sys-capture-note/SKILL.md), [skills/sys-recall](skills/sys-recall/SKILL.md)
 - Disable auto-capture: `ROBOS_CANDIDATES_DISABLED=1`
 
-Cost pentru student la install: zero. `setup.sh` ruleaza `init-db.js` care aplica migrarea automat. Fara dependinte noi.
+Cost pentru student la install: zero. `setup.js` (sau `setup.sh` / `setup.cmd` / `setup.ps1`) ruleaza `centre/scripts/init-db.js` care aplica migrarea automat. Fara dependinte noi.
 
 ---
 
@@ -439,7 +439,7 @@ Vezi `.env.example` pentru lista completa. Skills functioneaza fara chei (cu deg
 
 **Importante:**
 - `PORT` — portul dashboard (default 3001)
-- `FIRECRAWL_API_KEY` — research web (research-trending, brand-voice auto-scrape)
+- `FIRECRAWL_API_KEY` — research web (research-trending, research-competitors). Brand-voice auto-scrape foloseste WebFetch (Claude Code tool), nu Firecrawl.
 - `OPENAI_API_KEY` / `XAI_API_KEY` — research social (Reddit, X)
 - `WHATSAPP_ACCESS_TOKEN` + `WHATSAPP_PHONE_NUMBER_ID` — skill `tool-whatsapp`
 - `GOOGLE_DRIVE_SERVICE_ACCOUNT_JSON` — skill `tool-drive`

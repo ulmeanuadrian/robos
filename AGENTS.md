@@ -14,6 +14,9 @@ robOS impune comportament prin **hooks** Claude Code (configurate in `.claude/se
 | `PostToolUse` | [scripts/hook-post-tool.js](scripts/hook-post-tool.js) | Loop detector: hash-uieste fiecare tool call (tool_name + canonical input). N apeluri identice consecutive (default 3) → injecteaza `[LOOP DETECTOR]` warning in context. Al doilea warning escalat la 2N calls. State per-session in `data/session-state/{sid}-tools.json`. Exempt default: TodoWrite. |
 | `Stop` (1) | [scripts/checkpoint-reminder.js](scripts/checkpoint-reminder.js) | Ridica reminder cand memoria zilei nu a primit scriere recent. Escalation in 3 trepte; al 3-lea unheeded blocheaza Stop pana cand operatorul scrie memoria. |
 | `Stop` (2) | [scripts/activity-capture.js](scripts/activity-capture.js) | Captureaza turn-ul curent in `data/activity-log.ndjson` (rotation 500 entries). Bridge cross-session — urmatorul prompt vede ce s-a intamplat ieri/saptamana trecuta. |
+| `Stop` (3) | [scripts/note-candidates.js](scripts/note-candidates.js) | Detecteaza decizii / reguli / "tine minte X" in turn-ul curent si le scrie ca PENDING in tabela `note_candidates`. Userul reviewuieste batch la urmatorul session start. Toggle off cu `ROBOS_CANDIDATES_DISABLED=1`. |
+
+**Note:** toate scripturile entry (hooks + cron jobs) ruleaza `loadEnv()` la inceput pentru a citi `.env`. Toggle-urile `ROBOS_*_DISABLED` din `.env` chiar functioneaza.
 
 Erori de hook → `data/hook-errors.ndjson` (rotation 500). Niciun hook nu blocheaza promptul user-ului pe baza de eroare interna; eroarea ajunge in error sink, hook-ul iese 0 (silent failure are vizibilitate via sink, nu via Claude Code).
 
@@ -92,11 +95,15 @@ Daca state-ul pointeaza la un client care a disparut de pe disk (folder sters ma
 - **Skills care CITESC brand** (toate content-*, research-*, sys-audit) — citesc din `clients/{slug}/brand/` automat via directiva.
 - **Skills care lucreaza global** (sys-skill-builder, sys-recall pentru cautare cross-client) — ignora directiva, lucreaza pe `skills/` sau `data/robos.db`.
 
-### Limite cunoscute (v0.5.x)
+### Limite cunoscute (v2.x)
 
-- `sys-recall` cauta in DB-ul global, nu filtreaza per client. Daca ai notite de la 3 clienti, search-ul le returneaza pe toate. v2 candidate.
-- `audit-startup` cron job (08:00) auditeaza memoria root, nu memoria per-client. v2 va loop-a peste toate `clients/*/context/memory/`.
-- `data/skill-telemetry.ndjson` nu eticheteaza linia cu clientul activ in v0.5.x. v2 candidate.
+**Rezolvate in v2.0+:**
+- ~~`sys-recall` cauta global~~ → acum filtreaza pe active client default (override `--all-clients`).
+- ~~`audit-startup` audit doar memoria root~~ → acum loop peste toate `clients/*/context/memory/`.
+- ~~`session-timeout-detector` blind la per-client memory~~ → fix in v2.1 (F2).
+
+**Inca actuale:**
+- `data/skill-telemetry.ndjson` nu eticheteaza linia cu clientul activ in toate path-urile. `parallel-budget.js log` accepta `[client]` arg dar nu toti caller-ii il pasa. v2.x candidate.
 
 ### Smoke test
 
@@ -268,7 +275,7 @@ Cand un skill are munca naturala paralela (≥3 unitati independente, fiecare �
 5. **Idempotenta**: sub-agentii NU comit git, NU push, NU trimit email, NU modifica `.env`. Side-effects ireversibile raman in main thread, dupa confirmare user.
 6. **Niciun secret in prompt**: daca un agent are nevoie de API key, citeste el `.env`. Main thread nu pasa cheia ca string.
 7. **Spawn paralel = un singur mesaj**: invocarile `Agent` paralele MERG IN ACELASI MESAJ DE RASPUNS, multiple tool calls. Mesaje separate = secvential = pierzi tot castigul.
-8. **Telemetrie obligatorie**: dupa fiecare invocare paralelizata, skill-ul scrie o linie in `data/skill-telemetry.ndjson` via `parallel-budget.js log`.
+8. **Telemetrie recomandata**: dupa o invocare paralelizata, skill-ul ar trebui sa scrie o linie in `data/skill-telemetry.ndjson` via `parallel-budget.js log`. In practica nu toti skill-urile o fac (gap cunoscut — v2.x candidate). Cand telemetria exista, e folosita pentru weekly review (`fallback_used > 20%` → bug, nu feature).
 
 ### Pattern 1 — Pillar Fan-Out
 

@@ -12,7 +12,10 @@ import { readFileSync, writeFileSync, appendFileSync, existsSync, mkdirSync, sta
 import { dirname } from 'path';
 import { atomicWrite } from './atomic-write.js';
 
-const DEFAULT_MAX_LINES = 1000;
+// Default 500 — matches what activity-capture.js + hook-error-sink.js explicitly
+// pass. AGENTS.md documents "rotation 500 entries" so the library default should
+// agree (D9 fix). Callers can override to 1000+ for archive logs (skill-telemetry).
+const DEFAULT_MAX_LINES = 500;
 
 // Average line size estimate. We compute size cap as maxLines * AVG_LINE * SLACK.
 // When file size exceeds this, we trigger rotation (which precisely counts lines).
