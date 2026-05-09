@@ -30,7 +30,11 @@
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
+import { loadEnv } from './lib/env-loader.js';
 import { appendNdjson } from './lib/ndjson-log.js';
+
+// Load .env BEFORE any process.env reads (cron jobs run without parent env)
+loadEnv();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);

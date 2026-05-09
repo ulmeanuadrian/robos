@@ -22,9 +22,13 @@ import { readFileSync, existsSync, readdirSync, statSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { homedir } from 'os';
+import { loadEnv } from './lib/env-loader.js';
 import { appendNdjson } from './lib/ndjson-log.js';
 import { logHookError } from './lib/hook-error-sink.js';
 import { redactSensitive } from './lib/redact.js';
+
+// Load .env BEFORE any process.env reads (Claude Code spawns hooks with clean env)
+loadEnv();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);

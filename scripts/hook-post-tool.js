@@ -22,8 +22,12 @@
  */
 
 import { readFileSync } from 'fs';
+import { loadEnv } from './lib/env-loader.js';
 import { recordCall } from './lib/loop-detector.js';
 import { logHookError } from './lib/hook-error-sink.js';
+
+// Load .env BEFORE any process.env reads (Claude Code spawns hooks with clean env)
+loadEnv();
 
 const SESSION_ID_RE = /^[a-zA-Z0-9_-]{1,128}$/;
 

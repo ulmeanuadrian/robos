@@ -27,7 +27,11 @@ import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { homedir } from 'os';
 import { randomBytes } from 'crypto';
+import { loadEnv } from './lib/env-loader.js';
 import { getDb, closeDb } from '../centre/lib/db.js';
+
+// Load .env BEFORE any process.env reads (Claude Code spawns hooks with clean env)
+loadEnv();
 import { logHookError } from './lib/hook-error-sink.js';
 
 const __filename = fileURLToPath(import.meta.url);

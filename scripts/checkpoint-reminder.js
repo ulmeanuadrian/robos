@@ -21,8 +21,12 @@
 import { readFileSync, statSync, existsSync, mkdirSync, writeFileSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
+import { loadEnv } from './lib/env-loader.js';
 import { logHookError } from './lib/hook-error-sink.js';
 import { getMemoryDir } from './lib/client-context.js';
+
+// Load .env BEFORE any process.env reads (Claude Code spawns hooks with clean env)
+loadEnv();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
