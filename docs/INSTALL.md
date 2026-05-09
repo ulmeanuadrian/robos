@@ -279,8 +279,49 @@ Probabil e o eroare de Claude Code, nu de robOS. Ruleaza `claude --version` si v
 logat corect (`claude` te intreaba la prima rulare).
 
 ### Vrei sa testezi din nou onboarding-ul de la zero
-Sterge `brand/voice.md`, `brand/audience.md`, `brand/positioning.md`, `context/USER.md` si scrie
-din nou `onboard me`. (Tip: fa o copie a folder-ului robOS inainte sa incepi, ca backup.)
+Ruleaza: `node scripts/robos.js --reset-onboarding`
+(Backup automat in `.archive/onboarding-backup/{timestamp}/`. Apoi `onboard me` din Claude Code.)
+
+### `Port 3001 already in use` la pornirea dashboard-ului
+Alt proces foloseste portul. Optiuni:
+- Schimba PORT in `.env` (ex: `PORT=3002`)
+- Opreste alt instance: `node scripts/robos.js --stop`
+- Vezi ce ruleaza pe port: `netstat -ano | findstr 3001` (Windows) / `lsof -i :3001` (Mac)
+
+### `bash: command not found` pe Windows
+Foloseste `.cmd` sau `.ps1` echivalent in loc de `.sh`:
+- `scripts\add-client.cmd acme-corp` (nu `bash scripts/add-client.sh ...`)
+- `scripts\list-skills.cmd`
+- `scripts\status-crons.cmd`
+Universal pe orice OS: `node scripts/<nume>.js`
+
+### Hook-urile par sa nu functioneze (no checkpoint reminder, no auto-capture)
+1. Ruleaza diagnostic: `node scripts/robos.js --doctor`
+2. Verifica `data/hook-errors.ndjson` (silent failures sunt logate aici)
+3. Toggle-urile din `.env` (ROBOS_*_DISABLED) — verifica ca sunt 0, nu 1
+
+### Anti-virus blocheaza Node sau better-sqlite3 (Windows)
+Defender / Norton blocheaza native binaries la prima rulare. Adauga exceptie pentru
+folder-ul robOS (sau pentru `centre\node_modules\better-sqlite3\build\`).
+
+### OneDrive / Dropbox sync conflict pe `.env` sau `data/`
+Cand robOS scrie + cloud sync citeste = race. Solutie: muta robOS in afara folderului
+sincronizat (ex: `C:\claude_os\robos\` in loc de `C:\Users\X\OneDrive\robos\`).
+
+### Memoria zilei nu primeste auto-update (lipseste sectiunea `## Session N`)
+Hook-urile Stop sunt dezactivate sau au erori. Run `--doctor` + verifica
+`ROBOS_CHECKPOINT_DISABLED=0` in `.env`. La `# 3 reminders unheeded`,
+hook-ul forteaza scrierea — scrie manual o sectiune `## Session 1\n### Goal\nX`.
+
+### `setup.js` raporteaza erori la `astro build`
+Astro cere strict Node >= 22.12.0. Verifica: `node --version`. Pe nvm: `nvm install 22.12.0 && nvm use 22.12.0`.
+
+### Cum vezi ce skills sunt instalate vs disponibile
+`node scripts/list-skills.js` (sau `.cmd` / `.ps1` / `.sh` echivalent).
+
+### Cum cauti un trigger anume
+`node scripts/robos.js --triggers <keyword>` — listeaza toate trigger-urile
+care contin keyword-ul, grupate pe skill.
 
 ---
 

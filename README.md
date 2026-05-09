@@ -27,6 +27,8 @@ Sistem de operare agentic pentru Claude Code. Da unui singur operator AI memorie
 >
 > **Pentru utilizare zilnica**, citeste **[docs/operator-handbook.md](docs/operator-handbook.md)** — cum se porneste/inchide o sesiune, cum functioneaza memoria si activity log, ce skill triggers exista, bune practici si troubleshooting.
 >
+> **Glossary** ([docs/glossary.md](docs/glossary.md)) — termeni robOS / OM-AI Protocol / acronime business cu explicatii scurte.
+>
 > **Pentru pozitionare** (Claude singur vs Claude + robOS), citeste **[docs/claude-vs-robos.md](docs/claude-vs-robos.md)** — tabel ASCII comparativ cu ce face Claude din start si ce adauga robOS la fiecare capacitate.
 
 ---

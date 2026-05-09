@@ -3,6 +3,168 @@
 > **Acest fisier e developer-facing** — detalii tehnice, file paths, line numbers.
 > Pentru rezumat in limba operatorului: vezi [WHATS-NEW.md](WHATS-NEW.md).
 
+## [2.1.0] - 2026-05-09 (unreleased — pending VERSION bump + tarball rebuild)
+
+### Audit comprehensiv + remediation sweep
+
+87 finding-uri identificate prin 4 agenti adversariali paraleli (functional/stability,
+docs-truth, security, UX/onboarding) + smoke baseline. Documentate in
+[AUDIT-2026-05-09.md](AUDIT-2026-05-09.md). 38 finding-uri rezolvate prin 17 commit-uri
+atomice, fiecare cu smoke test verde inainte si dupa.
+
+**Severity coverage:**
+- 2 CRITICAL: 100% rezolvate
+- 3 BLOCKER: 100% rezolvate
+- 18 HIGH: 12 rezolvate (67%)
+- 38 MED: 21 rezolvate (55%)
+- 26 LOW: 5 rezolvate (19%)
+
+### Critical fixes (data-loss / functional regression)
+
+**F1 — Hooks citesc `.env` (loadEnv).** Toggle-urile `ROBOS_*_DISABLED` din
+`.env.example` erau moarte — hook-urile rulau cu env curat (Claude Code nu
+forwardeaza). Adaugat `scripts/lib/env-loader.js` (NEW) + `loadEnv()` la inceput
+in 8 entry scripts (hook-user-prompt, hook-post-tool, checkpoint-reminder,
+activity-capture, note-candidates, audit-startup, session-timeout-detector,
+learnings-aggregator). Smoke: `scripts/smoke-env-toggles.js` 22 assertions.
+
+**F2 — `session-timeout-detector` multi-client aware.** Cand un client era
+activ, sesiunile ii erau fals-marcate "abandonate" pentru ca detector-ul vedea
+doar `context/memory/` root. Fix: `getAllMemoryScopes()` in
+`scripts/lib/client-context.js` + cross-scope walk + `--dry-run` flag.
+Smoke: `scripts/smoke-session-timeout-multiclient.js` 10 assertions.
+
+### Blocker UX (student-facing)
+
+**U2 — `docs/init/README.md` (rogue Agentic OS docs) archived.** Fisier
+leftover dintr-un produs diferit ("Agentic OS" by Simon Scrapes) — referinte
+la `mkt-brand-voice`, `bash scripts/centre.sh`, `localhost:3000`. Mutat in
+`.archive/legacy-vendor-docs/` (gitignored).
+
+**U3 + D10 — Node version single-source 22.12.0.** Inconsistenta in 7 fisiere
+(`README.md:34`, `setup.cmd:6`, `setup.ps1:11`, etc.) zicea "Node >= 20" dar
+`setup.js:47` hard-fail pe < 22.12. Aliniat. Adaugate optiuni `.msi` direct +
+winget alternative pentru Windows Sandbox / corporate images.
+
+**ROBOS_DEV portita scoasa.** Bypass de license check intern. Decizie produs:
+test envs trebuie sa foloseasca licenta reala. 7 fisiere modificate (license-check,
+test-env scripts, docs).
+
+### High-impact stability + security
+
+**F4 — `scripts/lib/atomic-write.js` (NEW).** Pattern unified cu Windows
+EBUSY/EPERM retry + try/finally cleanup. Inlocuieste 3 site-uri duplicate
+(loop-detector, client-context, ndjson-log rotation). Random hex tmp suffix
+elimina race conditions concurente.
+
+**F5 + F10 — Session-state retention.** `scripts/lib/cleanup.js` (NEW)
+pruneDirByAge — session-state 30 zile, recovery 7 zile. Detector-ul cron
+ruleaza la 15 min si curata in pas. Disk bounded automat fara cleanup job
+separat.
+
+**F7 — Origin null bypass.** `centre/lib/auth.js isSameOrigin` returna `true`
+cand Origin lipsea — orice proces local Node putea fura token-ul. Fix: missing
+Origin → `false`. CLI tooling foloseste Bearer direct.
+
+**S3 — `ARGS_FORBIDDEN_RE` curata.** Regex-ul bloca spatii (input multi-cuvant
+catre `runSkill` returna 400). Cu `shell:false`, doar NUL/CRLF sunt periculoase.
+Aliniat la `/[\0\n\r]/`.
+
+**S4 — `cron-runner.js` shell:false + argv parse.** `shell:true` pentru jobs
+cu camp `command` permitea metacharacters. Adaugat `parseCommandArgv()` +
+`spawn(node, [...], { shell: false })`. argv[0]==='node' substituie cu
+`process.execPath` (Windows .cmd shim safe).
+
+### High-impact UX cross-platform
+
+**U5 — 7 bash-only scripts → cross-platform.** add-client, add-skill,
+list-skills, remove-skill, start-crons, stop-crons, status-crons. Sursa
+unica `.js` (ESM) + 21 wrappers thin (`.cmd`, `.ps1`, `.sh` proxy).
+`scripts/lib/process-utils.js` (NEW): `isProcessAlive`, `killProcessSync`
+cross-platform. Smoke: `smoke-cross-platform-scripts.js` 28 assertions.
+
+**U7 — License bind in setup, nu la primul prompt.** Student offline la
+primul prompt era blocat. Bind mutat in `setup.js` (cand student e oricum
+online instaland deps). `--skip-license-bind` pentru offline/dev/evaluator.
+
+**U10 — Starter packs SMB + B2B SaaS.** Memorie zicea audienta = Operator-Peer + SMB,
+dar pack-urile actuale erau consultant/agency/ecommerce/creator. Adaugate
+`smb` (service/retail/trade local) + `b2b-saas` (developer-first product).
+Sys-onboard menu 7-option + 1-question diagnostic pentru "Other".
+
+**U13 — `WHATS-NEW.md` (NEW)** student-language changelog. CHANGELOG.md
+marcat dev-facing.
+
+### Cross-platform infrastructure
+
+**5 lib-uri noi DRY:**
+- `scripts/lib/env-loader.js` (F1)
+- `scripts/lib/atomic-write.js` (F4)
+- `scripts/lib/cleanup.js` (F5/F10)
+- `scripts/lib/process-utils.js` (U5)
+- Extens: `scripts/lib/client-context.js` cu `getAllMemoryScopes()` (F2)
+
+**Tooling nou:**
+- `scripts/smoke-all.js` — runner unificat (11/11 in 7s)
+- `scripts/lint-portability.js` — detect shellisme (USERPROFILE, shell:true,
+  backslash literal, exec sans-argv)
+
+**6 smoke tests noi (87 assertions):** smoke-env-toggles, smoke-session-timeout-multiclient,
+smoke-auth-origin, smoke-cron-runner-argv, smoke-atomic-write, smoke-cleanup,
+smoke-cross-platform-scripts.
+
+### MED + LOW polish (Wave 1-4)
+
+- F8: orphan key detection in `setup-env.js`
+- F12 + F20: `parallel-budget.js` ESM + `appendNdjson` rotation
+- F14: cron-leader-lock atomic write
+- F17: transcript-not-found logged via `hook-error-sink`
+- F18: settings.js setEnv via atomic-write
+- S5: redact.js generic UPPER_KEY=value pattern (6 cazuri noi)
+- S6: timing-safe compare licensing /internal/licenses/create
+- S7: HOST=0.0.0.0 startup warning
+- S8 + S9: AUTH_REQUIRED extins cu `/api/files`, `/api/system/activity`
+- S11: `buildTree` filter '/'/'\\'/NUL bytes
+- S15: cron API clientId slug validation
+- F13: launcher-state version refresh in setup
+- D1, D2, D5, D7, D8, D9, D11, D13, D20: docs alignment
+- U21: setup banner unmissable
+- U22 (NEW): `node scripts/robos.js --doctor`
+- U25 (NEW): `node scripts/robos.js --reset-onboarding`
+- U26: `update.js` JWT fallback la first-run-bind
+- U29 (NEW): `node scripts/robos.js --triggers <kw>`
+- Lint: 4 BLOCK → 0 BLOCK, 2 WARN → 0 WARN
+
+### Documentation new
+
+- `WHATS-NEW.md` (NEW)
+- `docs/glossary.md` (NEW)
+- `docs/INSTALL.md` — sectiune "Probleme frecvente" extinsa cu 10 entries noi
+- `AUDIT-2026-05-09.md` — raport complet 87 finding-uri
+- `PLAN-FIX-2026-05-09.md` — plan atomic-commit cu safety gates
+
+### Validation
+
+- 11 smoke suites, 235+ assertions — toate verzi pe fiecare commit
+- Lint portability: 0 BLOCK, 0 WARN
+- Tag git `pre-fix-baseline-2026-05-09` disponibil pentru rollback
+- 17 commit-uri atomice (bisect-friendly)
+
+### Migration / upgrade notes
+
+- Update path: `node scripts/update.js` (cere licenta JWT — fallback la
+  first-run-bind daca lipseste).
+- `.env.example` modificat: GEMINI_API_KEY, ANTHROPIC_API_KEY descrieri
+  corectate; GITHUB_TOKEN/REPO comentate ("RESERVED for future"); adaugat
+  ROBOS_CANDIDATES_DISABLED. Operatorii cu `.env` existente: ruleaza
+  `node scripts/setup-env.js` pentru sync.
+- Hooks loadEnv() — daca aveai toggle-uri ROBOS_* in `.env` care nu
+  functionau, ACUM functioneaza. Verifica `.env` pentru valori ne-intentionate.
+- ROBOS_DEV scos: daca foloseai pentru test envs, vezi
+  `scripts/test-env/README.md` pentru flow-ul nou cu licenta reala.
+
+---
+
 ## [2.0.0] - 2026-05-09
 
 ### Multi-client REAL + Loop Detector + Bearer auth coverage + per-client memory/notes/audit
