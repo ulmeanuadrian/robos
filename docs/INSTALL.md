@@ -17,7 +17,9 @@ Daca ai deja Node.js + Claude Code instalate, sari direct la **Pasul 1**.
 
 robOS are nevoie de doua aplicatii instalate **inainte** sa-l deschizi.
 
-### 0a. Node.js v20 sau mai nou *(gratuit)*
+### 0a. Node.js v22.12 sau mai nou *(gratuit)*
+
+robOS necesita **Node 22.12+** (cerinta Astro dependency, build-ul dashboard-ului).
 
 Verificare rapida in terminal:
 
@@ -27,7 +29,7 @@ node --version
 
 Daca vezi `v22.12.x` sau mai sus, ai. Sari la **0b**.
 
-Daca nu ai sau ai versiune mai veche (robOS necesita **Node 22.12+** pentru build-ul dashboard-ului Astro):
+Daca nu ai sau ai versiune mai veche:
 
 - **Windows**: deschide [nodejs.org](https://nodejs.org), descarca **LTS** (butonul verde mare),
   ruleaza installer-ul `.msi` → click Next pana la final → restart terminal.
@@ -249,7 +251,7 @@ Lista completa: `skills/_index.json` sau dashboard-ul tab Skills.
 ## Probleme frecvente
 
 ### `node` nu e recunoscut
-Sari la **Pasul 0a** — instaleaza Node.js v20+.
+Sari la **Pasul 0a** — instaleaza Node.js v22.12+.
 
 ### `claude` nu e recunoscut
 Sari la **Pasul 0b** — instaleaza Claude Code CLI.

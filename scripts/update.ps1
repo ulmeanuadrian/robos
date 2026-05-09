@@ -8,8 +8,8 @@ $ErrorActionPreference = 'Stop'
 
 $node = Get-Command node -ErrorAction SilentlyContinue
 if (-not $node) {
-    Write-Host "EROARE: Node.js nu e instalat. robOS necesita Node >= 20." -ForegroundColor Red
-    Write-Host "Ruleaza: winget install OpenJS.NodeJS.LTS"
+    Write-Host "EROARE: Node.js nu e instalat. robOS necesita Node >= 22.12.0." -ForegroundColor Red
+    Write-Host "Instalare: winget install OpenJS.NodeJS.LTS  (sau https://nodejs.org)"
     exit 1
 }
 

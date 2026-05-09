@@ -1,9 +1,16 @@
 @echo off
 REM robOS setup — Windows wrapper. Delega la scripts/setup.js (cross-platform).
+REM Node version check e in setup.js (single source). Wrapper-ul doar verifica
+REM ca node e in PATH si pasa controlul.
 where node >nul 2>nul
 if errorlevel 1 (
-  echo EROARE: Node.js nu e instalat. robOS necesita Node ^>= 20.
-  echo Ruleaza: winget install OpenJS.NodeJS.LTS
+  echo EROARE: Node.js nu e instalat. robOS necesita Node ^>= 22.12.0.
+  echo.
+  echo Optiuni instalare:
+  echo   - cu winget: winget install OpenJS.NodeJS.LTS
+  echo   - .msi direct: https://nodejs.org/dist/v22.12.0/node-v22.12.0-x64.msi
+  echo   - alta versiune: https://nodejs.org ^(LTS, descarca installer ^>= 22.12^)
+  echo.
   echo Dupa instalare, deschide o fereastra noua de terminal si reincearca.
   exit /b 1
 )

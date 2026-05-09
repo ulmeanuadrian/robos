@@ -31,7 +31,7 @@ Sistem de operare agentic pentru Claude Code. Da unui singur operator AI memorie
 
 ## Instalare
 
-**Cerinte**: Node >= 20, Claude Code CLI ([install](https://claude.com/claude-code)).
+**Cerinte**: Node >= 22.12.0 (Astro dependency), Claude Code CLI ([install](https://claude.com/claude-code)).
 
 ### Quickstart 30 secunde (student care a primit tarball)
 

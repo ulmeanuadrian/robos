@@ -54,6 +54,10 @@ robos-tests/
 # Author-only documentation reference (not for distribution, untracked)
 docs/init/
 
+# Archive — local-only graveyard for legacy/vendor leftovers + audit snapshots.
+# Used by /archive policy: instead of rm, mv to .archive/{category}/ for safety.
+.archive/
+
 # OS
 .DS_Store
 Thumbs.db

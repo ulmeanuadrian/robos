@@ -3,7 +3,7 @@
 // Replaces the bash-only setup.sh for student install.
 //
 // Steps (idempotent — safe to re-run):
-//   1. Verify Node >= 20
+//   1. Verify Node >= 22.12.0 (Astro dependency)
 //   2. Install centre/ dependencies (npm install)
 //   3. Build the dashboard (astro build)
 //   4. Initialize SQLite DB via centre/scripts/init-db.js
