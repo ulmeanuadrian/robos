@@ -211,10 +211,16 @@ async function main() {
     // F5/F10 fix: prune old session-state markers (>30 days) and consumed
     // recovery files (>7 days). Detector runs every 15 min via cron, so this
     // keeps disk bounded without a separate cleanup job.
+    // SCA-5 fix (2026-05-10): also prune cron/logs/ (>14 days). Cron writes
+    // ~96 logs/day across all jobs; without retention these grow unbounded.
     const ssPrune = pruneDirByAge(STATE_DIR, 30);
     const recPrune = pruneDirByAge(RECOVERY_DIR, 7);
-    if (!opts.quiet && (ssPrune.removed > 0 || recPrune.removed > 0)) {
-      console.log(`[session-timeout] prune: session-state removed=${ssPrune.removed}, recovery removed=${recPrune.removed}`);
+    const cronLogsDir = join(ROBOS_ROOT, 'cron', 'logs');
+    const cronPrune = pruneDirByAge(cronLogsDir, 14, {
+      predicate: (name) => name.endsWith('.log'),
+    });
+    if (!opts.quiet && (ssPrune.removed > 0 || recPrune.removed > 0 || cronPrune.removed > 0)) {
+      console.log(`[session-timeout] prune: session-state removed=${ssPrune.removed}, recovery removed=${recPrune.removed}, cron-logs removed=${cronPrune.removed}`);
     }
   }
 

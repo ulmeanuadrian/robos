@@ -32,6 +32,7 @@ import { createInterface } from 'node:readline/promises';
 import https from 'node:https';
 
 import * as state from './lib/launcher-state.js';
+import { PROTECTED_PATHS, isProtected } from './lib/protected-paths.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
@@ -46,17 +47,8 @@ const warn = (m) => console.log(c('33', '[!!]'), m);
 const fail = (m) => { console.error(c('31', '[FAIL]'), m); process.exit(1); };
 
 const API_BASE = 'https://api.robos.vip';
-const PROTECTED_PATHS = [
-  'brand/',
-  'context/',
-  'clients/',
-  'projects/',
-  'cron/jobs/',
-  'data/',
-  '.env',
-  '.env.bak',
-  'connections.md',
-];
+// PROTECTED_PATHS + isProtected imported from ./lib/protected-paths.js
+// (single source of truth, also consumed by smoke-update-preserves-user-files.js)
 
 function readVersion() {
   const path = join(ROOT, 'VERSION');
@@ -209,11 +201,6 @@ function extractTarball(tarPath, destDir) {
   // -xzf works on system tar across platforms (BSD tar on Mac, GNU on Linux, libarchive on Win10+)
   const res = spawnSync('tar', ['-xzf', tarPath, '-C', destDir], { stdio: 'inherit' });
   if (res.status !== 0) throw new Error('tar extract failed');
-}
-
-function isProtected(relPath) {
-  const norm = relPath.replace(/\\/g, '/');
-  return PROTECTED_PATHS.some((p) => norm === p || norm.startsWith(p));
 }
 
 function applyExtracted(srcRoot) {
@@ -414,4 +401,10 @@ async function main() {
   }
 }
 
-main().catch((e) => fail(e.message || String(e)));
+// Guard: only run main() when invoked directly. Allows smoke tests to import
+// helpers without triggering a real update flow.
+const __invokedFile = process.argv[1] && process.argv[1].replace(/\\/g, '/');
+const __thisFile = fileURLToPath(import.meta.url).replace(/\\/g, '/');
+if (__invokedFile === __thisFile) {
+  main().catch((e) => fail(e.message || String(e)));
+}

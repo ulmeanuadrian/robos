@@ -23,7 +23,7 @@ const VERBOSE = process.argv.includes('--verbose');
 
 // Smoke tests considered "slow" (skipped in --quick mode)
 const SLOW_TESTS = new Set([
-  // (gol acum — adauga aici cand un smoke depaseste 5s)
+  'smoke-fresh-install.js', // 30-90s — full npm install + astro build in tmp dir
 ]);
 
 function findSmokeTests() {
