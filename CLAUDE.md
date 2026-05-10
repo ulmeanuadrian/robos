@@ -183,7 +183,7 @@ NU pentru Q&A trivial sau munca zilnica — aia merge in `context/memory/YYYY-MM
 - **Rutina completa**: spune "morning routine" sau "rutina de dimineata" -> compound (vezi mai jos)
 - **Verifica progres**: spune "audit" sau "cum stau" -> `sys-audit` (scor 4C, 0-100)
 - **Gaseste oportunitati**: spune "level up" sau "ce sa automatizez" -> `sys-level-up`
-- **Sfarsit de zi**: spune "done" sau "gata" -> `sys-session-close`
+- **Sfarsit de zi**: spune "gata" sau "done for today" -> `sys-session-close`
 
 ### Morning Routine (Compound Trigger — model-side)
 

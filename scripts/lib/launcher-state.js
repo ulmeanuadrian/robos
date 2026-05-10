@@ -14,14 +14,14 @@
 //
 // Migration on read: if schema_version < CURRENT, apply patches in-memory + persist.
 
-import { readFileSync, writeFileSync, renameSync, existsSync, mkdirSync } from 'node:fs';
+import { readFileSync, existsSync, mkdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { atomicWrite } from './atomic-write.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..', '..');
 const STATE_PATH = join(ROOT, 'data', 'launcher-state.json');
-const STATE_TMP = join(ROOT, 'data', 'launcher-state.json.tmp');
 
 const CURRENT_SCHEMA = 1;
 
@@ -71,8 +71,7 @@ export function write(state) {
   ensureDataDir();
   const merged = migrate({ ...DEFAULTS, ...state });
   const json = JSON.stringify(merged, null, 2) + '\n';
-  writeFileSync(STATE_TMP, json, 'utf-8');
-  renameSync(STATE_TMP, STATE_PATH);
+  atomicWrite(STATE_PATH, json);
   return merged;
 }
 

@@ -9,17 +9,51 @@
  *  - script-urile add-skill / remove-skill cheama acest generator dupa modificari
  */
 
-import { readdirSync, readFileSync, writeFileSync, existsSync, statSync, renameSync, unlinkSync } from 'fs';
+import { readdirSync, readFileSync, existsSync, statSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { parseFrontmatter, normalizeSkillRecord } from './lib/skill-frontmatter.js';
+import { atomicWrite } from './lib/atomic-write.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const ROBOS_ROOT = join(__dirname, '..');
 const SKILLS_DIR = join(ROBOS_ROOT, 'skills');
+const CATALOG_DIR = join(SKILLS_DIR, '_catalog');
+const CATALOG_FILE = join(CATALOG_DIR, 'catalog.json');
 const INDEX_FILE = join(SKILLS_DIR, '_index.json');
 const REQUIRED_SECRETS_FILE = join(ROBOS_ROOT, 'data', 'required-secrets.json');
+
+/**
+ * Detect catalog entries that have no installation source AND are not marked
+ * `status: "planned"`. Such entries break `add-skill <name>` with a confusing
+ * "not found in catalog" — the user sees the name but installation fails.
+ *
+ * Returns array of orphan entry names. Empty if catalog is consistent.
+ */
+function detectCatalogOrphans() {
+  if (!existsSync(CATALOG_FILE)) return [];
+  let catalog;
+  try {
+    catalog = JSON.parse(readFileSync(CATALOG_FILE, 'utf-8'));
+  } catch {
+    return [];
+  }
+  const skillsList = Array.isArray(catalog.skills) ? catalog.skills : [];
+  const orphans = [];
+  for (const entry of skillsList) {
+    if (!entry || typeof entry.name !== 'string') continue;
+    if (entry.status === 'planned') continue;
+    const sourceDir = join(CATALOG_DIR, entry.name);
+    const installedDir = join(SKILLS_DIR, entry.name);
+    const hasSource = existsSync(join(sourceDir, 'SKILL.md'));
+    const isInstalled = existsSync(join(installedDir, 'SKILL.md'));
+    if (!hasSource && !isInstalled) {
+      orphans.push(entry.name);
+    }
+  }
+  return orphans;
+}
 
 function readSkill(skillDir, name) {
   const skillMd = join(skillDir, 'SKILL.md');
@@ -80,21 +114,21 @@ function buildIndex() {
     skills,
   };
 
-  // Atomic write: write to .tmp, rename over original.
-  // Earlier writeFileSync truncated and rewrote in place. Between truncate
-  // and full write, a parallel reader (e.g., hook-user-prompt loadIndex)
-  // could read partial content, hit JSON.parse, and silently fall back to
-  // an empty cached index — disabling skill routing for that prompt with
-  // no surfacing.
-  const tmp = INDEX_FILE + '.tmp';
-  try {
-    writeFileSync(tmp, JSON.stringify(index, null, 2) + '\n', 'utf-8');
-    renameSync(tmp, INDEX_FILE);
-  } catch (e) {
-    try { unlinkSync(tmp); } catch {}
-    throw e;
-  }
+  // Atomic write via shared lib (handles Windows EBUSY/EPERM retry +
+  // tmp cleanup + random hex suffix to avoid concurrent-rotation races).
+  atomicWrite(INDEX_FILE, JSON.stringify(index, null, 2) + '\n');
   console.log(`[OK] skills/_index.json regenerat: ${skills.length} skills, ${Object.keys(triggerMap).length} triggers`);
+
+  // Surface catalog orphans (DOC-3): catalog entries with no source AND not
+  // installed AND not status:"planned". Print WARN, don't fail rebuild.
+  const orphans = detectCatalogOrphans();
+  if (orphans.length > 0) {
+    console.warn(`[WARN] ${orphans.length} catalog entr(ies) cu sursa lipsa si nu sunt nici planned:`);
+    for (const name of orphans) {
+      console.warn(`  - ${name} → bash scripts/add-skill.sh ${name} ar fail-ui cu "not found"`);
+    }
+    console.warn(`  Fix: marca entry-ul "status": "planned" in catalog.json sau adauga sursa la skills/_catalog/${orphans[0]}/`);
+  }
 
   // Aggregate secrets declared by skill frontmatter into data/required-secrets.json.
   // Consumed by:
@@ -133,15 +167,8 @@ function buildRequiredSecrets(skills) {
     by_key: byKey,
   };
 
-  // Atomic write
-  const tmp = REQUIRED_SECRETS_FILE + '.tmp';
-  try {
-    writeFileSync(tmp, JSON.stringify(payload, null, 2) + '\n', 'utf-8');
-    renameSync(tmp, REQUIRED_SECRETS_FILE);
-  } catch (e) {
-    try { unlinkSync(tmp); } catch {}
-    throw e;
-  }
+  // Atomic write via shared lib.
+  atomicWrite(REQUIRED_SECRETS_FILE, JSON.stringify(payload, null, 2) + '\n');
   console.log(`[OK] data/required-secrets.json regenerat: ${payload.keys.length} key-uri din skills`);
 }
 
