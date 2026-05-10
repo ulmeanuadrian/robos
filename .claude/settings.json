@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(cmd //c \"tasklist | findstr 44456\")",
-      "Bash(cmd //c \"wmic process where ProcessId=16544 get CommandLine /value 2>nul\")"
+      "Bash(cmd //c \"wmic process where ProcessId=16544 get CommandLine /value 2>nul\")",
+      "Bash(npx wrangler *)"
     ]
   },
   "hooks": {
