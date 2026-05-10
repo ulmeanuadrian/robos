@@ -3,6 +3,7 @@ import { join, resolve, relative } from 'path';
 import { spawn } from 'child_process';
 import { workspaceRoot } from '../lib/config.js';
 import { getMemoryDir, getActiveClient, resolveContextPath } from '../../scripts/lib/client-context.js';
+import { validateRunSkillArgs } from '../../scripts/lib/args-validator.js';
 
 // Activity/audit/timeout/learnings-aggregate logs stay GLOBAL — cross-client
 // visibility is useful (the operator audits one disk regardless of which client
@@ -273,12 +274,9 @@ async function pingApi(key, pingFn) {
  *  - spawn fara shell: true (argv passed direct, fara interpretare shell)
  */
 
-// Cu spawn shell:false, argv-ul e pasat direct la executabil — shell metacharacters
-// (backtick, $, ;, |, &, <, >, \) NU sunt interpretate. Singurele caractere care pot
-// corupe argv parsing-ul sunt null byte (\0), newlines (\n) si carriage return (\r).
-// Acceptat: text obisnuit, spatii, punctuatie, caractere romanesti, accente.
-// Bug-fix S3: regex anterior bloca spatii — input multi-cuvant returna 400.
-const ARGS_FORBIDDEN_RE = /[\0\n\r]/;
+// Args validation moved to scripts/lib/args-validator.js (single source of
+// truth, testable by smoke-args-validation.js without spawning runSkill).
+// See lib for full threat-model rationale.
 
 export function runSkill(skillName, body = {}) {
   if (!/^[a-z0-9][a-z0-9-]*$/.test(skillName)) {
@@ -295,13 +293,9 @@ export function runSkill(skillName, body = {}) {
   let args = '';
   if (body.args && typeof body.args === 'string') {
     args = body.args.trim();
-    if (ARGS_FORBIDDEN_RE.test(args)) {
-      const err = new Error('args: contine caractere interzise (newlines sau null byte)');
-      err.statusCode = 400;
-      throw err;
-    }
-    if (args.length > 1000) {
-      const err = new Error('args: max 1000 caractere');
+    const v = validateRunSkillArgs(args);
+    if (!v.ok) {
+      const err = new Error(v.error);
       err.statusCode = 400;
       throw err;
     }

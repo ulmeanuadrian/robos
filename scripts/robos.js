@@ -282,7 +282,15 @@ async function commandDoctor() {
   const smokeAll = join(ROOT, 'scripts', 'smoke-all.js');
   if (existsSync(smokeAll)) {
     try {
-      const result = execSync(`node "${smokeAll}" --quick`, { cwd: ROOT, stdio: 'pipe', encoding: 'utf-8' });
+      // Set ROBOS_INSIDE_DOCTOR=1 so smoke-doctor-coverage knows it's running
+      // inside a doctor invocation and skips the recursive live spawn (would
+      // otherwise hang: doctor → smoke-all → smoke-doctor-coverage → doctor → ...).
+      const result = execSync(`node "${smokeAll}" --quick`, {
+        cwd: ROOT,
+        stdio: 'pipe',
+        encoding: 'utf-8',
+        env: { ...process.env, ROBOS_INSIDE_DOCTOR: '1' },
+      });
       const lastLine = result.trim().split('\n').filter(l => l.includes('green')).pop();
       if (lastLine) console.log('  ' + lastLine);
       else console.log('  (smoke output empty)');
