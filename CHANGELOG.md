@@ -3,6 +3,18 @@
 > **Acest fisier e developer-facing** — detalii tehnice, file paths, line numbers.
 > Pentru rezumat in limba operatorului: vezi [WHATS-NEW.md](WHATS-NEW.md).
 
+## [3.0.1] - 2026-05-10
+
+### MCP servers preconfigured
+
+- `.mcp.json` includes 3 MCP servers ready out of the box: **playwright** (browser automation), **firecrawl** (web scraping, requires `FIRECRAWL_API_KEY` from `.env`), **sqlite** (read access to `data/robos.db`).
+- `.gitignore` excludes `data/playwright-profile/` (chromium user data dir).
+- Studentul nou primeste capabilitati augmentate fara setup MCP manual. Playwright descarca chromium (~300MB) la primul use; firecrawl si sqlite sunt fara payload.
+
+### R2 maintenance
+
+- Sterse din R2 tarball-urile vechi: v0.4.0, v0.4.1 (PII RoboMarketing leaked) si v0.5.0, v0.5.1, v2.0.0 (intermediare). Singurul tarball live = curent (v3.0.1).
+
 ## [3.0.0] - 2026-05-10
 
 ### Invariant infrastructure (waves 1-5)
