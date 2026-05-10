@@ -3,7 +3,43 @@
 > **Acest fisier e developer-facing** — detalii tehnice, file paths, line numbers.
 > Pentru rezumat in limba operatorului: vezi [WHATS-NEW.md](WHATS-NEW.md).
 
-## [2.1.0] - 2026-05-09 (unreleased — pending VERSION bump + tarball rebuild)
+## [3.0.0] - 2026-05-10
+
+### Invariant infrastructure (waves 1-5)
+
+Salt major: robOS trece de la "audituri ad-hoc cu fix de instanta" la "infrastructura de invariante verificabile cu fix de clasa". Sursa de adevar e [`context/INVARIANTS.md`](context/INVARIANTS.md) — 12 categorii × ~50 invariante, fiecare cu Statement / Why / Verify / Status. Audituri viitoare nu mai produc rapoarte ad-hoc — produc un `node scripts/smoke-all.js` verde sau o lista numerotata de invariante care fail-uiesc.
+
+**Coverage:**
+- Pre-Wave: 11 smoke tests existente
+- Post-Wave 5: **33 smoke tests verzi** (--quick 12.9s / full 28s cu SLOW)
+- 18 fisiere noi in `scripts/`, 3 lib-uri noi in `scripts/lib/`, 1 doc canonic in `context/INVARIANTS.md`
+
+**Wave 1 — version-sync, security-lint, setup-idempotency, tarball-clean:**
+- Pin LCY-1, SEC-1, DOC-4, DST-1/3/4, SEC-7. Fix `centre/package.json:engines.node "20"` → `"22.12.0"` (LCY-1 violation: setup.js hard-fails on <22.12 but engines admitted Node 20). Fix `licensing/src/endpoints/admin.js` token compare cu `===` → `constantTimeEqual()` helper (SEC-1: defense timing-safe pe Workers, unde Node `crypto.timingSafeEqual` nu exista).
+
+**Wave 2 — license-perf, fresh-install, update-preserve, cron-log-rotation:**
+- Pin LIC-3, PRF-2, UX-1, DAT-2, UX-5, DAT-5, SCA-5. Refactor `scripts/lib/protected-paths.js` (single source pentru update.js + smoke). Fix SCA-5: `session-timeout-detector` cleanup wired la `cron/logs/` (retention 14 days, .log predicate). Adaugat `main()` guard la `update.js` ca smoke-urile sa importe helpers fara sa firul update flow-ul real.
+
+**Wave 3 — hook-error-sink, no-network, wrappers, lint-rules, claims-coverage:**
+- Pin OBS-1, PRV-3, CP-4, SEC-7 fixture, DOC-1. Refactor `lint-security.js` cu export `lintContent(text, label)` pentru fixture testing. Refactor `lint-claims.js` cu `RUNTIME_FILES` + `RUNTIME_PREFIXES` allowlist + `looksLikePath` mai strict (require extension SAU trailing `/`). Lint-claims dupa fix a expus 2 doc bugs ascunse de zgomot: `README.md:482 X` placeholder → `{name}`, `WHATS-NEW.md:65 docs/init/` → `docs/init`.
+
+**Wave 4 — skill-routing, telemetry, hook-latency, catalog, atomic-coverage:**
+- Pin UX-3, OBS-2, PRF-1, DOC-3, DAT-1. Baseline hook latency: toate 5 hooks p95 50-80ms (6× sub buget 500ms). Refactor `scripts/lib/launcher-state.js` + `scripts/rebuild-index.js` (×2 sites) la `atomic-write` lib. Adaugat `detectCatalogOrphans()` pentru DOC-3. Skill-routing a expus drift `CLAUDE.md:186 "done"` → "gata" (real bug: skill-ul nu accepta "done" alone, doar "done for today" / "I'm done").
+
+**Wave 5 — redact, env-secrets, args-validation, activity-log, doctor:**
+- Pin PRV-4, SEC-2, SEC-5, OBS-4, UX-6. Refactor `scripts/lib/args-validator.js` (extras din `centre/api/system.js`). Recursion fix in `--doctor`: `ROBOS_INSIDE_DOCTOR=1` env flag previne `smoke-doctor-coverage → doctor → smoke-all → smoke-doctor-coverage` loop. SEC-2 live test: 11 secret-named entries verificate cu value=null/masked=true.
+
+**Resolved violations (10):**
+1. LCY-1 — `centre/package.json` engines.node `>=20` → `>=22.12.0`
+2. SEC-1 — `admin.js` token compare cu `!==` → `constantTimeEqual()`
+3. DOC-4 — `data/launcher-state.json:last_robos_version` `0.5.0` → sync cu VERSION
+4. DOC-2 (memory) — INSTALL.md path corectat la `docs/INSTALL.md`
+5. SCA-5 — `cron/logs/` retention 14d wired
+6. DOC-1 (×2) — README `X` → `{name}`, WHATS-NEW `docs/init/` → `docs/init`
+7. UX-3 — CLAUDE.md `"done"` → `"gata"` (skill nu avea "done" ca trigger standalone)
+8. DAT-1 DRY — launcher-state + rebuild-index inline atomic → atomic-write lib
+9. SEC-5 DRY — ARGS_FORBIDDEN_RE inline → args-validator lib
+10. Doctor recursion — `ROBOS_INSIDE_DOCTOR=1` env guard
 
 ### Audit comprehensiv + remediation sweep
 
