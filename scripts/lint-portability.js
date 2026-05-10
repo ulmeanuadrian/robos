@@ -20,9 +20,10 @@ const ROBOS_ROOT = dirname(dirname(__filename));
 
 const WARN_AS_ERROR = process.argv.includes('--warn-as-error');
 
+// Top-level dirs only — walkDir recurses, so listing both `scripts` and
+// `scripts/lib` would scan lib/ twice (and double-report any finding).
 const SCAN_DIRS = [
   'scripts',
-  join('scripts', 'lib'),
   join('centre', 'lib'),
   join('centre', 'api'),
 ];

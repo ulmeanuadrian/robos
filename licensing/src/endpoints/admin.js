@@ -38,6 +38,20 @@ import {
 const SESSION_COOKIE = 'robos_admin_session';
 const SESSION_TTL_HOURS = 24;
 
+// Constant-time string compare. Workers don't expose Node's crypto.timingSafeEqual,
+// so this is a manual XOR-accumulate. Length mismatch returns false eagerly —
+// realistic threat is character-progression timing leak across network roundtrips,
+// which this defeats; length probing requires far more samples than rate-limit allows.
+function constantTimeEqual(a, b) {
+  if (typeof a !== 'string' || typeof b !== 'string') return false;
+  if (a.length !== b.length) return false;
+  let result = 0;
+  for (let i = 0; i < a.length; i++) {
+    result |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  }
+  return result === 0;
+}
+
 // ----------------------------------------------------------------------------
 // Auth
 // ----------------------------------------------------------------------------
@@ -53,9 +67,7 @@ export async function handleAdminAuthCallback(request, env) {
   const expected = env.LICENSE_INTERNAL_API_TOKEN;
   if (!expected) return error('admin_token_not_configured', 500);
 
-  // Constant-time compare ar fi ideal, dar Workers' === pe stringuri scurte
-  // e suficient de bun pentru tokenurile noastre de 64 hex chars.
-  if (token !== expected) {
+  if (!constantTimeEqual(token, expected)) {
     await logEvent(env.DB, {
       event_type: 'admin_login',
       details: { stage: 'invalid_token', token_prefix: token.slice(0, 8) },
