@@ -62,7 +62,7 @@ trebuie sa generezi o licenta proaspata via dashboard admin si s-o copiezi
 in `.license-stamp` din test folder INAINTE de setup. Vezi
 `scripts/test-env/README.md`.
 
-**`docs/init/` a fost mutat.**
+**Folder `docs/init` a fost mutat.**
 Acel folder continea continut de la un produs diferit ("Agentic OS" — nimic
 de-a face cu robOS). E in `.archive/legacy-vendor-docs/` acum, gitignored
 (local-only). Niciun student nu primea acel continut oricum (era gitignored).

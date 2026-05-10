@@ -80,6 +80,14 @@ function looksLikePath(p) {
   // Strip common trailing punctuation.
   const stripped = p.replace(/[.,;:!?]+$/, '');
   if (!stripped.includes('/') && !/\.[a-z0-9]{1,8}$/i.test(stripped)) return false;
+
+  // Tighter check: a real path-like ref ends in EITHER a file extension OR an
+  // explicit directory marker (`/`). Without this, prose like "brand/context"
+  // (two nouns separated by slash) gets falsely treated as a path.
+  const endsInExt = /\.[a-z0-9]{1,8}$/i.test(stripped);
+  const endsInSlash = stripped.endsWith('/');
+  if (!endsInExt && !endsInSlash) return false;
+
   // Must start with a known dir or have a path-ish structure.
   const firstSegment = stripped.split('/')[0];
   if (KNOWN_DIRS.includes(firstSegment)) return true;
@@ -92,6 +100,31 @@ function looksLikePath(p) {
     return rootFiles.includes(stripped);
   }
   return false;
+}
+
+// Runtime paths: exist conditionally (created by a hook/skill at runtime, not
+// statically tracked). Counted separately from `missing` so docs can reference
+// them without a false-positive failure.
+const RUNTIME_FILES = new Set([
+  'data/hook-errors.ndjson',
+  'data/active-client.json',
+  'data/required-secrets.json',
+  'data/audit-cache.json',
+  'data/launcher-state.json',
+  'data/session-timeout.log',
+  'data/skill-telemetry.ndjson',
+  'data/activity-log.ndjson',
+  'data/startup-audit.log',
+]);
+
+const RUNTIME_PREFIXES = [
+  'projects/',  // skill output dirs (created on first run of a skill)
+  'clients/',   // per-client workspaces (slug-templated, varies per install)
+];
+
+function isRuntimePath(stripped) {
+  if (RUNTIME_FILES.has(stripped)) return true;
+  return RUNTIME_PREFIXES.some(prefix => stripped.startsWith(prefix));
 }
 
 function stripTrailingPunct(p) {
@@ -117,7 +150,10 @@ function checkPath(p) {
   const absolute = resolve(ROBOS_ROOT, pathOnly);
   // Make sure we don't escape repo root.
   if (!absolute.startsWith(ROBOS_ROOT)) return 'invalid';
-  return existsSync(absolute) ? 'verified' : 'missing';
+  if (existsSync(absolute)) return 'verified';
+  // Don't fail on runtime paths (created on first use; valid references in docs).
+  if (isRuntimePath(pathOnly)) return 'runtime';
+  return 'missing';
 }
 
 function lintFile(file) {
@@ -169,6 +205,7 @@ function summarize(results, verbose) {
   let verified = 0;
   let missing = 0;
   let placeholder = 0;
+  let runtime = 0;
   const missingList = [];
   const verboseList = [];
 
@@ -178,17 +215,19 @@ function summarize(results, verbose) {
       continue;
     }
     console.log(`Scanned: ${r.file}`);
-    let fileVerified = 0, fileMissing = 0, filePlaceholder = 0;
+    let fileVerified = 0, fileMissing = 0, filePlaceholder = 0, fileRuntime = 0;
     for (const f of r.findings) {
       total++;
       if (f.status === 'verified') { verified++; fileVerified++; }
       else if (f.status === 'missing') { missing++; fileMissing++; missingList.push({ ...f, file: r.file }); }
       else if (f.status === 'placeholder') { placeholder++; filePlaceholder++; }
+      else if (f.status === 'runtime') { runtime++; fileRuntime++; }
       if (verbose) verboseList.push({ ...f, file: r.file });
     }
     console.log(`  - ${r.findings.length} path-like references`);
     console.log(`  - ${fileVerified} verified`);
     if (filePlaceholder) console.log(`  - ${filePlaceholder} placeholders (skipped)`);
+    if (fileRuntime) console.log(`  - ${fileRuntime} runtime (skipped — created on first use)`);
     if (fileMissing) console.log(`  - ${fileMissing} MISSING`);
   }
 
@@ -207,7 +246,7 @@ function summarize(results, verbose) {
     }
   }
 
-  console.log(`\nTotal: ${total} | Verified: ${verified} | Placeholder: ${placeholder} | Missing: ${missing}`);
+  console.log(`\nTotal: ${total} | Verified: ${verified} | Placeholder: ${placeholder} | Runtime: ${runtime} | Missing: ${missing}`);
 
   return missing === 0 ? 0 : 1;
 }

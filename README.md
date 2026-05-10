@@ -479,7 +479,7 @@ Dupa instalare, fie:
 
 **"Skill X is in catalog but not installed"**
 - `bash scripts/add-skill.sh X` — instaleaza
-- Daca esueaza cu "not found in catalog", catalogul a fost editat manual. Verifica `skills/_catalog/X/SKILL.md` exista.
+- Daca esueaza cu "not found in catalog", catalogul a fost editat manual. Verifica `skills/_catalog/{name}/SKILL.md` exista.
 
 **Audit lent (>5s)**
 - Cache-ul foloseste mtime hash. Verifica: `node scripts/audit-cache.js status`
