@@ -100,6 +100,58 @@ Write to memory periodically (every few meaningful actions), not just at session
 
 ---
 
+## Cross-Session Memory
+
+robOS are **4 straturi de memorie distincte**. La intrebari de tip "ce am vorbit azi", "ce sesiuni am deschise acum", "despre ce am discutat saptamana asta", citesc stratul corect — NU sari direct la memoria zilei.
+
+| Strat | Fisier | Scris cand | Vede ce |
+|-------|--------|------------|---------|
+| **Activity log** | `data/activity-log.ndjson` | Hook `Stop` la fiecare turn (vezi `scripts/activity-capture.js`) | TOATE turn-urile, TOATE sesiunile live, real-time cross-tab |
+| **Memoria zilei** | `context/memory/YYYY-MM-DD.md` | Manual + `sys-session-close` la inchiderea sesiunii | SUMMARY per sesiune (Goal / Deliverables / Decisions / Open Threads) |
+| **Audit zilnic** | `data/startup-audit.log` | Cron 8AM via `scripts/audit-startup.js` | Sesiuni ISTORICE abandonate (memorie fara linie close) |
+| **Recovery flags** | `data/session-recovery/*.json` | Cron la 15 min via `scripts/session-timeout-detector.js` | Sesiuni LIVE timed-out >2h inactivitate |
+
+### Cand citesti ce
+
+- **"ce am vorbit azi"** / **"ce sesiuni am deschise acum"** / **"despre ce am discutat"** → `data/activity-log.ndjson` filtrat pe data curenta + grouped pe `session`. Fiecare `session` distinct = un tab Claude Code live. Memoria zilei NU contine asta — se scrie la close.
+- **"ce am livrat saptamana trecuta"** / **"deciziile recente"** → `context/memory/YYYY-MM-DD.md` (ultimele 7 zile).
+- **"ce sesiuni am abandonat"** → `data/startup-audit.log` (audit cron 8AM).
+- **"e cineva blocat acum"** → `data/session-recovery/*.json` (recovery flags cron).
+
+### Capcana de evitat
+
+"Sesiuni neinchise" din audit-ul 8AM = sesiuni ISTORICE abandonate (memorie fara linie close), **NU** = sesiuni LIVE in tab-uri Claude Code. Cele doua concepte sunt distincte. Audit-ul nu vede tab-urile deschise; activity-log-ul le vede.
+
+### Schema activity-log entry
+
+```json
+{
+  "ts": "2026-05-11T13:48:25.261Z",
+  "session": "7acaab6b",
+  "user_prompt": "...",
+  "assistant_summary": "...",
+  "tool_actions": [],
+  "cwd": "c:\\claude_os\\robos",
+  "git_branch": "main"
+}
+```
+
+Snippet gata-de-rulat pentru a vedea sesiunile live de azi:
+
+```js
+const fs=require('fs');
+const today=new Date().toISOString().slice(0,10);
+const lines=fs.readFileSync('data/activity-log.ndjson','utf8').trim().split('\n');
+const entries=lines.filter(l=>{try{return JSON.parse(l).ts.startsWith(today)}catch(e){return false}}).map(l=>JSON.parse(l));
+const bySession={};entries.forEach(e=>{bySession[e.session]=bySession[e.session]||[];bySession[e.session].push(e)});
+Object.keys(bySession).forEach(sid=>{
+  console.log('===',sid,'('+bySession[sid].length+' turns) ===');
+  bySession[sid].forEach(e=>console.log(e.ts.slice(11,19),'|',e.user_prompt.slice(0,120)))
+});
+```
+
+---
+
 ## Session End
 
 When the user signals they're done ("done", "that's it", "signing off", "bye", closing the terminal):
