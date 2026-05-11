@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-11T15:09:05.872Z",
+  "generated_at": "2026-05-11T15:21:09.413Z",
   "count": 23,
   "by_category": {
     "brand": 3,
@@ -16,8 +16,12 @@
     "cui ii vand": "brand-audience",
     "buyer persona": "brand-audience",
     "avatar client": "brand-audience",
+    "profilul clientului": "brand-audience",
     "target audience": "brand-audience",
     "audience research": "brand-audience",
+    "ideal customer": "brand-audience",
+    "who am i selling to": "brand-audience",
+    "customer avatar": "brand-audience",
     "pozitionare": "brand-positioning",
     "diferentiere": "brand-positioning",
     "ce e hook-ul": "brand-positioning",
@@ -25,18 +29,27 @@
     "cum ma pozitionez": "brand-positioning",
     "fa-l sa iasa in evidenta": "brand-positioning",
     "unghi unic": "brand-positioning",
+    "ce angle sa folosesc": "brand-positioning",
+    "de ce nu se vinde": "brand-positioning",
+    "marketing-ul nu functioneaza": "brand-positioning",
     "positioning": "brand-positioning",
     "differentiation": "brand-positioning",
     "make this stand out": "brand-positioning",
+    "find angles for": "brand-positioning",
+    "what's the hook": "brand-positioning",
     "voce de brand": "brand-voice",
     "stil de scris": "brand-voice",
     "ton brand": "brand-voice",
     "analizeaza continutul meu": "brand-voice",
     "ghid voce": "brand-voice",
     "defineste vocea": "brand-voice",
+    "ruleaza playbook voce": "brand-voice",
+    "playbook voce de brand": "brand-voice",
     "brand voice": "brand-voice",
     "tone of voice": "brand-voice",
     "writing style": "brand-voice",
+    "voice playbook": "brand-voice",
+    "deep voice rebuild": "brand-voice",
     "scrie un articol": "content-blog-post",
     "blog despre": "content-blog-post",
     "articol seo": "content-blog-post",
@@ -61,12 +74,18 @@
     "transforma in social": "content-repurpose",
     "fa posturi din asta": "content-repurpose",
     "calendar content": "content-repurpose",
+    "calendar saptamanal": "content-repurpose",
     "fa un thread": "content-repurpose",
     "post linkedin din": "content-repurpose",
     "adapteaza pentru": "content-repurpose",
+    "atomizeaza": "content-repurpose",
     "repurpose this": "content-repurpose",
     "turn this into social posts": "content-repurpose",
     "social posts from": "content-repurpose",
+    "atomize this": "content-repurpose",
+    "create social content from": "content-repurpose",
+    "schedule across platforms": "content-repurpose",
+    "content calendar from this": "content-repurpose",
     "anti-dependence": "mode-anti-dependence",
     "anti dependence mode": "mode-anti-dependence",
     "ce as face eu intai": "mode-anti-dependence",
@@ -104,6 +123,10 @@
     "research": "research-trending",
     "what's trending": "research-trending",
     "pulse check on": "research-trending",
+    "community sentiment on": "research-trending",
+    "what are people saying about": "research-trending",
+    "last 30 days": "research-trending",
+    "recent discussions": "research-trending",
     "audit": "sys-audit",
     "verifica setup-ul": "sys-audit",
     "cum stau": "sys-audit",
@@ -233,17 +256,19 @@
     "sterge pattern ai": "tool-humanizer",
     "suna prea ai": "tool-humanizer",
     "curata textul": "tool-humanizer",
+    "de-ai": "tool-humanizer",
     "humanize this": "tool-humanizer",
     "make this sound human": "tool-humanizer",
     "remove ai patterns": "tool-humanizer",
-    "ai detection": "tool-humanizer"
+    "ai detection": "tool-humanizer",
+    "clean up this copy": "tool-humanizer"
   },
   "skills": [
     {
       "name": "brand-audience",
-      "version": "1.0.0",
+      "version": "2.0.0",
       "category": "brand",
-      "description": "Build an Ideal Customer Profile through founder interview or competitor/market research. Outputs a structured audience document with demographics, psychographics, pain points, and buying triggers.",
+      "description": "Construieste ICP prin interview founder, research competitive, sau combinatie. Output: profil audienta structurat cu demografie, psihografie, pain points, limbaj real, trigger-uri de cumparare.",
       "triggers": [
         "audienta",
         "client ideal",
@@ -251,8 +276,12 @@
         "cui ii vand",
         "buyer persona",
         "avatar client",
+        "profilul clientului",
         "target audience",
-        "audience research"
+        "audience research",
+        "ideal customer",
+        "who am I selling to",
+        "customer avatar"
       ],
       "negative_triggers": [
         "voce de brand",
@@ -263,30 +292,31 @@
       ],
       "multi_angle_triggers": [],
       "context_loads": [
-        "brand/audience.md (writes)",
+        "brand/audience.md (reads | writes)",
         "brand/positioning.md (summary)",
         "brand/voice.md (summary)",
         "context/learnings.md (section brand-audience)"
       ],
       "inputs": [
-        "mode (optional: interview | research -- auto-detected if not specified)",
-        "source_urls (optional: competitor sites, review pages, social links for research mode)",
-        "product_description (optional: what the business sells)"
+        "mode (optional: interview | research | both — auto-detectat daca nu specificat)",
+        "source_urls (optional: URL-uri competitori, reviews, social pentru research mode)",
+        "product_description (optional: ce vinde brand-ul)"
       ],
       "outputs": [
-        "brand/audience.md (structured ICP document)"
+        "brand/audience.md (document ICP structurat in 8 sectiuni)"
       ],
       "modes": [],
       "secrets_required": [],
       "secrets_optional": [],
       "runtime_dependencies": [],
-      "last_modified": "2026-05-05T05:19:36.416Z"
+      "tier": "core",
+      "last_modified": "2026-05-11T15:13:44.418Z"
     },
     {
       "name": "brand-positioning",
-      "version": "1.0.0",
+      "version": "2.0.0",
       "category": "brand",
-      "description": "Find the angle that makes a product or brand stand out. Researches competitors, maps the messaging landscape, generates positioning angles, and recommends the strongest one.",
+      "description": "Gaseste unghiul care vinde. Transformare > produs, mapeaza alternative, cerceteaza mesajele competitor, evalueaza sofisticarea pietii, genereaza 3-5 unghiuri din frameworks (Contrarian, Mechanism, Transformation, Enemy, Specificity).",
       "triggers": [
         "pozitionare",
         "diferentiere",
@@ -295,9 +325,14 @@
         "cum ma pozitionez",
         "fa-l sa iasa in evidenta",
         "unghi unic",
+        "ce angle sa folosesc",
+        "de ce nu se vinde",
+        "marketing-ul nu functioneaza",
         "positioning",
         "differentiation",
-        "make this stand out"
+        "make this stand out",
+        "find angles for",
+        "what's the hook"
       ],
       "negative_triggers": [
         "voce de brand",
@@ -307,30 +342,31 @@
       ],
       "multi_angle_triggers": [],
       "context_loads": [
-        "brand/positioning.md (writes)",
+        "brand/positioning.md (reads | writes)",
         "brand/voice.md (summary)",
-        "brand/audience.md (summary)",
+        "brand/audience.md (full)",
         "context/learnings.md (section brand-positioning)"
       ],
       "inputs": [
-        "product_description (required: what the business sells)",
-        "competitors (optional: known competitor names or URLs)",
-        "constraints (optional: what's off the table for positioning)"
+        "product_description (required: ce vinde brand-ul)",
+        "competitors (optional: nume sau URL-uri competitori cunoscuti)",
+        "constraints (optional: ce e off-limits pentru pozitionare)"
       ],
       "outputs": [
-        "brand/positioning.md (complete positioning document)"
+        "brand/positioning.md (document complet pozitionare)"
       ],
       "modes": [],
       "secrets_required": [],
       "secrets_optional": [],
       "runtime_dependencies": [],
-      "last_modified": "2026-05-05T05:19:44.258Z"
+      "tier": "core",
+      "last_modified": "2026-05-11T15:15:15.879Z"
     },
     {
       "name": "brand-voice",
-      "version": "1.0.0",
+      "version": "2.0.0",
       "category": "brand",
-      "description": "Extract or build a brand voice profile through 4 modes: import existing guidelines, extract from content, build via interview, or auto-scrape from URL.",
+      "description": "Extrage sau construieste profilul de voce brand prin 4 moduri: import ghid existent, extrage din continut, build via interview (quick sau playbook deep), auto-scrape din URL cu Firecrawl + brand assets.",
       "triggers": [
         "voce de brand",
         "stil de scris",
@@ -338,9 +374,13 @@
         "analizeaza continutul meu",
         "ghid voce",
         "defineste vocea",
+        "ruleaza playbook voce",
+        "playbook voce de brand",
         "brand voice",
         "tone of voice",
-        "writing style"
+        "writing style",
+        "voice playbook",
+        "deep voice rebuild"
       ],
       "negative_triggers": [
         "pozitionare",
@@ -351,26 +391,32 @@
       ],
       "multi_angle_triggers": [],
       "context_loads": [
-        "brand/voice.md (writes)",
+        "brand/voice.md (reads | writes)",
         "brand/samples.md (writes)",
+        "brand/assets.md (writes — doar Auto-Scrape cu Firecrawl)",
         "brand/positioning.md (summary)",
         "brand/audience.md (summary)",
         "context/learnings.md (section brand-voice)"
       ],
       "inputs": [
-        "mode (optional: import | extract | build | auto-scrape -- auto-detected if not specified)",
-        "source_urls (optional: URLs for extract/auto-scrape modes)",
-        "guidelines_doc (optional: path or pasted text for import mode)"
+        "mode (optional: import | extract | build | auto-scrape — auto-detectat daca nu e specificat)",
+        "source_urls (optional: URLs pentru extract/auto-scrape)",
+        "guidelines_doc (optional: path sau text paste pentru import)",
+        "depth (optional: quick | playbook — doar pentru Build mode, default quick)"
       ],
       "outputs": [
-        "brand/voice.md (6-dimension voice profile)",
-        "brand/samples.md (3-5 example outputs)"
+        "brand/voice.md (profil voce in 6 dimensiuni)",
+        "brand/samples.md (5-10 sample-uri reprezentative)",
+        "brand/assets.md (logo, culori, fonts — doar Auto-Scrape cu Firecrawl disponibil)"
       ],
       "modes": [],
       "secrets_required": [],
-      "secrets_optional": [],
+      "secrets_optional": [
+        "FIRECRAWL_API_KEY"
+      ],
       "runtime_dependencies": [],
-      "last_modified": "2026-05-05T05:18:55.977Z"
+      "tier": "core",
+      "last_modified": "2026-05-11T15:12:02.835Z"
     },
     {
       "name": "content-blog-post",
@@ -491,19 +537,25 @@
     },
     {
       "name": "content-repurpose",
-      "version": "2.0.0",
+      "version": "3.0.0",
       "category": "content",
-      "description": "Turn one piece of content into platform-native posts for LinkedIn, Twitter/X, Instagram, TikTok, YouTube, Threads, Bluesky, Reddit. Multi-Asset: 1 agent per platform writes in parallel; hard-fail if any platform fails.",
+      "description": "Transforma o piesa de continut in posturi platform-native pentru 8 platforme (LinkedIn, Twitter, Instagram, TikTok, YouTube, Threads, Bluesky, Reddit). Multi-Asset parallel + algorithm check + humanizer gate + optional content calendar.",
       "triggers": [
         "transforma in social",
         "fa posturi din asta",
         "calendar content",
+        "calendar saptamanal",
         "fa un thread",
         "post LinkedIn din",
         "adapteaza pentru",
+        "atomizeaza",
         "repurpose this",
         "turn this into social posts",
-        "social posts from"
+        "social posts from",
+        "atomize this",
+        "create social content from",
+        "schedule across platforms",
+        "content calendar from this"
       ],
       "negative_triggers": [
         "scrie copy",
@@ -517,24 +569,30 @@
       "context_loads": [
         "brand/voice.md (platform agents read)",
         "brand/audience.md (platform agents read summary)",
+        "brand/samples.md (platform agents read)",
         "context/learnings.md (synthesizer appends)"
       ],
       "inputs": [
         "source (required: URL, file path, or pasted text)",
         "platforms (optional: comma-separated list, defaults to all 8)",
-        "angle (optional: specific angle or hook to emphasize)"
+        "angle (optional: specific angle or hook to emphasize)",
+        "calendar (optional: yes — genereaza si content calendar saptamanal)"
       ],
       "outputs": [
         "Per-platform files in projects/content-repurpose/{slug}/",
+        "calendar.md (optional, daca user-ul cere)",
         "data/skill-telemetry.ndjson (appended)"
       ],
       "modes": [],
       "output_discipline": "encapsulated",
       "concurrency_pattern": "multi-asset-generation",
       "secrets_required": [],
-      "secrets_optional": [],
+      "secrets_optional": [
+        "FIRECRAWL_API_KEY"
+      ],
       "runtime_dependencies": [],
-      "last_modified": "2026-05-05T20:14:32.506Z"
+      "tier": "core",
+      "last_modified": "2026-05-11T15:16:31.144Z"
     },
     {
       "name": "mode-anti-dependence",
@@ -702,9 +760,9 @@
     },
     {
       "name": "research-trending",
-      "version": "2.0.0",
+      "version": "3.0.0",
       "category": "research",
-      "description": "Research what's trending in last 30 days across Reddit, Twitter/X, HN, blogs, video. MapReduce: 5 source agents scan in parallel, a synthesizer merges + dedupes + extracts signals.",
+      "description": "Research trending in ultimele 30 zile pe Reddit, Twitter/X, HN, blogs, video. MapReduce: 5 source agents paraleli + synthesizer. Cu OPENAI_API_KEY si XAI_API_KEY, foloseste Python last30days.py pentru engagement metrics reale (upvotes, likes).",
       "triggers": [
         "ce e trend",
         "ce se discuta despre",
@@ -714,7 +772,11 @@
         "ce e hot in",
         "research",
         "what's trending",
-        "pulse check on"
+        "pulse check on",
+        "community sentiment on",
+        "what are people saying about",
+        "last 30 days",
+        "recent discussions"
       ],
       "negative_triggers": [
         "voce de brand",
@@ -725,12 +787,14 @@
       "multi_angle_triggers": [],
       "context_loads": [
         "brand/audience.md (synthesizer reads, for relevance filtering)",
-        "context/learnings.md (synthesizer appends)"
+        "context/learnings.md (synthesizer appends)",
+        "skills/research-trending/references/ (agents read methodology + templates)"
       ],
       "inputs": [
         "topic (required: niche, keyword, or industry)",
         "timeframe (optional: defaults to 30 days)",
-        "focus (optional: pain points | opportunities | opinions | all)"
+        "focus (optional: pain points | opportunities | opinions | all)",
+        "depth (optional: quick | balanced | deep — default balanced)"
       ],
       "outputs": [
         "projects/research-trending/{date}-{slug}/brief.md",
@@ -748,8 +812,11 @@
         "XAI_API_KEY",
         "YOUTUBE_API_KEY"
       ],
-      "runtime_dependencies": [],
-      "last_modified": "2026-05-06T06:39:10.853Z"
+      "runtime_dependencies": [
+        "python: \">=3.11 (optional, doar pentru engagement metrics reale)"
+      ],
+      "tier": "core",
+      "last_modified": "2026-05-11T15:18:16.158Z"
     },
     {
       "name": "sys-audit",
@@ -1250,19 +1317,21 @@
     },
     {
       "name": "tool-humanizer",
-      "version": "1.0.0",
+      "version": "2.0.0",
       "category": "tool",
-      "description": "Strip AI writing patterns from text. Detects and fixes 10 pattern categories across 3 modes: quick (obvious fixes), standard (full scan with scoring), and deep (voice-matched rewrite).",
+      "description": "Sterge pattern-uri AI din text si restaureaza vocea umana naturala. 50+ AI tells detectate, scoring 0-10 human-ness, 3 moduri (quick / standard / deep cu voice-profile match). Foloseste pattern-library + replacement-guide din references/.",
       "triggers": [
         "umanizeaza",
         "fa-l natural",
         "sterge pattern AI",
         "suna prea AI",
         "curata textul",
+        "de-AI",
         "humanize this",
         "make this sound human",
         "remove AI patterns",
-        "AI detection"
+        "AI detection",
+        "clean up this copy"
       ],
       "negative_triggers": [
         "voce de brand",
@@ -1274,22 +1343,26 @@
       ],
       "multi_angle_triggers": [],
       "context_loads": [
-        "brand/voice.md (reads, only in deep mode)",
-        "context/learnings.md (section tool-humanizer)"
+        "brand/voice.md (reads, doar in deep mode)",
+        "brand/samples.md (reads, doar in deep mode, pentru tone refs)",
+        "context/learnings.md (section tool-humanizer)",
+        "skills/tool-humanizer/references/pattern-library.md (full pattern detection)",
+        "skills/tool-humanizer/references/replacement-guide.md (replacement strategy)"
       ],
       "inputs": [
-        "text (required: the text to humanize, pasted or file path)",
+        "text (required: text de umanizat — paste sau file path)",
         "mode (optional: quick | standard | deep, default: standard)"
       ],
       "outputs": [
-        "Cleaned text (returned inline or saved to original file)",
-        "Pattern report (standard and deep modes)"
+        "Text curatat (return inline sau salvat in fisier original)",
+        "Pattern report (standard si deep mode)"
       ],
       "modes": [],
       "secrets_required": [],
       "secrets_optional": [],
       "runtime_dependencies": [],
-      "last_modified": "2026-05-05T05:19:21.281Z"
+      "tier": "core",
+      "last_modified": "2026-05-11T15:19:45.394Z"
     }
   ]
 }

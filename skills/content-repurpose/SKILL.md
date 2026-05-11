@@ -1,18 +1,24 @@
 ---
 name: content-repurpose
-version: 2.0.0
+version: 3.0.0
 category: content
-description: "Turn one piece of content into platform-native posts for LinkedIn, Twitter/X, Instagram, TikTok, YouTube, Threads, Bluesky, Reddit. Multi-Asset: 1 agent per platform writes in parallel; hard-fail if any platform fails."
+description: "Transforma o piesa de continut in posturi platform-native pentru 8 platforme (LinkedIn, Twitter, Instagram, TikTok, YouTube, Threads, Bluesky, Reddit). Multi-Asset parallel + algorithm check + humanizer gate + optional content calendar."
 triggers:
   - "transforma in social"
   - "fa posturi din asta"
   - "calendar content"
+  - "calendar saptamanal"
   - "fa un thread"
   - "post LinkedIn din"
   - "adapteaza pentru"
+  - "atomizeaza"
   - "repurpose this"
   - "turn this into social posts"
   - "social posts from"
+  - "atomize this"
+  - "create social content from"
+  - "schedule across platforms"
+  - "content calendar from this"
 negative_triggers:
   - "scrie copy"
   - "landing page"
@@ -25,14 +31,20 @@ concurrency_pattern: multi-asset-generation
 context_loads:
   - brand/voice.md (platform agents read)
   - brand/audience.md (platform agents read summary)
+  - brand/samples.md (platform agents read)
   - context/learnings.md (synthesizer appends)
 inputs:
   - source (required: URL, file path, or pasted text)
   - platforms (optional: comma-separated list, defaults to all 8)
   - angle (optional: specific angle or hook to emphasize)
+  - calendar (optional: yes — genereaza si content calendar saptamanal)
 outputs:
   - Per-platform files in projects/content-repurpose/{slug}/
+  - calendar.md (optional, daca user-ul cere)
   - data/skill-telemetry.ndjson (appended)
+secrets_optional:
+  - FIRECRAWL_API_KEY
+tier: core
 ---
 
 # Output Discipline
@@ -58,6 +70,8 @@ In functie de tip:
 - **File path**: Read tool
 - **Pasted text**: foloseste as-is
 
+**Daca WebFetch esueaza** (JS-heavy, bot protection, continut gol) si `FIRECRAWL_API_KEY` exista in `.env` → fallback la Firecrawl scrape. Daca nici Firecrawl nu merge, cere user-ului sa pasteze continutul.
+
 Daca lungimea < 100 cuvinte: "Sursa e scurta ({N} cuvinte). Continui asa sau ai o versiune mai lunga?" — asteapta.
 
 Confirma scurt user-ului: "Citit: {tip}, ~{N} cuvinte."
@@ -66,16 +80,31 @@ Confirma scurt user-ului: "Citit: {tip}, ~{N} cuvinte."
 
 # Step 1: Extract atoms (main thread, interactive)
 
-Spargere in 3-5 atoms:
+Spargere in 5-7 atoms:
 1. **Key insight** — singurul lucru de retinut
-2. **Data point** — numar / stat / rezultat specific
-3. **Quotable line** — propozitie standalone
-4. **Story beat** — mini-narativ (before/after sau challenge/solution)
-5. **Contrarian take** — opinie impotriva consensus
+2. **Supporting points** — 3-7 idei care construiesc cazul
+3. **Story beats** — mini-narative concrete (before/after sau challenge/solution)
+4. **Numbers / proof** — date, stats, rezultate
+5. **Spicy takes** — opinii contrarian care provoaca consensus
+6. **Action steps** — lucruri pe care reader-ul le poate face concret
+7. **Quotable lines** — fraze punchy care merg ca standalone post
 
 Listeaza atoms-urile, intreaba "Confirmi sau ajustam?". Asteapta confirmarea.
 
 Acest pas e interactiv prin natura (user verifica relevanta) — NU e candidat de paralelism.
+
+---
+
+# Step 1.5: Algorithm sanity check (rapid)
+
+Pentru platformele selectate, ruleaza un quick WebSearch per platforma:
+```
+"{platform} algorithm update {current_month} {current_year}"
+```
+
+Daca apare o schimbare meaningful (ex: LinkedIn weighting comments more, Reddit penalizing self-promo), flag-o user-ului inainte de generare ca agentii sa stie. Daca WebSearch nu e disponibil sau nimic notabil, continua silent cu default-urile.
+
+Acest pas dureaza ~10 sec, NU paralelizezi cu Step 4 (agentii au nevoie de output-ul de aici).
 
 ---
 
@@ -390,10 +419,22 @@ Dupa ce primesti N JSON-uri:
 
 ## Calea A — toate OK (failed.length === 0)
 
+**Humanizer gate** (inainte de save):
+Daca skill-ul `tool-humanizer` exista in `skills/`, ruleaza pe fiecare bucata generata in pipeline mode:
+- `deep` mode daca `brand/voice.md` a fost incarcat
+- `standard` mode altfel
+Logheaza scor pre/post per platforma. Daca delta > 2 puncte, mentioneaza in output final.
+
 Salveaza per platforma in `projects/content-repurpose/{slug}/`:
 - `linkedin.md`, `twitter.md`, `instagram.md`, `tiktok.md`, `youtube.md`, `threads.md`, `bluesky.md`, `reddit.md` (doar cele generate)
 - `_source.md` — original content reference
 - `_atoms.md` — atoms confirmati la Step 1
+
+**Daca user a cerut calendar** (input `calendar=yes`), genereaza `calendar.md` cu ritm 5-3-2 saptamanal:
+- 5 zile core content (1 platforma/zi din cele selectate)
+- 3 zile secondary/repurpose (variante scurtate)
+- 2 zile engagement (raspuns la comentarii, polls, story-uri)
+Include ore optime postare per platforma (din learnings sau best-practices generice).
 
 Append in `context/learnings.md` sub `## content-repurpose`:
 ```
