@@ -1,13 +1,13 @@
 {
-  "generated_at": "2026-05-11T15:21:09.413Z",
-  "count": 23,
+  "generated_at": "2026-05-11T15:26:18.124Z",
+  "count": 26,
   "by_category": {
     "brand": 3,
     "content": 3,
     "mode": 3,
     "research": 2,
     "sys": 11,
-    "tool": 1
+    "tool": 4
   },
   "triggers": {
     "audienta": "brand-audience",
@@ -251,6 +251,18 @@
     "clientii mei": "sys-switch-client",
     "list clients": "sys-switch-client",
     "lista clienti": "sys-switch-client",
+    "verifica faptele": "tool-fact-checker",
+    "fact check": "tool-fact-checker",
+    "verifica acest claim": "tool-fact-checker",
+    "e adevarat": "tool-fact-checker",
+    "este corect": "tool-fact-checker",
+    "valideaza claim-urile": "tool-fact-checker",
+    "verifica afirmatiile": "tool-fact-checker",
+    "verify this": "tool-fact-checker",
+    "is this true": "tool-fact-checker",
+    "check these claims": "tool-fact-checker",
+    "fact-check this": "tool-fact-checker",
+    "verify claims": "tool-fact-checker",
     "umanizeaza": "tool-humanizer",
     "fa-l natural": "tool-humanizer",
     "sterge pattern ai": "tool-humanizer",
@@ -261,7 +273,31 @@
     "make this sound human": "tool-humanizer",
     "remove ai patterns": "tool-humanizer",
     "ai detection": "tool-humanizer",
-    "clean up this copy": "tool-humanizer"
+    "clean up this copy": "tool-humanizer",
+    "genereaza pdf": "tool-pdf-generator",
+    "converteste in pdf": "tool-pdf-generator",
+    "fa un pdf": "tool-pdf-generator",
+    "export ca pdf": "tool-pdf-generator",
+    "markdown la pdf": "tool-pdf-generator",
+    "generate pdf": "tool-pdf-generator",
+    "convert to pdf": "tool-pdf-generator",
+    "make a pdf": "tool-pdf-generator",
+    "export as pdf": "tool-pdf-generator",
+    "markdown to pdf": "tool-pdf-generator",
+    "ultimul video youtube": "tool-youtube",
+    "transcript de pe youtube": "tool-youtube",
+    "youtube transcript": "tool-youtube",
+    "ce a postat": "tool-youtube",
+    "fetch youtube": "tool-youtube",
+    "ultimele video-uri canal": "tool-youtube",
+    "metadata video": "tool-youtube",
+    "info video": "tool-youtube",
+    "thumbnail youtube": "tool-youtube",
+    "detalii video": "tool-youtube",
+    "latest youtube video": "tool-youtube",
+    "get transcript": "tool-youtube",
+    "video metadata": "tool-youtube",
+    "youtube thumbnail": "tool-youtube"
   },
   "skills": [
     {
@@ -1316,6 +1352,52 @@
       "last_modified": "2026-05-08T18:47:18.197Z"
     },
     {
+      "name": "tool-fact-checker",
+      "version": "1.0.0",
+      "category": "tool",
+      "description": "Verificare sistematica de claim-uri prin analiza bazata pe dovezi. 6 verdicte (TRUE/MOSTLY_TRUE/MIXED/MOSTLY_FALSE/FALSE/UNVERIFIABLE). Standalone sau pipeline mode pentru skill-uri care valideaza claim-uri inainte de publish.",
+      "triggers": [
+        "verifica faptele",
+        "fact check",
+        "verifica acest claim",
+        "e adevarat",
+        "este corect",
+        "valideaza claim-urile",
+        "verifica afirmatiile",
+        "verify this",
+        "is this true",
+        "check these claims",
+        "fact-check this",
+        "verify claims"
+      ],
+      "negative_triggers": [
+        "voce de brand",
+        "brand voice",
+        "ce parere ai",
+        "what do you think",
+        "opinia ta"
+      ],
+      "multi_angle_triggers": [],
+      "context_loads": [
+        "context/learnings.md (section tool-fact-checker)",
+        "skills/tool-fact-checker/references/verification-patterns.md (manipulation patterns)"
+      ],
+      "inputs": [
+        "claims (required: text cu claim-uri sau array structurat in pipeline mode)",
+        "mode (optional: standalone | pipeline, auto-detectat)"
+      ],
+      "outputs": [
+        "projects/tool-fact-checker/{date}/{topic}.md (standalone mode)",
+        "JSON structurat returnat (pipeline mode)"
+      ],
+      "modes": [],
+      "secrets_required": [],
+      "secrets_optional": [],
+      "runtime_dependencies": [],
+      "tier": "core",
+      "last_modified": "2026-05-11T15:23:34.551Z"
+    },
+    {
       "name": "tool-humanizer",
       "version": "2.0.0",
       "category": "tool",
@@ -1363,6 +1445,110 @@
       "runtime_dependencies": [],
       "tier": "core",
       "last_modified": "2026-05-11T15:19:45.394Z"
+    },
+    {
+      "name": "tool-pdf-generator",
+      "version": "1.0.0",
+      "category": "tool",
+      "description": "Genereaza PDF-uri curate, minimaliste din markdown. Tipografie pentru reading, layout cu margini generoase. pandoc + weasyprint (preferat) sau Python weasyprint standalone. Suport theme branded prin brand/design-tokens.md.",
+      "triggers": [
+        "genereaza PDF",
+        "converteste in PDF",
+        "fa un PDF",
+        "export ca PDF",
+        "markdown la PDF",
+        "generate PDF",
+        "convert to PDF",
+        "make a PDF",
+        "export as PDF",
+        "markdown to PDF"
+      ],
+      "negative_triggers": [
+        "citeste PDF",
+        "extrage din PDF",
+        "read PDF",
+        "extract from PDF"
+      ],
+      "multi_angle_triggers": [],
+      "context_loads": [
+        "context/learnings.md (section tool-pdf-generator)",
+        "brand/design-tokens.md (doar in branded theme mode)"
+      ],
+      "inputs": [
+        "input (required: path la fisier .md sau text markdown raw)",
+        "output_path (optional: unde sa salveze; default projects/tool-pdf-generator/{date}/{name}.pdf)",
+        "theme (optional: minimal | branded — default minimal)",
+        "intensity (optional: subtle | heavy — doar pentru branded)",
+        "logo (optional: URL sau path la logo — doar branded)",
+        "links (optional: \"Label1=url1,Label2=url2\" — doar branded)"
+      ],
+      "outputs": [
+        "PDF la output_path",
+        "Copie la ~/Downloads/{name}.pdf (default)"
+      ],
+      "modes": [],
+      "secrets_required": [],
+      "secrets_optional": [],
+      "runtime_dependencies": [
+        "python: \">=3.11",
+        "pandoc OR weasyprint (auto-detected)"
+      ],
+      "tier": "content-creator",
+      "last_modified": "2026-05-11T15:24:47.387Z"
+    },
+    {
+      "name": "tool-youtube",
+      "version": "1.0.1",
+      "category": "tool",
+      "description": "Fetch videos YouTube, extract transcripts cu timestamps, metadata + thumbnails. 3 moduri: channel (necesita YOUTUBE_API_KEY), transcript (gratuit via yt-dlp), metadata (yt-dlp). Folosit ca content source de alte skill-uri.",
+      "triggers": [
+        "ultimul video youtube",
+        "transcript de pe youtube",
+        "youtube transcript",
+        "ce a postat",
+        "fetch youtube",
+        "ultimele video-uri canal",
+        "metadata video",
+        "info video",
+        "thumbnail youtube",
+        "detalii video",
+        "latest youtube video",
+        "get transcript",
+        "video metadata",
+        "youtube thumbnail"
+      ],
+      "negative_triggers": [
+        "scrie continut",
+        "repurpose",
+        "editeaza video",
+        "video editing"
+      ],
+      "multi_angle_triggers": [],
+      "context_loads": [
+        "context/learnings.md (section tool-youtube)"
+      ],
+      "inputs": [
+        "mode (optional: channel | transcript | metadata — auto-detectat din input)",
+        "url (transcript / metadata mode)",
+        "channels (channel mode: comma-separated @handles sau lista din config/sources.md)",
+        "hours (channel mode: cat de departe in trecut, default 48)"
+      ],
+      "outputs": [
+        "projects/tool-youtube/{date}/{video-title-slug}.md (transcript clean)",
+        "metadata.json / thumbnail.png in output-dir specificat"
+      ],
+      "modes": [],
+      "secrets_required": [],
+      "secrets_optional": [
+        "YOUTUBE_API_KEY"
+      ],
+      "runtime_dependencies": [
+        "python: \">=3.11",
+        "yt-dlp",
+        "uv"
+      ],
+      "tier": "content-creator",
+      "last_modified": "2026-05-11T15:26:02.415Z"
     }
   ]
 }
