@@ -119,6 +119,10 @@ Exit 0 = green; exit 1 = revizii necesare. CI-ready.
 
 ## Categorii de skills
 
+10 categorii valide (vezi `VALID_CATEGORIES` in [scripts/lib/skill-frontmatter.js](scripts/lib/skill-frontmatter.js)):
+
+### Native robOS (v1)
+
 | Prefix     | Scop                                               |
 |------------|----------------------------------------------------|
 | `brand-`   | Voce de brand, style guides, tone checks           |
@@ -127,6 +131,36 @@ Exit 0 = green; exit 1 = revizii necesare. CI-ready.
 | `research-`| Research web, competitor analysis, trend scanning  |
 | `sys-`     | Operatii de sistem: sesiune, cron, mentenanta      |
 | `tool-`    | Integrari cu tooluri externe (API-uri, CLI-uri)    |
+
+### Adaugate la migrare (v2, port din `.claude/skills/`)
+
+| Prefix    | Scop                                                            |
+|-----------|-----------------------------------------------------------------|
+| `00-`     | Orchestratori multi-skill (00-slides, 00-youtube-to-ebook, etc.)|
+| `viz-`    | Vizualizare (slides, diagrame, imagini, motion graphics)        |
+| `vid-`    | Video production (clip extraction, reframing, editing)          |
+| `meta-`   | Skill-uri despre skill-uri (creator, system builder)            |
+
+`mkt-` exista in `.claude/skills/` dar in robOS skill-urile mkt-* sunt incadrate sub categoria `content-` (marketing = content cu intent commercial).
+
+---
+
+## Capability Tiers (pentru install)
+
+robOS are 51 skill-uri impartite in 5 capability tiers. Doar `core` e instalat default; restul se activeaza opt-in la onboarding (vezi `sys-onboard` Step 7).
+
+| Tier | Skills | Cere |
+|------|--------|------|
+| `core` | 26 (toate sys-*, mode-*, brand-*, content-text, research-*, meta-*, tool-fact-checker, tool-humanizer) | Doar Node.js (deja required de robOS) |
+| `content-creator` | 13 (tool-youtube, tool-transcription, tool-pdf-generator, tool-web-screenshot, viz-*, mkt-longform-article, 00-slides, 00-youtube-to-ebook, 00-social-content) | Python 3.11+, ffmpeg, pandoc, Playwright Chromium |
+| `video-producer` | 5 (vid-*, viz-hyperframes, 00-longform-to-shortform) | + OpenCV DNN models, HandBrake CLI, Node.js 22+ |
+| `social-publisher` | 6 (tool-zernio-social, tool-publisher, tool-video-upload, mkt-short-form-posting, mkt-youtube-content-package, mkt-content-analytics) | Cont Zernio (ZERNIO_API_KEY) |
+| `researcher` | 1 (tool-linkedin-scraper) + features activate in research-trending + brand-voice | API keys: APIFY, OPENAI, XAI, FIRECRAWL |
+
+Setup helpers:
+- `bash scripts/setup-python.sh --tier=content-creator` (macOS/Linux/WSL)
+- `scripts\setup-python.cmd --tier=content-creator` (Windows)
+- `--check` mode pentru verificare fara install
 
 ---
 
@@ -154,7 +188,14 @@ Skills functioneaza pe orice model Claude, dar tier-ul potrivit imbunatateste co
 | brand-voice, brand-audience, brand-positioning | Opus | Ruleaza o data la setup, are nevoie de analiza nuantata |
 | research-trending, research-competitors | Sonnet | Web research + sinteza, complexitate medie |
 | tool-humanizer | Haiku | Pattern-matching de mare volum |
-| sys-skill-builder | Opus | Decizii de arhitectura, ruleaza rar |
+| sys-skill-builder, meta-* | Opus | Decizii de arhitectura, ruleaza rar |
+| 00-* (orchestratori) | Sonnet | Coordoneaza skill-uri sub-task; tie-breaking decizii usoare |
+| viz-frontend-slides, viz-excalidraw-diagram | Sonnet | Generare structurata (HTML/JSON) cu constrangeri |
+| viz-image-gen, viz-hyperframes | Sonnet | Promptu-uri vizuale + composition design |
+| vid-clip-selection | Sonnet | Scoring 5-categorii pe transcripturi |
+| vid-clip-extractor, vid-ffmpeg-edit | Haiku | Wrap-eaza scripturi Python (decizii deterministe) |
+| mkt-longform-article | Opus | Quality matter — output editorial 2-5k cuvinte |
+| mkt-*-posting, tool-*-publish | Sonnet | Coordonare API + validare user gate |
 
 Folosire: daca rulezi Claude Code cu selectie de model (`--model` sau `/model`), schimba inainte sa rulezi skills costisitoare. Nu e obligatoriu — toate skills degradeaza gratiat pe modele mai mici.
 

@@ -1,18 +1,20 @@
 ---
 name: tool-humanizer
-version: 1.0.0
+version: 2.0.0
 category: tool
-description: "Strip AI writing patterns from text. Detects and fixes 10 pattern categories across 3 modes: quick (obvious fixes), standard (full scan with scoring), and deep (voice-matched rewrite)."
+description: "Sterge pattern-uri AI din text si restaureaza vocea umana naturala. 50+ AI tells detectate, scoring 0-10 human-ness, 3 moduri (quick / standard / deep cu voice-profile match). Foloseste pattern-library + replacement-guide din references/."
 triggers:
   - "umanizeaza"
   - "fa-l natural"
   - "sterge pattern AI"
   - "suna prea AI"
   - "curata textul"
+  - "de-AI"
   - "humanize this"
   - "make this sound human"
   - "remove AI patterns"
   - "AI detection"
+  - "clean up this copy"
 negative_triggers:
   - "voce de brand"
   - "pozitionare"
@@ -21,131 +23,162 @@ negative_triggers:
   - "positioning"
   - "translate"
 context_loads:
-  - brand/voice.md (reads, only in deep mode)
+  - brand/voice.md (reads, doar in deep mode)
+  - brand/samples.md (reads, doar in deep mode, pentru tone refs)
   - context/learnings.md (section tool-humanizer)
+  - skills/tool-humanizer/references/pattern-library.md (full pattern detection)
+  - skills/tool-humanizer/references/replacement-guide.md (replacement strategy)
 inputs:
-  - text (required: the text to humanize, pasted or file path)
+  - text (required: text de umanizat — paste sau file path)
   - mode (optional: quick | standard | deep, default: standard)
 outputs:
-  - Cleaned text (returned inline or saved to original file)
-  - Pattern report (standard and deep modes)
+  - Text curatat (return inline sau salvat in fisier original)
+  - Pattern report (standard si deep mode)
+tier: core
 ---
 
-# Pattern Detection Library
+# Humanizer
 
-Scan for these 10 pattern categories. Each has specific indicators:
+Sterge pattern-uri AI din text. Fa-l sa sune ca scris de un om.
 
-## Pattern 1: Em Dash Overuse
-- **Detect**: More than 1 em dash per 300 words
-- **Fix**: Replace with commas, periods, parentheses, or restructure the sentence
-- **Example**: "The tool -- which was built last year -- is fast" becomes "The tool (built last year) is fast" or split into two sentences
+# Step 1: Detect Mode
 
-## Pattern 2: Rule of Three Repetition
-- **Detect**: "X, Y, and Z" pattern appearing more than twice in the text
-- **Fix**: Vary list lengths (2 items, 4 items, or rewrite as separate sentences)
-- **Example**: "fast, reliable, and scalable" + "simple, elegant, and powerful" -- rewrite at least one
+Alege din context sau intreaba: *"Quick pass, full cleanup, sau voice-matched?"*
 
-## Pattern 3: Inflated Symbolism
-- **Detect**: Phrases like "tapestry of", "landscape of", "journey through", "fabric of", "beacon of", "mosaic of", "symphony of", "dance between", "gateway to", "cornerstone of", "pillar of"
-- **Fix**: Replace with plain language or delete entirely
-- **Example**: "the ever-evolving landscape of digital marketing" becomes "digital marketing"
+| Mode | Ce face | Cel mai bun pentru |
+|------|---------|-------|
+| `quick` | Sterge cliche-uri AI obvio + buzzwords. Single pass, NO scoring. | Edit-uri sociale rapide, docs interne |
+| `standard` | Pattern scan complet (50+ detecții) + human-ness score + change log | Orice continut public |
+| `deep` | Full scan + replace cu pattern-urile din voice-profile.md. Loads `brand/voice.md` | Blog posts, landing pages, email — orice care trebuie sa sune ca brand-ul |
 
-## Pattern 4: Corporate Buzzwords
-- **Detect**: "leverage", "synergy", "paradigm", "holistic", "ecosystem", "streamline", "optimize", "empower", "innovative", "cutting-edge", "best-in-class", "scalable", "robust", "seamless", "unlock"
-- **Fix**: Replace with specific, concrete language
-- **Example**: "leverage our robust ecosystem" becomes "use our tools"
+**Default: `standard`.** Cand e called de alt skill ca post-processing, foloseste `deep` daca `brand/voice.md` exista, `standard` altfel.
 
-## Pattern 5: Hedging Language
-- **Detect**: "it's worth noting that", "it's important to remember", "it should be mentioned", "interestingly enough", "needless to say", "as a matter of fact", "when it comes to", "at the end of the day", "in terms of"
-- **Fix**: Delete the hedge, start with the actual point
-- **Example**: "It's worth noting that prices increased 12%" becomes "Prices increased 12%"
+# Step 2: Load Context
 
-## Pattern 6: Promotional Superlatives
-- **Detect**: "groundbreaking", "revolutionary", "game-changing", "world-class", "next-generation", "state-of-the-art", "unparalleled", "unprecedented", "transformative", "disruptive"
-- **Fix**: Replace with evidence or specifics
-- **Example**: "our groundbreaking solution" becomes "our solution (used by 3,000 teams)"
+Daca mode = `deep`, citeste `brand/voice.md` (rezolvat via active-client). Daca file lipseste, downgrade silent la `standard` si spune o data: "voice.md not found — running standard mode. Ruleaza /brand-voice ca sa activezi deep mode."
 
-## Pattern 7: Predictable Structure
-- **Detect**: Every paragraph is 3-4 sentences. Every section follows the same pattern (statement, explanation, example). Lists always have 3 items.
-- **Fix**: Vary paragraph lengths (1 sentence, then 5 sentences, then 2). Mix formats. Let some sections be short, others long.
+Extract din voice.md:
+- Vocabular preferat (foloseste ca replacements)
+- Cuvinte evitate (flag ca AI tells chiar daca nu sunt in pattern library)
+- Linguistic habits (connectors, intensifiers, rhythm)
+- Samples pentru tone reference
 
-## Pattern 8: Negative Parallelism
-- **Detect**: "not X but Y", "less about X, more about Y", "it's not just X, it's Y", "beyond X lies Y", "not merely X but rather Y"
-- **Fix**: State what it IS directly, without the contrast crutch
-- **Example**: "It's not just a tool, it's a partner" becomes "It's a partner in your workflow"
+# Step 3: Score Original
 
-## Pattern 9: Conjunctive Phrase Abuse
-- **Detect**: "moreover", "furthermore", "additionally", "in addition", "consequently", "subsequently", "nevertheless", "nonetheless" appearing more than once per 500 words
-- **Fix**: Use simple connectors ("and", "but", "so", "then") or restructure to eliminate the need for a connector
-- **Example**: "Furthermore, the data shows..." becomes "The data also shows..." or just start a new paragraph
+Rate text-ul input pe scara 0-10 human-ness:
 
-## Pattern 10: Vague Attributions
-- **Detect**: "experts say", "studies show", "research suggests", "many believe", "it is widely known", "according to sources", "professionals agree"
-- **Fix**: Name the expert, cite the study, or remove the attribution if you can't back it up
-- **Example**: "Studies show that 73% of marketers..." becomes "A 2025 HubSpot survey found that 73% of marketers..."
+| Score | Inseamna |
+|-------|---------|
+| 0-3 | Obvio AI — multiple cliche-uri, structura robotica, hedging peste tot |
+| 4-5 | AI-heavy — unele atingeri umane dar nevoie de munca majora |
+| 6-7 | Mixt — poate merge oricum, lipsa voce distinctiva |
+| 8-9 | Human-like — voce naturala, pattern-uri AI minime |
+| 10 | Indistinguibil de scriitor uman skilled |
 
----
+**Factori scoring:**
+- Pattern AI count per 500 cuvinte (fewer = better)
+- Variance lungime propozitii (higher variance = mai uman)
+- Specificity ratio (termeni concreti vs vagi qualifiers)
+- Variatie structurala (NU fiecare paragraf aceeasi forma)
 
-# Step 1: Receive Text
+# Step 4: Pattern Detection + Removal
 
-Accept text as:
-- Pasted directly in the message
-- File path (read the file)
-- Output from another skill (called as post-processing)
+Citeste `references/pattern-library.md` pentru lista completa de 50+ pattern-uri. Categorii:
 
-Determine mode: `quick`, `standard`, or `deep`. Default to `standard` if not specified.
+1. **AI cliches & openers** — "In today's fast-paced world", "Let's dive in", "It's no secret"
+2. **Hedging language** — "It's important to note", "arguably", "one might argue", "it's worth noting that"
+3. **Corporate buzzwords** — "leverage", "utilize", "facilitate", "optimize", "synergy", "holistic", "ecosystem"
+4. **Robotic structure** — rhetorical Q+A, obsessive parallelism, always-three lists, "Here are the top X"
+5. **Overused transitions** — "Moreover", "Furthermore", "Additionally", "Nevertheless", "Consequently"
+6. **Promotional inflation** — "transformative", "game-changer", "unprecedented", "revolutionary"
+7. **Wikipedia AI tells** — inflated symbolism, em dash overuse, rule of three, vague attributions, negative parallelisms, conjunctive phrase abuse
+8. **Vocabulary tells** — "delve", "tapestry", "multifaceted", "landscape", "nuanced", "foster", "realm", "journey", "fabric", "beacon", "mosaic", "symphony"
+9. **Negative parallelism** — "not X but Y", "less about X, more about Y", "it's not just X, it's Y"
+10. **Vague attributions** — "experts say", "studies show", "many believe", "according to sources"
 
-# Step 2: Quick Mode
-
-Scan for Patterns 1, 3, 4, 5, and 6 only. These are the most obvious AI tells.
-
-For each detection, flag the phrase, apply the fix, move on. Return cleaned text with no report.
-
-# Step 3: Standard Mode
-
-Scan for all 10 patterns. For each:
-
+Pentru fiecare pattern detectat:
 1. Count occurrences
-2. Flag each instance with line reference
-3. Apply fixes
-4. Generate a pattern report:
+2. Flag fiecare instance cu line reference
+3. Aplica fix din `references/replacement-guide.md`
+
+# Step 5: Enhance Human Markers
+
+Dupa stergerea pattern-urilor, adauga semnale de voce naturala:
+- **Varied sentence rhythm** — sparge propozitii de aceeasi lungime
+- **Contractions** — "it's" not "it is" (in afara de context formal)
+- **Active voice** — flip passive constructions
+- **Confident assertions** — sterge hedging in afara de cazul cand realmente incert
+- **Specific examples** — flag vague references pentru user sa concretizeze
+
+In `deep` mode, aplica pattern-urile din voice-profile:
+- Insereaza connectors si tranzitii preferate de brand
+- Match lungime propozitii din samples
+- Foloseste vocabular brand ca replacements pentru termeni generici
+
+# Step 6: Score Revised + Output
+
+Scor text-ul revizat. Arata schimbarile:
 
 ```
-Pattern Report:
-- Em dashes: 4 found, 3 fixed (kept 1 that was stylistically appropriate)
-- Rule of three: 2 found, 1 fixed
-- Inflated symbolism: 0 found
-- Corporate buzzwords: 3 found, 3 fixed
-- Hedging: 5 found, 5 fixed
-- Superlatives: 1 found, 1 fixed
-- Structure: Paragraph variation added
-- Negative parallelism: 0 found
-- Conjunctive abuse: 2 found, 2 fixed
-- Vague attributions: 1 found, 1 fixed
+ORIGINAL: 4.2/10
+REVISED:  8.4/10
 
-AI-pattern score: Before 7.2/10, After 2.1/10
-(Lower is more human. Target: under 3.0)
+Schimbari:
+  [N] AI cliches sterse
+  [N] buzzwords inlocuite
+  [N] hedging phrases taiate
+  [N] pattern-uri structurale fix-uite
+  [N] voice markers adaugate
+
+Flag-uri pentru review:
+  [paragraf/linie] — [ce necesita atentie manuala]
 ```
 
-Return cleaned text + pattern report.
+# Step 7: Output Mode
 
-# Step 4: Deep Mode
+- **Standalone** (user pasted text): prezinta text-ul curatat direct
+- **File mode** (path provided): ofera sa overwrite sau save ca fisier nou
+- **Pipeline mode** (called de alt skill): returneaza text silently. Arata score summary doar daca delta > 2 puncte. Calling skill-ul e responsabil pentru save.
 
-Requires `brand/voice.md`. If not available, fall back to standard mode.
+# Step 8: Log Learnings
 
-1. Run the full standard scan first
-2. Then rewrite to match the voice profile in `brand/voice.md`:
-   - Match sentence rhythm patterns from voice.md
-   - Use vocabulary from voice.md's approved list
-   - Apply tone and personality traits
-   - Adjust formality level
-3. Compare the rewrite against the voice profile's "NOT this" examples
-4. Generate an extended report including voice match score
+Append in `context/learnings.md` sub `## tool-humanizer`:
+- Mode folosit
+- Top pattern-uri detectate
+- Before/after score
+- Feedback user (daca exista — "too aggressive", "keep em dashes", etc.)
+- Data completarii
 
-# Step 5: Return Result and Log
+# Pipeline Mode
 
-- If called inline (user pasted text): return the cleaned text directly
-- If called on a file: offer to overwrite or save as a new file
-- If called by another skill: return the cleaned text to the calling skill
+Cand e called de alt skill (NU standalone), acest skill:
+1. Primeste text ca input
+2. Ruleaza Steps 2-6 silently
+3. Returneaza text curatat
+4. Arata score summary DOAR daca change-ul a fost semnificativ (delta > 2 puncte)
 
-Append to `context/learnings.md` under `## tool-humanizer`: mode used, top patterns detected, before/after score, date completed.
+Calling skill-ul e responsabil pentru save.
+
+# Scoring Thresholds
+
+| Score | Label | Actiune |
+|-------|-------|--------|
+| 90-100 | Clean | NU sunt schimbari necesare |
+| 70-89 | Light | Fix doar pattern-urile flag-ate |
+| 50-69 | Moderate | Rewrite propozitiile flag-ate |
+| 0-49 | Heavy | Full rewrite recomandat |
+
+# Rules
+
+*Actualizat automat cand user-ul flag-eaza issues. Citeste inainte de fiecare run.*
+
+# Self-Update
+
+Daca user-ul flag-eaza issue — too aggressive, missed a pattern, false positive — actualizeaza instruction-ul relevant in acest fisier DIRECT unde behavior-ul e definit (NU doar la learnings).
+
+# Troubleshooting
+
+**Text-ul devine prea formal:** Mode "quick" e prea light, "deep" prea greu. Foloseste "standard" si flag manual ce e overdone.
+**Lipsa voice-profile in deep mode:** Downgrade silent la standard + mentioneaza o data.
+**Em dashes legitimately stilistice:** User adauga in learnings "keep em dashes" — pattern detection se ajusteaza la urmatorul run.
+**Output mai prost decat input:** Score post < pre means pattern fix-urile au stricat structura. Rolled back, reraise issue la learnings.

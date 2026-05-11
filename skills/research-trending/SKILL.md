@@ -1,8 +1,8 @@
 ---
 name: research-trending
-version: 2.0.0
+version: 3.0.0
 category: research
-description: "Research what's trending in last 30 days across Reddit, Twitter/X, HN, blogs, video. MapReduce: 5 source agents scan in parallel, a synthesizer merges + dedupes + extracts signals."
+description: "Research trending in ultimele 30 zile pe Reddit, Twitter/X, HN, blogs, video. MapReduce: 5 source agents paraleli + synthesizer. Cu OPENAI_API_KEY si XAI_API_KEY, foloseste Python last30days.py pentru engagement metrics reale (upvotes, likes)."
 triggers:
   - "ce e trend"
   - "ce se discuta despre"
@@ -13,6 +13,10 @@ triggers:
   - "research"
   - "what's trending"
   - "pulse check on"
+  - "community sentiment on"
+  - "what are people saying about"
+  - "last 30 days"
+  - "recent discussions"
 negative_triggers:
   - "voce de brand"
   - "pozitionare"
@@ -23,10 +27,12 @@ concurrency_pattern: mapreduce-research
 context_loads:
   - brand/audience.md (synthesizer reads, for relevance filtering)
   - context/learnings.md (synthesizer appends)
+  - skills/research-trending/references/ (agents read methodology + templates)
 inputs:
   - topic (required: niche, keyword, or industry)
   - timeframe (optional: defaults to 30 days)
   - focus (optional: pain points | opportunities | opinions | all)
+  - depth (optional: quick | balanced | deep — default balanced)
 outputs:
   - projects/research-trending/{date}-{slug}/brief.md
   - projects/research-trending/{date}-{slug}/sources.md
@@ -37,6 +43,9 @@ secrets_optional:
   - OPENAI_API_KEY
   - XAI_API_KEY
   - YOUTUBE_API_KEY
+runtime_dependencies:
+  - python: ">=3.11 (optional, doar pentru engagement metrics reale)"
+tier: core
 ---
 
 # Output Discipline
@@ -56,6 +65,16 @@ In transcriptul vizibil userului apare DOAR:
 # Step 0: Scope (main thread, rapid)
 
 Ia topic-ul user-ului. Daca e ambiguu (un cuvant generic, fara context), pune O singura intrebare de clarificare ("Vrei trending in industria X sau pentru audienta Y?") si asteapta raspunsul.
+
+**Verifica recent research:** `projects/research-trending/` — daca exista brief pe acelasi topic in ultimele 7 zile, intreaba: "Am cercetat [topic] pe [data]. Vrei sa folosesti aia, refresh, sau topic nou?"
+
+**Determina depth:** quick (5-8 searches), balanced (8-12, default), deep (12-18). Daca user a specificat in input, foloseste asta.
+
+**Verifica API keys** pentru Python script mode (informational, NU blocheaza):
+- Ambele lipsa → "Voi folosi web search. Pentru engagement metrics reale (upvotes, likes, comments), adauga `OPENAI_API_KEY` (Reddit) si `XAI_API_KEY` (X/Twitter) in `.env`."
+- Doar OpenAI lipsa → "Am X data dar nu Reddit. Adauga `OPENAI_API_KEY` pentru engagement Reddit."
+- Doar xAI lipsa → "Am Reddit dar nu X. Adauga `XAI_API_KEY` pentru engagement X/Twitter."
+- Ambele prezente → skip silent, agentii REDDIT si TWITTER vor folosi Python script.
 
 Construieste 5 query-uri care vor fi pasate agentilor:
 - Base: `{topic}`
@@ -90,7 +109,14 @@ description: "Research-trending: Reddit scan"
 prompt: """
 Scaneaza Reddit pentru trending pe topic: {topic}, timeframe: {timeframe}.
 
-Ruleaza WebSearch queries:
+**Daca OPENAI_API_KEY exista in .env si Python e disponibil**, ruleaza intai:
+```bash
+python3 skills/research-trending/scripts/last30days.py "{topic}" --sources=reddit --emit=compact --{depth}
+```
+Output: JSON cu threads + real engagement metrics (upvotes, comments, top comment insights). Daca esueaza sau API key lipseste, fallback la WebSearch.
+
+**WebSearch fallback** (default cand nu exista cheie):
+Ruleaza queries:
 - site:reddit.com {topic} (filter recent)
 - site:reddit.com {topic} advice help
 - site:reddit.com {topic} rant frustration
@@ -127,7 +153,14 @@ description: "Research-trending: Twitter/X scan"
 prompt: """
 Scaneaza Twitter/X pentru trending pe topic: {topic}, timeframe: {timeframe}.
 
-Ruleaza WebSearch queries:
+**Daca XAI_API_KEY exista in .env si Python e disponibil**, ruleaza intai:
+```bash
+python3 skills/research-trending/scripts/last30days.py "{topic}" --sources=x --emit=compact --{depth}
+```
+Output: JSON cu posts + real engagement (likes, reposts, replies, author signal). Daca esueaza sau API key lipseste, fallback la WebSearch.
+
+**WebSearch fallback** (default cand nu exista cheie):
+Ruleaza queries:
 - {topic} site:twitter.com OR site:x.com
 - {topic} thread site:twitter.com OR site:x.com
 - {topic} take site:twitter.com OR site:x.com

@@ -24,6 +24,7 @@ inputs:
 outputs:
   - 3-5 intrebari numerotate
   - Fara propuneri de solutii pana la raspunsuri
+tier: core
 ---
 
 # Facilitator Mode — Question Without Solution

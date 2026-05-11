@@ -94,6 +94,11 @@
       case 'research': return 'badge-success';
       case 'sys': return 'badge-muted';
       case 'tool': return 'badge-error';
+      case 'mode': return 'badge-secondary';
+      case '00': return 'badge-info';     // orchestratori multi-skill
+      case 'viz': return 'badge-purple';   // vizualizare (slides, diagrame, imagini)
+      case 'vid': return 'badge-pink';     // video production
+      case 'meta': return 'badge-dark';    // skill-uri despre skill-uri
       default: return 'badge-muted';
     }
   }

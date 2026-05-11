@@ -23,6 +23,7 @@ inputs: []
 outputs:
   - State intern (memorat pentru prima interactiune)
   - data/session-state/{session_id}.json actualizat
+tier: core
 ---
 
 # Output Discipline (citeste inainte de a face orice)

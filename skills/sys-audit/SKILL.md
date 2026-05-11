@@ -37,6 +37,7 @@ outputs:
   - data/audit-cache.json (written by reducer)
   - data/skill-telemetry.ndjson (appended)
   - Raport final concis afisat user-ului
+tier: core
 ---
 
 # Output Discipline (citeste inainte de a face orice)

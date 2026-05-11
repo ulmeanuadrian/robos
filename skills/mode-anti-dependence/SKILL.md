@@ -24,6 +24,7 @@ inputs:
 outputs:
   - O intrebare scurta despre ce ar face operatorul
   - DUPA raspuns: 2-3 alternative, una validand abordarea operatorului daca e rezonabila
+tier: core
 ---
 
 # Anti-Dependence Mode — Operator First, AI Second

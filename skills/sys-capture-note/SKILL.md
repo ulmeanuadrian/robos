@@ -35,6 +35,7 @@ outputs:
   - context/notes/YYYY/MM/{id}-{slug}.md (frontmatter + body)
   - rand nou in tabela `notes` + FTS5 (via scripts/note-create.js)
   - confirmare scurta catre user (ID + path)
+tier: core
 ---
 
 # sys-capture-note

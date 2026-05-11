@@ -1,8 +1,8 @@
 ---
 name: brand-audience
-version: 1.0.0
+version: 2.0.0
 category: brand
-description: "Build an Ideal Customer Profile through founder interview or competitor/market research. Outputs a structured audience document with demographics, psychographics, pain points, and buying triggers."
+description: "Construieste ICP prin interview founder, research competitive, sau combinatie. Output: profil audienta structurat cu demografie, psihografie, pain points, limbaj real, trigger-uri de cumparare."
 triggers:
   - "audienta"
   - "client ideal"
@@ -10,8 +10,12 @@ triggers:
   - "cui ii vand"
   - "buyer persona"
   - "avatar client"
+  - "profilul clientului"
   - "target audience"
   - "audience research"
+  - "ideal customer"
+  - "who am I selling to"
+  - "customer avatar"
 negative_triggers:
   - "voce de brand"
   - "pozitionare"
@@ -19,90 +23,160 @@ negative_triggers:
   - "positioning"
   - "competitor landscape"
 context_loads:
-  - brand/audience.md (writes)
+  - brand/audience.md (reads | writes)
   - brand/positioning.md (summary)
   - brand/voice.md (summary)
   - context/learnings.md (section brand-audience)
 inputs:
-  - mode (optional: interview | research -- auto-detected if not specified)
-  - source_urls (optional: competitor sites, review pages, social links for research mode)
-  - product_description (optional: what the business sells)
+  - mode (optional: interview | research | both — auto-detectat daca nu specificat)
+  - source_urls (optional: URL-uri competitori, reviews, social pentru research mode)
+  - product_description (optional: ce vinde brand-ul)
 outputs:
-  - brand/audience.md (structured ICP document)
+  - brand/audience.md (document ICP structurat in 8 sectiuni)
+tier: core
 ---
 
-# Step 1: Load Existing Brand Context
+# Pas 0: Update Mode Check
 
-Read `brand/positioning.md` and `brand/voice.md` if populated. Extract relevant context:
-- From positioning: what category, what value proposition, who it's for
-- From voice: what tone implies about the audience (formal = enterprise, casual = consumer, etc.)
+Citeste `brand/audience.md`.
 
-If both are empty, proceed without -- but note that audience research done in isolation may need revisiting after positioning is defined.
+**Daca exista cu continut real**: intra in **Update Mode**.
+- Arata sumar de 1 paragraf despre profilul curent
+- Intreaba ce vrea sa schimbe (target segment nou, limbaj refresh, obiectii actualizate)
+- Update targeted, NU rebuild de la zero
 
-# Step 2: Determine Mode
+**Daca nu exista sau e doar template**: continua cu Pas 1.
 
-- **Interview**: Default when user is the founder/operator and can answer questions about their customers
-- **Research**: When user provides competitor URLs, review sites, or says "figure it out from the market"
+# Pas 1: Incarca context existent
 
-If unclear, ask: "Do you want me to interview you about your best customers, or should I research the market from public sources?"
+Citeste `brand/positioning.md` si `brand/voice.md` daca au continut real. Extract context:
+- Din pozitionare: ce categorie, ce value prop, pentru cine
+- Din voce: ce sugereaza ton-ul despre audienta (formal = enterprise, casual = consumer)
 
-# Step 3: Execute Mode
+Daca ambele goale, continua — dar noteaza ca audienta facuta in izolatie poate trebui revizuita dupa ce pozitionarea e definita.
+
+# Pas 2: Determina Mode
+
+- **Interview**: Default cand user-ul e founder-ul si poate raspunde la intrebari despre clientii lui
+- **Research**: Cand user-ul ofera URL-uri competitori, sites de review, sau zice "scoate-l din piata"
+- **Both**: Interview intai pentru ipoteza, apoi research pentru validare cu limbaj real al clientilor
+
+Daca neclar, intreaba: "Vrei sa te intervievez despre cei mai buni clienti, sau sa cercetez piata din surse publice? Sau ambele?"
+
+Daca user-ul ofera URL sau mentioneaza platforma specifica in primul mesaj → direct la **Research mode**.
+
+# Pas 3: Executa Mode
 
 ## Interview Mode
 
-Ask in 2 batches. Summarize after each batch before continuing.
+Intreaba in 2 batch-uri. Sumarizeaza dupa fiecare batch inainte sa continui. Concentreaza-te sa scoti **limbajul propriu al clientului** — nu marketing-speak. Cuvintele lor cand isi descriu problema sunt mai valoroase decat cum o framuieste founder-ul.
 
-**Batch 1 -- Who Are They:**
-1. Describe your best customer -- the one you'd clone if you could. What do they do? How old are they? Where do they live?
-2. What were they doing/using before they found you?
-3. What was the moment they realized they needed what you sell?
-4. What exact words did they use when they first described their problem to you?
+**Batch 1 — Cine sunt:**
+1. Descrie cel mai bun client — cel pe care l-ai clona daca ai putea. Ce face? Cati ani are? Unde traieste?
+2. Ce facea / folosea inainte sa te gaseasca?
+3. Care a fost momentul cand a realizat ca ii trebuie ce vinzi?
+4. Ce cuvinte EXACTE a folosit cand ti-a descris pentru prima oara problema?
 
-**Batch 2 -- How They Buy:**
-5. Where do they hang out online? Which platforms, communities, newsletters?
-6. What content format do they actually consume -- long reads, short videos, podcasts, tweets?
-7. What objections come up before they buy? What almost stops them?
-8. How aware are they of solutions like yours? (Never heard of it / Know the category / Comparing options / Ready to buy)
-9. What makes them finally pull the trigger?
-10. After they buy, what's the first thing they notice or comment on?
+**Batch 2 — Cum cumpara:**
+5. Unde sta online? Care platforme, comunitati, newsletter-uri?
+6. Ce format de continut consuma de fapt — long reads, video scurt, podcast, tweet-uri?
+7. Ce obiectii apar inainte de cumparare? Ce aproape il opreste?
+8. Cat de constient e de solutii ca a ta? (Nu stie ca exista / Stie categoria / Compara optiuni / Gata sa cumpere)
+9. Ce ii face in final sa apese trigger-ul?
+10. Dupa cumparare, ce e primul lucru pe care il observa sau il comenteaza?
 
-After both batches, synthesize and present back: "Here's the profile I'm building. What's wrong or missing?"
+Maximum 8 intrebari. Daca pozitionarea e incarcata, skip intrebarile la care raspunde deja.
+
+Dupa ambele batch-uri, sinteza si prezentare: "Iata profilul pe care il construiesc. Ce e gresit sau lipseste?"
 
 ## Research Mode
 
-1. Use WebSearch to find 3-5 competitor sites, review platforms, and community discussions in the space
-2. Use WebFetch to pull content from each source
-3. Extract audience signals:
-   - From competitor sites: who they're talking to (language, imagery, pricing tier)
-   - From reviews: what customers praise, complain about, and wish for
-   - From communities: how people describe their problems in their own words
-4. Cross-reference signals to find the consistent patterns
-5. Present findings with confidence levels: "High confidence: they're SMB owners. Medium confidence: mostly 30-45 age range."
+**Surse de minat (in ordine prioritate):**
+1. Reviews ale produsului sau competitorilor (Amazon, G2, Capterra, app stores)
+2. Reddit/forum threads unde audienta target discuta problema
+3. Comentarii social media pe continut competitor
+4. Comentarii YouTube pe video-uri relevante
+5. Survey data sau testimoniale (daca user-ul le ofera)
 
-# Step 4: Write brand/audience.md
+**Proces:**
+1. WebSearch pentru 3-5 competitor sites, platforme reviews, comunitati
+2. WebFetch pe fiecare sursa
+3. Extract semnale audienta:
+   - Din competitor sites: cui se adreseaza (limbaj, imagini, tier pret)
+   - Din reviews: ce lauda clientii, ce reclama, ce isi doresc
+   - Din comunitati: cum isi descriu oamenii problema in propriile lor cuvinte
+4. Cross-reference semnalele sa gasesti pattern-urile consistente
+5. Prezinta findings cu nivel confidence: "High confidence: SMB owners. Medium: 30-45 age range."
 
-Fill all 8 sections with specific, usable content:
+Scopul e sa extragi pattern-uri in: cum descriu problema, ce au incercat, ce i-a frustrat, ce outcome vor — in **cuvintele lor exacte**.
 
-**Demographics** -- Age range, location, job title/role, company size (if B2B), income bracket (if B2C). Be specific: "SaaS founders with 5-20 employees" not "business owners."
+## Both Mode (Interview + Research)
 
-**Psychographics** -- Values, beliefs about their industry, how they see themselves. What do they identify as? What community do they belong to?
+Ruleaza Interview intai sa construiesti ipoteza, apoi Research sa validezi si enrichuiesti cu limbaj real. Flag orice gap intre presupunerile founder-ului si semnalele reale ale clientilor — asta e signal valoros.
 
-**Pain Points** -- Top 3-5 problems ranked by intensity. Use their actual language where possible, not polished marketing-speak. Format: the pain + why existing solutions fail them.
+# Pas 4: Validate
 
-**Aspirations** -- Where they want to be in 6-12 months. What does success look like in concrete terms? What would they brag about to peers?
+Inainte sa scrii audience.md, valideaza profilul.
 
-**Content Consumption Habits** -- Specific platforms, time of day, format preferences. "Scrolls LinkedIn at 7am, listens to podcasts during commute, reads newsletters at lunch" level of detail.
+Scrie 2 propozitii ca si cum ai vorbi direct cu acest client despre pain-ul lui primar — una care AR TREBUI sa rezoneze, una care NU.
 
-**Language & Words They Use** -- Actual phrases, jargon level, terms of art. Include 5-10 verbatim phrases they'd use to describe their problem. Note any words that would make them tune out.
+Intreaba: *"Clientul tau ideal ar citi prima propozitie si ar zice 'asta intelege ce traiesc'?"*
 
-**Awareness Level** -- Where most of the audience sits on the awareness spectrum (Unaware / Problem-Aware / Solution-Aware / Product-Aware / Most Aware). Note the distribution.
+- **Da** → continua la Pas 5
+- **Aproape dar nu chiar** → intreaba ce nu merge, ajusteaza, retest
+- **Nu** → sapa mai adanc pe limbaj si pain
 
-**Buying Triggers** -- The specific events, moments, or conditions that move them from "interested" to "buying." Time-based triggers, pain-threshold triggers, social triggers.
+Cap la 3 round-uri.
 
-# Step 5: Log Learnings
+# Pas 5: Scrie brand/audience.md
 
-Append to `context/learnings.md` under `## brand-audience`:
-- Mode used and sources analyzed
-- Confidence level in the profile (high/medium/low per section)
-- Open questions that need validation (talk to real customers, run a survey, etc.)
-- Date completed
+Umple toate 8 sectiuni cu continut specific, utilizabil:
+
+**1. Demographics** — Varsta, locatie, rol/titlu job, marime companie (daca B2B), bracket venit (daca B2C). Fii specific: "founderi SaaS cu 5-20 angajati" NU "business owners".
+
+**2. Psychographics** — Valori, credinte despre industrie, cum se vad pe ei insisi. Cum se identifica? Ce comunitate sunt parte?
+
+**3. Pain Points** — Top 3-5 probleme ranked pe intensitate. Foloseste limbajul lor real, nu marketing polish. Format: pain + de ce solutiile existente nu merg pentru ei.
+
+**4. Aspirations** — Unde vor sa fie in 6-12 luni. Cum arata succesul in termeni concreti? Cu ce s-ar lauda peer-ilor?
+
+**5. Content Consumption Habits** — Platforme specifice, ora din zi, preferinte format. "Scrolleaza LinkedIn la 7 dimineata, asculta podcast in trafic, citeste newsletter la pranz" nivel de detaliu.
+
+**6. Language & Words They Use** — Fraze reale, jargon level, terms of art. Include 5-10 fraze verbatim pe care le-ar folosi sa descrie problema. Noteaza orice cuvinte care i-ar face sa abandoneze.
+
+**7. Awareness Level** — Unde sta majoritatea audientei pe spectrul (Unaware / Problem-Aware / Solution-Aware / Product-Aware / Most Aware). Noteaza distributia.
+
+**8. Buying Triggers** — Evenimentele, momentele, conditiile specifice care ii muta de la "interesat" la "cumpara". Trigger-uri pe timp, pe prag de durere, sociale.
+
+# Pas 6: Log learnings
+
+Append la `context/learnings.md` sub `## brand-audience`:
+- Mode folosit si surse analizate
+- Nivel confidence in profil (high/medium/low per sectiune)
+- Intrebari deschise care necesita validare (vorbeste cu clienti reali, run survey, etc.)
+- Data completarii
+
+# Pas 7: Optional offer pozitionare
+
+Daca `brand/positioning.md` NU exista:
+> "Acum ca avem ICP-ul, vrei sa definim si unghiul de pozitionare? Asta cristalizeaza cum vorbim cu aceasta audienta in piata. (da / skip)"
+
+Daca da → invoca `brand-positioning`.
+
+Daca exista, skip silent.
+
+# Rules
+
+*Actualizat automat cand user-ul flag-eaza issues. Citeste inainte de fiecare run.*
+
+# Self-Update
+
+Daca user-ul flag-eaza issue cu output-ul — audienta gresita, limbaj prost, segment lipsa, presupunere incorecta — actualizeaza sectiunea `# Rules` din acest SKILL.md imediat cu corectia si data de azi.
+
+# Troubleshooting
+
+**Founder descrie clientul prea larg:** Forteaza specificitate. "Antreprenori" = prea larg. "Solo founders care fac $5-15k/luna si isi fac singuri marketing-ul" = util.
+**Nu gasesti limbaj real online:** Cere founder-ului sa share email-uri reale, DMs, support tickets.
+**Apar segmente multiple:** Construieste primary ICP pentru segmentul cel mai valoros. Noteaza secondary segments la fond pentru referinta viitoare.
+**Pozitionare neincarcata:** Continua, dar noteaza ca unghiul de pozitionare ar ajuta la prioritizat segmentul.
+**ICP si positioning conflict:** Flag. ICP-ul poate dezvalui ca unghiul de pozitionare trebuie ajustat — asta e signal valoros.

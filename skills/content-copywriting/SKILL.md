@@ -46,6 +46,7 @@ outputs:
   - Copy draft(s) in projects/content-copywriting/
   - Score card (7 dimensions)
   - data/skill-telemetry.ndjson (appended in mode=options)
+tier: core
 ---
 
 # Output Discipline

@@ -26,6 +26,7 @@ inputs:
 outputs:
   - Lista rezultate cu titlu + path + excerpt (markdown clickable)
   - Daca zero rezultate: spune asta clar, NU inventa continut
+tier: core
 ---
 
 # sys-recall

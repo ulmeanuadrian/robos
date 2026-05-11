@@ -5,6 +5,52 @@ Pentru detalii tehnice complete vezi [CHANGELOG.md](CHANGELOG.md) (developer-fac
 
 ---
 
+## v3.1.0 — Skill ecosystem expanded (51 skill-uri, 5 tier-uri)
+
+### Ce castigi
+
+**De la 23 la 51 skill-uri instalate.** Migrare completa a portofoliului din ecosystem extern. Acces la skill-uri specializate pentru:
+- **Content video** — `tool-youtube`, `tool-transcription`, `00-youtube-to-ebook`
+- **Video editing** — `vid-clip-extractor`, `vid-clip-selection`, `vid-ffmpeg-edit`
+- **Vizualizare** — `viz-image-gen`, `viz-excalidraw-diagram`, `viz-frontend-slides`, `viz-hyperframes`
+- **Social publishing** — `tool-zernio-social`, `mkt-short-form-posting`, `mkt-youtube-content-package`
+- **PDF & screenshots** — `tool-pdf-generator`, `tool-web-screenshot`, `tool-screenshot-annotator`
+- **Orchestratori** — `00-slides`, `00-social-content`, `00-longform-to-shortform`
+
+**5 capability tiers — alegi ce instalezi.** La onboarding (sau ulterior) alegi:
+- **Core** (default) — 26 skill-uri esentiale, no extra deps
+- **Content Creator** (+15) — articole, transcripts, screenshots, PDF-uri (cere Python)
+- **Video Producer** (+5) — shorts pipeline, motion graphics (cere ffmpeg + Node 22+)
+- **Social Publisher** (+6) — publish pe LinkedIn/IG/TikTok/YouTube (cere Zernio)
+- **Researcher** (+1) — engagement metrics reale (cere API keys)
+
+Setup: `bash scripts/setup-python.sh --tier=content-creator` (sau `.cmd` pe Windows).
+
+**Skill-uri vechi merged cu features noi:**
+- `brand-voice` v2 — Playbook mode, Firecrawl auto-scrape, Voice Test mandatory
+- `brand-audience` v2 — Update mode + research validation
+- `brand-positioning` v2 — Schwartz 5 stages + 8 angle frameworks
+- `content-repurpose` v3 — 7 atoms, algorithm check, humanizer gate, calendar
+- `research-trending` v3 — Python script cu OpenAI Reddit + xAI X engagement
+- `tool-humanizer` v2 — 50+ patterns, scoring 0-10
+
+**4 categorii noi**: `00-` (orchestratori), `viz-`, `vid-`, `meta-`.
+
+**569 trigger-uri totale, zero colizii** in strict mode.
+
+### Stats v3.1
+- 51 skill-uri instalate
+- 10 categorii valide
+- 569 trigger-uri
+- 9 chei API tracked
+- 5 tier-uri opt-in
+
+### Migrare
+
+Nimic de facut pentru clean install. Daca ai instalat anterior `.claude/skills/` extern, folder-ul e safe sa-l stergi — skill-urile sunt in `skills/`.
+
+---
+
 ## v2.1.0 — Stabilitate, securitate, Windows parity
 
 ### Ce castigi

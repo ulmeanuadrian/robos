@@ -30,6 +30,7 @@ outputs:
   - context/priorities.md updated cu DEFERRED items
   - context/learnings.md appended sub ## sys-level-up
   - data/skill-telemetry.ndjson (appended)
+tier: core
 ---
 
 # Output Discipline

@@ -34,6 +34,7 @@ outputs:
   - data/skill-telemetry.ndjson (appended)
 secrets_required:
   - FIRECRAWL_API_KEY
+tier: core
 ---
 
 # Output Discipline

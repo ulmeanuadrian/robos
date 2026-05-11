@@ -1,8 +1,8 @@
 ---
 name: brand-positioning
-version: 1.0.0
+version: 2.0.0
 category: brand
-description: "Find the angle that makes a product or brand stand out. Researches competitors, maps the messaging landscape, generates positioning angles, and recommends the strongest one."
+description: "Gaseste unghiul care vinde. Transformare > produs, mapeaza alternative, cerceteaza mesajele competitor, evalueaza sofisticarea pietii, genereaza 3-5 unghiuri din frameworks (Contrarian, Mechanism, Transformation, Enemy, Specificity)."
 triggers:
   - "pozitionare"
   - "diferentiere"
@@ -11,115 +11,221 @@ triggers:
   - "cum ma pozitionez"
   - "fa-l sa iasa in evidenta"
   - "unghi unic"
+  - "ce angle sa folosesc"
+  - "de ce nu se vinde"
+  - "marketing-ul nu functioneaza"
   - "positioning"
   - "differentiation"
   - "make this stand out"
+  - "find angles for"
+  - "what's the hook"
 negative_triggers:
   - "voce de brand"
   - "audienta"
   - "brand voice"
   - "buyer persona"
 context_loads:
-  - brand/positioning.md (writes)
+  - brand/positioning.md (reads | writes)
   - brand/voice.md (summary)
-  - brand/audience.md (summary)
+  - brand/audience.md (full)
   - context/learnings.md (section brand-positioning)
 inputs:
-  - product_description (required: what the business sells)
-  - competitors (optional: known competitor names or URLs)
-  - constraints (optional: what's off the table for positioning)
+  - product_description (required: ce vinde brand-ul)
+  - competitors (optional: nume sau URL-uri competitori cunoscuti)
+  - constraints (optional: ce e off-limits pentru pozitionare)
 outputs:
-  - brand/positioning.md (complete positioning document)
+  - brand/positioning.md (document complet pozitionare)
+tier: core
 ---
 
-# Step 1: Load Voice + Audience Context
+# Pas 0: Update Mode Check
 
-Read `brand/voice.md` and `brand/audience.md`. Extract:
-- From voice: the personality and tone that positioning must be compatible with
-- From audience: who we're positioning for, their awareness level, their language
+Citeste `brand/positioning.md`.
 
-If both are empty, ask the user for a 2-sentence description of what they sell and to whom. Proceed with that.
+**Daca exista cu continut real**: intra in **Update Mode**.
+- Arata primary angle si statement curent
+- Intreaba: "Vrei sa rafinez cu date competitive proaspete, sau pornim de la zero?"
+- Refine = ruleaza search competitiv proaspat, sugereaza ajustari
+- Start fresh = proces complet de mai jos
 
-# Step 2: Gather Product Intel
+**Daca nu exista**: continua cu Pas 1.
 
-If not already provided, ask:
-1. What do you sell? (product/service, one sentence)
-2. Who are your top 3-5 competitors? (names or URLs)
-3. What do customers say is the #1 reason they chose you over alternatives?
-4. Is there anything you refuse to compete on? (e.g., "we won't be the cheapest")
+# Pas 1: Incarca voice + audience context
 
-# Step 3: Research Competitor Messaging
+Citeste `brand/voice.md` si `brand/audience.md`. Extract:
+- Din voce: personalitatea si ton-ul cu care pozitionarea trebuie sa fie compatibila
+- Din audienta: pentru cine pozitionam, awareness level, limbajul lor
 
-Use WebSearch to find 3-5 competitors (use provided list + discover any missing ones).
+Daca ambele goale, cere user-ului 2 propozitii: ce vinde si la cine. Continua cu atat.
 
-For each competitor, use WebFetch to analyze:
-- Their homepage headline and subheadline
-- Their "About" or "Why us" page
-- Their pricing page positioning (premium vs budget vs value)
-- 2-3 recent blog posts or social posts for messaging patterns
+# Pas 2: Identifica Transformarea (NU produsul)
 
-Build a competitor messaging matrix:
+Nu produsul. **Transformarea.** Cum arata viata clientului dupa? Ce durere dispare? Ce capacitate apare?
 
-| Competitor | Primary Claim | Target Audience | Tone | Price Position | Key Differentiator |
+Intreaba: "Cum arata viata clientului tau DUPA ce foloseste asta? Ce se schimba?"
+
+Un program de fitness vinde "iti incap iar in blugii vechi". Un SaaS vinde "inchizi laptopul la 5 dupa-amiaza". Transformarea e materia prima pentru unghiuri.
+
+# Pas 3: Mapeaza alternativele
+
+Ce ar face clientii daca asta nu ar exista? NU doar competitorii — TOATE alternativele:
+- **Nimic** (traieste cu problema)
+- **DIY** (cardezi singur o solutie)
+- **Angaja pe cineva** (consultant, freelancer, agentie)
+- **Cumpara o categorie complet diferita**
+- **Cumpara competitor direct**
+
+Fiecare alternativa are slabiciuni. Aceste slabiciuni devin oportunitati de unghi.
+
+# Pas 4: Adunare product intel
+
+Daca nu sunt deja oferite, intreaba:
+1. Ce vinzi? (produs/serviciu, o propozitie)
+2. Cine sunt top 3-5 competitori? (nume sau URL-uri)
+3. Ce zic clientii ca e motivul #1 sa te aleaga in fata alternativelor?
+4. E ceva pe care REFUZI sa competi? (ex: "nu vom fi cei mai ieftini")
+
+# Pas 5: Research mesaje competitor
+
+WebSearch pentru 3-5 competitori (lista oferita + descoperire automatica).
+
+Pentru fiecare competitor, WebFetch:
+- Headline + subheadline homepage
+- Pagina "About" sau "De ce noi"
+- Pagina pret (pozitionare premium vs budget vs value)
+- 2-3 blog/social posts recente pentru pattern-uri mesaj
+
+Construieste matricea de mesaj competitor:
+
+| Competitor | Claim primar | Audienta target | Ton | Pozitie pret | Diferentiator cheie |
 |-----------|--------------|-----------------|------|----------------|-------------------|
 
-# Step 4: Map the Landscape
+# Pas 6: Evalueaza Market Sophistication
 
-From the competitor matrix, identify:
-1. **Crowded claims** -- What everyone says ("we're the easiest", "all-in-one", "trusted by X companies")
-2. **Underserved angles** -- Positioning spaces no one occupies
-3. **False dichotomies** -- Where competitors force an either/or that your product resolves
-4. **Category conventions** -- The default assumptions about what products in this space should be
+Aplica Schwartz's 5 stages (din *Breakthrough Advertising*):
 
-Write a 3-5 sentence landscape summary: "The market is positioned around X. Most players compete on Y. Nobody is talking about Z."
+1. **Stage 1 — Categorie noua**: anunt simplu functioneaza. "Pierde greutate."
+2. **Stage 2 — Promisiune amplificata**: mareste claim. "Pierde 10kg in 30 zile."
+3. **Stage 3 — Mechanism explicat**: cum functioneaza? "Pierde 10kg cu metoda Atkins."
+4. **Stage 4 — Mechanism nou**: claims-urile devin similare. "Atkins 2.0 — fara foame."
+5. **Stage 5 — Identity / Experience**: piata e cinica la claim-uri. "Pentru oamenii care urasc cuvantul «dieta»."
 
-# Step 5: Generate Positioning Angles
+**Determina** stadiul actual al pietii pe baza matricii competitor. Stadiul dicteaza tipul de unghi care va functiona.
 
-Create 3-5 distinct positioning angles. For each angle:
+# Pas 7: Mapeaza peisajul
 
-**Name**: A short label (e.g., "The Anti-Enterprise Play", "Category Creator")
+Din matricea competitor, identifica:
+1. **Claim-uri saturate** — Ce zice toata lumea ("cel mai usor", "all-in-one", "trusted by X")
+2. **Unghiuri neservite** — Spatii de pozitionare neocupate
+3. **Dihotomii false** — Unde competitorii forteaza un either/or pe care produsul tau il rezolva
+4. **Conventii categorie** — Presupunerile default despre produse in acest spatiu
 
-**One-Liner**: The brand in one sentence using this angle
+Scrie un sumar de 3-5 propozitii: "Piata e pozitionata in jurul X. Cei mai multi competa pe Y. Nimeni nu vorbeste despre Z."
 
-**Why It Works**: 2-3 reasons this angle has traction -- what market gap it fills, what audience pain it speaks to
+# Pas 8: Genereaza 3-5 unghiuri (din frameworks)
 
-**Risk**: What could go wrong with this positioning -- who it alienates, what it requires to pull off
+Ruleaza produsul prin multiple framework-uri de unghi:
 
-**Proof Required**: What evidence you'd need to make this positioning credible
+**1. Contrarian** — Atac convetia categoriei. "Toata lumea zice X, noi zicem Y."
+**2. Unique Mechanism** — Cum functionezi diferit. "Singurii care folosesc Z."
+**3. Transformation** — Outcome-ul fara mecanism. "Pleaca cu Y."
+**4. Enemy** — Identifica inamicul. "Anti-X." (Anti-corporate, anti-burnout, anti-bureaucracy)
+**5. Speed/Ease** — Time-to-result. "X in 7 zile." (functioneaza in Stage 2-3 markets)
+**6. Specificity** — Hyper-detail. "Pentru founderi SaaS cu 5-20 angajati care fac sub $10k/luna."
+**7. Social Proof** — Asociere prestigioasa. "Folosit de Apple, Stripe, Notion."
+**8. Risk Reversal** — Elimina downside. "Plateste cand vezi rezultate."
 
-Format each angle as a clear block. Number them.
+Pentru fiecare unghi:
 
-# Step 6: Recommend One Angle
+**Nume**: Label scurt (ex: "The Anti-Enterprise Play", "Category Creator")
 
-Pick the strongest angle and explain why:
-- Alignment with audience (from brand/audience.md)
-- Differentiation strength (how far from competitors)
-- Credibility (can the brand actually deliver on this claim today?)
-- Longevity (will this still work in 12-18 months?)
+**One-Liner**: Brand-ul in o propozitie folosind unghiul
 
-Present the recommendation, then ask the user: "This is my pick. Want to go with it, or do you want to argue for a different one?"
+**Psychology**: De ce functioneaza cu aceasta audienta la acest market stage
 
-# Step 7: Write brand/positioning.md
+**Headline direction**: Cum ar suna in copy
 
-Once the user confirms (or after adjusting based on feedback), fill all sections:
+**Best for**: Conditii piata si segmente audienta unde merge cel mai bine
 
-**One-Liner** -- The brand in one sentence. Must pass the "can I say this at a bar" test.
+**Risk**: Ce poate merge prost — pe cine alieneaza, ce cere sa traga
 
-**Value Proposition** -- The core promise expanded to 2-3 sentences. What the brand delivers and why it matters.
+**Proof Required**: Ce dovada ai nevoie ca sa fie credibil
 
-**Key Differentiators** -- 3-5 specific things that separate the brand from competitors. Each must be concrete and verifiable, not generic ("great customer support" is banned unless backed by a specific mechanism).
+Format fiecare unghi ca block clar. Numeroteaza-le.
 
-**Competitor Landscape** -- The matrix from Step 3, cleaned up. Include where this brand sits relative to each competitor.
+# Pas 9: Validate inainte de save
 
-**Category** -- The market category. If creating a new category, define it clearly and explain what adjacent categories it pulls from.
+Pentru fiecare unghi, verifica:
+1. **Specific?** ("Rezultate mai bune" pica. "10kg in 6 saptamani" converteste.)
+2. **Diferentiat?** Cross-reference peisajul — daca un competitor il claimuieste, ascuti mai mult.
+3. **Credibil?** Mechanism sau dovada sustin?
+4. **Relevant pentru ACEASTA audienta?** Daca audience.md e incarcat, verifica aliniere.
+5. **Duce undeva?** Poti picta headline-ul, landing page-ul, ad-ul?
 
-**Proof Points** -- Evidence that backs the positioning. Metrics, testimonials, case studies, technical specs, awards. If none exist yet, write "TO BUILD" items with specific suggestions.
+# Pas 10: Recomanda un unghi
 
-# Step 8: Log Learnings
+Picteaza cel mai puternic unghi si explica de ce:
+- Aliniere cu audienta (din audience.md)
+- Putere diferentiere (cat de departe de competitori)
+- Credibilitate (poate brand-ul livra pe claim azi?)
+- Longevitate (functioneaza si in 12-18 luni?)
 
-Append to `context/learnings.md` under `## brand-positioning`:
-- Competitors analyzed
-- Chosen angle and rationale
-- Rejected angles and why
-- Proof points that need to be built
-- Date completed
+Prezinta recomandarea, apoi intreaba: "Asta e alegerea mea. Mergi cu el, sau argumentezi pentru altul? Sau combinam elemente din mai multe?"
+
+# Pas 11: Scrie brand/positioning.md
+
+Dupa confirmare, umple toate sectiunile:
+
+**One-Liner** — Brand-ul in o propozitie. Trebuie sa treaca testul "pot zice asta la bar".
+
+**Value Proposition** — Promisiunea core expandata in 2-3 propozitii. Ce livreaza brand-ul si de ce conteaza.
+
+**Key Differentiators** — 3-5 lucruri specifice care separa brand-ul de competitori. Fiecare trebuie concret si verificabil ("great customer support" e BANNED in afara de cazul cand e sustinut de un mecanism specific).
+
+**Competitor Landscape** — Matricea din Pas 5, curatata. Include unde sta acest brand relativ la fiecare competitor.
+
+**Market Sophistication Stage** — Stadiul curent (1-5) si ce inseamna pentru strategy.
+
+**Category** — Categoria de piata. Daca creezi categorie noua, defineste-o clar si explica din ce categorii adiacente trage.
+
+**Chosen Angle** — Unghiul ales (din Pas 8) cu psychology si headline direction.
+
+**Rejected Angles** — Celelalte 2-4 unghiuri considerate si de ce nu au fost alese.
+
+**Proof Points** — Dovada care sustine pozitionarea. Metrici, testimoniale, case studies, specs tehnice, awards. Daca nu exista, scrie items "TO BUILD" cu sugestii specifice.
+
+# Pas 12: Ad testing matrix offer
+
+Dupa save: "Vrei sa generez o matrice de 12 ad-uri pentru testat acest unghi? 4 hook-uri × 3 formate."
+
+Daca da, genereaza tabelul. Daca nu, continua.
+
+# Pas 13: Log learnings
+
+Append la `context/learnings.md` sub `## brand-positioning`:
+- Competitori analizati
+- Stadiu market sophistication
+- Unghi ales si rationale
+- Unghiuri respinse si de ce
+- Proof points care trebuie construite
+- Data completarii
+
+# Pas 14: Optional feedback loop
+
+La urmatoarea sesiune cu user-ul, intreaba: "Cum a performat unghiul dupa ce l-ai folosit?" Log feedback la learnings.
+
+# Rules
+
+*Actualizat automat cand user-ul flag-eaza issues. Citeste inainte de fiecare run.*
+
+# Self-Update
+
+Daca user-ul flag-eaza issue — unghi gresit, framing prost, semnal competitiv ratat — actualizeaza `# Rules` din acest SKILL.md imediat.
+
+# Troubleshooting
+
+**User nu poate articula transformarea:** Intreaba ce zic cei mai buni clienti — transformarea e in cuvintele lor, nu in ale founder-ului.
+**Niciun competitor gasit:** Produsul poate creeaza categorie (Stage 1). Conduce cu unghiuri de anunt simplu.
+**Toate unghiurile suna similar:** Mecanismul nu e suficient de clar. Inapoi la Pas 2, sapa mai adanc pe ce face abordarea lor diferita.
+**Pozitionare exista dar pare stale:** Ruleaza search competitiv proaspat si compara — piata poate sa fi miscat.
+**ICP si positioning conflict:** Flag. ICP-ul poate sugera ca unghiul trebuie ajustat — semnal valoros.

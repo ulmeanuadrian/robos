@@ -35,6 +35,7 @@ outputs:
   - context/USER.md, context/priorities.md, connections.md
   - One completed skill run in projects/
   - data/skill-telemetry.ndjson (appended)
+tier: core
 ---
 
 # Step 0: Check if already onboarded
@@ -339,3 +340,91 @@ Append in `context/learnings.md` sub `## sys-onboard`:
 - First skill run result (which skill, output location)
 - User's automation target from Q5 (for future skill building)
 - Brand generation status (ok/partial)
+
+---
+
+# Step 7: Tier selection (capability tiers)
+
+Acum ai brand-ul de baza. robOS are 51 skill-uri impartite in 5 **capability tiers**. Doar Core e instalat default. Tier-urile suplimentare adauga skill-uri specializate (cu dependencies grele cum ar fi Python, ffmpeg, API keys).
+
+Intreaba user:
+
+```
+Acum ca esti onboarded, ce TIPURI de munca faci? Selecteaza tier-urile necesare (poti combina):
+
+  [x] Core (deja instalat — 26 skill-uri: sys-, brand-, content-, mode-, research-, tool-fact-checker, tool-humanizer, meta-)
+
+  [ ] Content Creator — articole, blog posts, screenshots web, transcripturi audio/video, PDF-uri
+       Adauga 15 skill-uri (tool-youtube, tool-transcription, tool-web-screenshot, tool-pdf-generator,
+       tool-video-screenshots, tool-screenshot-annotator, viz-image-gen, viz-excalidraw-diagram,
+       viz-frontend-slides, mkt-longform-article, 00-slides, 00-youtube-to-ebook, 00-social-content)
+       CERE: Python 3.11+, ffmpeg, pandoc, Playwright Chromium
+       Setup time: ~10 min
+
+  [ ] Video Producer — video shorts din long-form, reframe 16:9→9:16, motion graphics
+       Adauga 5 skill-uri (vid-clip-selection, vid-clip-extractor, vid-ffmpeg-edit, viz-hyperframes,
+       00-longform-to-shortform)
+       CERE: Python + OpenCV DNN, ffmpeg, HandBrake CLI (opt GPU NVENC), Node.js 22+, npx hyperframes
+       Setup time: ~15 min
+
+  [ ] Social Publisher — publish pe LinkedIn, Instagram, TikTok, YouTube, X via Zernio
+       Adauga 5 skill-uri (tool-zernio-social, tool-video-upload, tool-publisher,
+       mkt-short-form-posting, mkt-youtube-content-package, mkt-content-analytics)
+       CERE: cont Zernio (ZERNIO_API_KEY, https://zernio.com)
+       Setup time: ~5 min (link accounts)
+
+  [ ] Researcher — research profund cu API keys (engagement metrics, social scraping)
+       Activeaza features in skill-urile existente:
+       - research-trending: OpenAI Reddit + xAI X engagement metrics reale
+       - tool-linkedin-scraper: Apify (~$2 / 1000 posts)
+       - brand-voice + Firecrawl: brand assets auto-extraction
+       CERE: OPENAI_API_KEY, XAI_API_KEY, APIFY_API_KEY, FIRECRAWL_API_KEY
+       Setup time: ~10 min (creating accounts)
+
+Care tier-uri activam? (lista bifate sau "doar core" sau "skip - decid mai tarziu")
+```
+
+**Procesare raspuns user:**
+
+Daca user alege Content Creator, Video Producer, sau combinatii:
+1. Cheama `bash scripts/setup-python.sh` (sau `setup-python.cmd` pe Windows) — verifica si instaleaza Python + ffmpeg + pandoc + Playwright
+2. Daca Video Producer, verifica si HandBrake (`command -v HandBrakeCLI`) + Node 22+
+3. Raporteaza status: ce s-a instalat, ce a esuat, ce trebuie manual
+
+Daca user alege Social Publisher:
+1. Spune: "Trebuie sa creezi cont Zernio (gratis) la https://zernio.com/dashboard"
+2. "Dupa ce ai cont, paste-aza ZERNIO_API_KEY in `.env`"
+3. NU bloca — continua workflow-ul
+
+Daca user alege Researcher:
+1. Listeaza fiecare cheie API necesara cu link de creating account si pret estimat
+2. Cere user sa-le adauge in `.env` cand are timp
+
+Daca user zice "doar core" sau "skip":
+- Continua doar cu Core. User poate adauga tier-uri mai tarziu cu `/onboard add-tier {tier-name}`.
+
+**Save selections in context/USER.md:**
+
+Append la `context/USER.md`:
+
+```markdown
+## Capability Tiers Activated
+
+Activated on: {YYYY-MM-DD}
+
+- [x] core (always)
+- [{x/ }] content-creator
+- [{x/ }] video-producer
+- [{x/ }] social-publisher
+- [{x/ }] researcher
+```
+
+**Update Step 5 score:**
+
+Recalculate Capabilities score luand in cont tier-urile activate:
+- Core only: ~26 skills
+- + Content Creator: +15 → 41 skills
+- + Video Producer: +5 → 46 skills
+- + Social Publisher: +5 → 51 skills
+
+Cap la 25 (max points).

@@ -36,6 +36,7 @@ inputs: []
 outputs:
   - context/memory/YYYY-MM-DD.md actualizat
   - context/learnings.md actualizat (daca s-a dat feedback)
+tier: core
 ---
 
 # Output Discipline (citeste inainte de a face orice)

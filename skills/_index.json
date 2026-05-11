@@ -1,23 +1,84 @@
 {
-  "generated_at": "2026-05-11T15:02:35.908Z",
-  "count": 23,
+  "generated_at": "2026-05-11T16:54:09.520Z",
+  "count": 51,
   "by_category": {
+    "00": 4,
     "brand": 3,
-    "content": 3,
+    "content": 7,
+    "meta": 2,
     "mode": 3,
     "research": 2,
     "sys": 11,
-    "tool": 1
+    "tool": 12,
+    "vid": 3,
+    "viz": 4
   },
   "triggers": {
+    "pipeline complet video": "00-longform-to-shortform",
+    "youtube la shorts": "00-longform-to-shortform",
+    "long to short": "00-longform-to-shortform",
+    "auto pipeline": "00-longform-to-shortform",
+    "creeaza short-form din video": "00-longform-to-shortform",
+    "transforma video lung in shorts": "00-longform-to-shortform",
+    "full pipeline": "00-longform-to-shortform",
+    "process video": "00-longform-to-shortform",
+    "youtube to shorts": "00-longform-to-shortform",
+    "create short-form content from": "00-longform-to-shortform",
+    "creeaza prezentare": "00-slides",
+    "creeaza slides": "00-slides",
+    "fa un deck": "00-slides",
+    "prezentare despre": "00-slides",
+    "slides pentru": "00-slides",
+    "slide deck": "00-slides",
+    "construieste prezentare": "00-slides",
+    "create a presentation": "00-slides",
+    "create slides": "00-slides",
+    "make a deck": "00-slides",
+    "presentation about": "00-slides",
+    "slides for": "00-slides",
+    "build a presentation": "00-slides",
+    "ruleaza social content": "00-social-content",
+    "genereaza post": "00-social-content",
+    "creeaza post": "00-social-content",
+    "genereaza continut": "00-social-content",
+    "post linkedin": "00-social-content",
+    "post instagram": "00-social-content",
+    "doar imaginile": "00-social-content",
+    "genereaza imagine pentru post": "00-social-content",
+    "foloseste sursele mele": "00-social-content",
+    "din sursele mele": "00-social-content",
+    "genereaza continut linkedin": "00-social-content",
+    "run social content": "00-social-content",
+    "generate post": "00-social-content",
+    "create post": "00-social-content",
+    "generate content": "00-social-content",
+    "use my sources": "00-social-content",
+    "from my sources": "00-social-content",
+    "transforma video in ebook": "00-youtube-to-ebook",
+    "youtube la articol": "00-youtube-to-ebook",
+    "video la pdf": "00-youtube-to-ebook",
+    "youtube la ebook": "00-youtube-to-ebook",
+    "converteste video in long-form": "00-youtube-to-ebook",
+    "articol din youtube": "00-youtube-to-ebook",
+    "turn this video into an ebook": "00-youtube-to-ebook",
+    "youtube to article": "00-youtube-to-ebook",
+    "video to pdf": "00-youtube-to-ebook",
+    "make an ebook from this video": "00-youtube-to-ebook",
+    "youtube to ebook": "00-youtube-to-ebook",
+    "convert video to long-form": "00-youtube-to-ebook",
+    "article from youtube": "00-youtube-to-ebook",
     "audienta": "brand-audience",
     "client ideal": "brand-audience",
     "icp": "brand-audience",
     "cui ii vand": "brand-audience",
     "buyer persona": "brand-audience",
     "avatar client": "brand-audience",
+    "profilul clientului": "brand-audience",
     "target audience": "brand-audience",
     "audience research": "brand-audience",
+    "ideal customer": "brand-audience",
+    "who am i selling to": "brand-audience",
+    "customer avatar": "brand-audience",
     "pozitionare": "brand-positioning",
     "diferentiere": "brand-positioning",
     "ce e hook-ul": "brand-positioning",
@@ -25,18 +86,27 @@
     "cum ma pozitionez": "brand-positioning",
     "fa-l sa iasa in evidenta": "brand-positioning",
     "unghi unic": "brand-positioning",
+    "ce angle sa folosesc": "brand-positioning",
+    "de ce nu se vinde": "brand-positioning",
+    "marketing-ul nu functioneaza": "brand-positioning",
     "positioning": "brand-positioning",
     "differentiation": "brand-positioning",
     "make this stand out": "brand-positioning",
+    "find angles for": "brand-positioning",
+    "what's the hook": "brand-positioning",
     "voce de brand": "brand-voice",
     "stil de scris": "brand-voice",
     "ton brand": "brand-voice",
     "analizeaza continutul meu": "brand-voice",
     "ghid voce": "brand-voice",
     "defineste vocea": "brand-voice",
+    "ruleaza playbook voce": "brand-voice",
+    "playbook voce de brand": "brand-voice",
     "brand voice": "brand-voice",
     "tone of voice": "brand-voice",
     "writing style": "brand-voice",
+    "voice playbook": "brand-voice",
+    "deep voice rebuild": "brand-voice",
     "scrie un articol": "content-blog-post",
     "blog despre": "content-blog-post",
     "articol seo": "content-blog-post",
@@ -61,12 +131,77 @@
     "transforma in social": "content-repurpose",
     "fa posturi din asta": "content-repurpose",
     "calendar content": "content-repurpose",
+    "calendar saptamanal": "content-repurpose",
     "fa un thread": "content-repurpose",
     "post linkedin din": "content-repurpose",
     "adapteaza pentru": "content-repurpose",
+    "atomizeaza": "content-repurpose",
     "repurpose this": "content-repurpose",
     "turn this into social posts": "content-repurpose",
     "social posts from": "content-repurpose",
+    "atomize this": "content-repurpose",
+    "create social content from": "content-repurpose",
+    "schedule across platforms": "content-repurpose",
+    "content calendar from this": "content-repurpose",
+    "creeaza skill cu eval": "meta-skill-creator",
+    "skill creator cu benchmark": "meta-skill-creator",
+    "build skill": "meta-skill-creator",
+    "improve skill": "meta-skill-creator",
+    "edit skill": "meta-skill-creator",
+    "optimize skill": "meta-skill-creator",
+    "eval skill": "meta-skill-creator",
+    "benchmark skill": "meta-skill-creator",
+    "skill creator": "meta-skill-creator",
+    "create new skill": "meta-skill-creator",
+    "skill from scratch": "meta-skill-creator",
+    "creeaza system": "meta-skill-system-creator",
+    "package skill-urile astea": "meta-skill-system-creator",
+    "build skill system": "meta-skill-system-creator",
+    "transforma in system": "meta-skill-system-creator",
+    "system din skill-uri": "meta-skill-system-creator",
+    "create a system": "meta-skill-system-creator",
+    "package these skills": "meta-skill-system-creator",
+    "build a skill system": "meta-skill-system-creator",
+    "turn this into a system": "meta-skill-system-creator",
+    "system from skills": "meta-skill-system-creator",
+    "verifica analytics": "mkt-content-analytics",
+    "review performance post": "mkt-content-analytics",
+    "cum a mers ultimul post": "mkt-content-analytics",
+    "compara posturi": "mkt-content-analytics",
+    "ce functioneaza": "mkt-content-analytics",
+    "analytics youtube": "mkt-content-analytics",
+    "analytics linkedin": "mkt-content-analytics",
+    "improvement suggestions": "mkt-content-analytics",
+    "check analytics": "mkt-content-analytics",
+    "analyze performance": "mkt-content-analytics",
+    "scrie articol din transcript": "mkt-longform-article",
+    "transforma video in long-form": "mkt-longform-article",
+    "editorial din transcript": "mkt-longform-article",
+    "articol magazine-style": "mkt-longform-article",
+    "articol din video": "mkt-longform-article",
+    "feature article": "mkt-longform-article",
+    "write an article from this transcript": "mkt-longform-article",
+    "turn this video into a long-form piece": "mkt-longform-article",
+    "editorial from transcript": "mkt-longform-article",
+    "magazine-style article": "mkt-longform-article",
+    "posteaza short": "mkt-short-form-posting",
+    "posteaza reel": "mkt-short-form-posting",
+    "post shorts": "mkt-short-form-posting",
+    "upload short": "mkt-short-form-posting",
+    "short-form": "mkt-short-form-posting",
+    "reels": "mkt-short-form-posting",
+    "post pe youtube instagram tiktok": "mkt-short-form-posting",
+    "post short": "mkt-short-form-posting",
+    "post reel": "mkt-short-form-posting",
+    "upload reel": "mkt-short-form-posting",
+    "package youtube complet": "mkt-youtube-content-package",
+    "publica video youtube": "mkt-youtube-content-package",
+    "creeaza continut youtube": "mkt-youtube-content-package",
+    "youtube seo": "mkt-youtube-content-package",
+    "title description youtube": "mkt-youtube-content-package",
+    "publish video": "mkt-youtube-content-package",
+    "create youtube content": "mkt-youtube-content-package",
+    "youtube content package": "mkt-youtube-content-package",
     "anti-dependence": "mode-anti-dependence",
     "anti dependence mode": "mode-anti-dependence",
     "ce as face eu intai": "mode-anti-dependence",
@@ -104,6 +239,10 @@
     "research": "research-trending",
     "what's trending": "research-trending",
     "pulse check on": "research-trending",
+    "community sentiment on": "research-trending",
+    "what are people saying about": "research-trending",
+    "last 30 days": "research-trending",
+    "recent discussions": "research-trending",
     "audit": "sys-audit",
     "verifica setup-ul": "sys-audit",
     "cum stau": "sys-audit",
@@ -228,22 +367,442 @@
     "clientii mei": "sys-switch-client",
     "list clients": "sys-switch-client",
     "lista clienti": "sys-switch-client",
+    "verifica faptele": "tool-fact-checker",
+    "fact check": "tool-fact-checker",
+    "verifica acest claim": "tool-fact-checker",
+    "e adevarat": "tool-fact-checker",
+    "este corect": "tool-fact-checker",
+    "valideaza claim-urile": "tool-fact-checker",
+    "verifica afirmatiile": "tool-fact-checker",
+    "verify this": "tool-fact-checker",
+    "is this true": "tool-fact-checker",
+    "check these claims": "tool-fact-checker",
+    "fact-check this": "tool-fact-checker",
+    "verify claims": "tool-fact-checker",
     "umanizeaza": "tool-humanizer",
     "fa-l natural": "tool-humanizer",
     "sterge pattern ai": "tool-humanizer",
     "suna prea ai": "tool-humanizer",
     "curata textul": "tool-humanizer",
+    "de-ai": "tool-humanizer",
     "humanize this": "tool-humanizer",
     "make this sound human": "tool-humanizer",
     "remove ai patterns": "tool-humanizer",
-    "ai detection": "tool-humanizer"
+    "ai detection": "tool-humanizer",
+    "clean up this copy": "tool-humanizer",
+    "scrape linkedin": "tool-linkedin-scraper",
+    "posts de pe linkedin": "tool-linkedin-scraper",
+    "fetch linkedin": "tool-linkedin-scraper",
+    "inspiratie linkedin": "tool-linkedin-scraper",
+    "profile linkedin": "tool-linkedin-scraper",
+    "linkedin posts": "tool-linkedin-scraper",
+    "get linkedin content": "tool-linkedin-scraper",
+    "fetch linkedin profile": "tool-linkedin-scraper",
+    "linkedin inspiration": "tool-linkedin-scraper",
+    "genereaza pdf": "tool-pdf-generator",
+    "converteste in pdf": "tool-pdf-generator",
+    "fa un pdf": "tool-pdf-generator",
+    "export ca pdf": "tool-pdf-generator",
+    "markdown la pdf": "tool-pdf-generator",
+    "generate pdf": "tool-pdf-generator",
+    "convert to pdf": "tool-pdf-generator",
+    "make a pdf": "tool-pdf-generator",
+    "export as pdf": "tool-pdf-generator",
+    "markdown to pdf": "tool-pdf-generator",
+    "publica post": "tool-publisher",
+    "publica acum": "tool-publisher",
+    "vreau sa public": "tool-publisher",
+    "publica asta": "tool-publisher",
+    "post acum": "tool-publisher",
+    "publica draft": "tool-publisher",
+    "post": "tool-publisher",
+    "publish": "tool-publisher",
+    "post now": "tool-publisher",
+    "publish post": "tool-publisher",
+    "publish this": "tool-publisher",
+    "adnoteaza screenshot": "tool-screenshot-annotator",
+    "adauga cercuri numerotate": "tool-screenshot-annotator",
+    "marcheaza zona": "tool-screenshot-annotator",
+    "highlight pe imagine": "tool-screenshot-annotator",
+    "callout-uri pe screenshot": "tool-screenshot-annotator",
+    "label screenshot": "tool-screenshot-annotator",
+    "annotate this screenshot": "tool-screenshot-annotator",
+    "add numbered circles": "tool-screenshot-annotator",
+    "highlight this area": "tool-screenshot-annotator",
+    "mark up this image": "tool-screenshot-annotator",
+    "add callouts to": "tool-screenshot-annotator",
+    "transcribe acest video": "tool-transcription",
+    "transcript video local": "tool-transcription",
+    "transcript fisier": "tool-transcription",
+    "din inregistrarea asta": "tool-transcription",
+    "transcript local": "tool-transcription",
+    "speech to text": "tool-transcription",
+    "video la text": "tool-transcription",
+    "extrage subtitrari": "tool-transcription",
+    "transcribe this file": "tool-transcription",
+    "from this recording": "tool-transcription",
+    "from this file": "tool-transcription",
+    "transcribe": "tool-transcription",
+    "extract captions": "tool-transcription",
+    "screenshot din video": "tool-video-screenshots",
+    "extrage frames": "tool-video-screenshots",
+    "video screenshots": "tool-video-screenshots",
+    "captureaza slide-uri din video": "tool-video-screenshots",
+    "key moments din video": "tool-video-screenshots",
+    "frames din": "tool-video-screenshots",
+    "screenshot from video": "tool-video-screenshots",
+    "extract frames": "tool-video-screenshots",
+    "grab frames from": "tool-video-screenshots",
+    "upload video": "tool-video-upload",
+    "comprima video": "tool-video-upload",
+    "pregateste video pentru youtube": "tool-video-upload",
+    "trimite video la zernio": "tool-video-upload",
+    "compress video": "tool-video-upload",
+    "upload to zernio": "tool-video-upload",
+    "prep video for youtube": "tool-video-upload",
+    "screenshot site": "tool-web-screenshot",
+    "captureaza pagina": "tool-web-screenshot",
+    "fa screenshot la": "tool-web-screenshot",
+    "web screenshot": "tool-web-screenshot",
+    "screenshot url": "tool-web-screenshot",
+    "screenshot acesta": "tool-web-screenshot",
+    "screenshot this website": "tool-web-screenshot",
+    "capture this page": "tool-web-screenshot",
+    "take a screenshot of": "tool-web-screenshot",
+    "grab a screenshot": "tool-web-screenshot",
+    "ultimul video youtube": "tool-youtube",
+    "transcript de pe youtube": "tool-youtube",
+    "youtube transcript": "tool-youtube",
+    "ce a postat": "tool-youtube",
+    "fetch youtube": "tool-youtube",
+    "ultimele video-uri canal": "tool-youtube",
+    "metadata video": "tool-youtube",
+    "info video": "tool-youtube",
+    "thumbnail youtube": "tool-youtube",
+    "detalii video": "tool-youtube",
+    "latest youtube video": "tool-youtube",
+    "get transcript": "tool-youtube",
+    "video metadata": "tool-youtube",
+    "youtube thumbnail": "tool-youtube",
+    "posteaza pe": "tool-zernio-social",
+    "scheduleaza post": "tool-zernio-social",
+    "social media": "tool-zernio-social",
+    "publica pe": "tool-zernio-social",
+    "cross-post": "tool-zernio-social",
+    "publica pe twitter": "tool-zernio-social",
+    "publica pe instagram": "tool-zernio-social",
+    "publica pe linkedin": "tool-zernio-social",
+    "publica pe youtube": "tool-zernio-social",
+    "publica pe tiktok": "tool-zernio-social",
+    "publica pe facebook": "tool-zernio-social",
+    "publica pe threads": "tool-zernio-social",
+    "publica pe bluesky": "tool-zernio-social",
+    "post to": "tool-zernio-social",
+    "schedule post": "tool-zernio-social",
+    "publish to": "tool-zernio-social",
+    "upload to": "tool-zernio-social",
+    "extrage clipuri": "vid-clip-extractor",
+    "reframe video": "vid-clip-extractor",
+    "clip extractor": "vid-clip-extractor",
+    "portrait crop": "vid-clip-extractor",
+    "face tracking": "vid-clip-extractor",
+    "16:9 to 9:16": "vid-clip-extractor",
+    "smart crop": "vid-clip-extractor",
+    "fa shorts din video": "vid-clip-extractor",
+    "auto reframe": "vid-clip-extractor",
+    "extract clips": "vid-clip-extractor",
+    "make shorts from video": "vid-clip-extractor",
+    "selecteaza clipuri": "vid-clip-selection",
+    "gaseste cele mai bune clipuri": "vid-clip-selection",
+    "clip selection": "vid-clip-selection",
+    "extrage shorts din transcript": "vid-clip-selection",
+    "analizeaza transcript pentru clipuri": "vid-clip-selection",
+    "ce clipuri sa extrag": "vid-clip-selection",
+    "select clips": "vid-clip-selection",
+    "find best clips": "vid-clip-selection",
+    "extract shorts from transcript": "vid-clip-selection",
+    "analyze transcript for clips": "vid-clip-selection",
+    "edit clip": "vid-ffmpeg-edit",
+    "adauga subtitrari": "vid-ffmpeg-edit",
+    "burn captions": "vid-ffmpeg-edit",
+    "ilustreaza clip": "vid-ffmpeg-edit",
+    "edit short-form": "vid-ffmpeg-edit",
+    "adauga subtitrari la clip": "vid-ffmpeg-edit",
+    "edit acest clip": "vid-ffmpeg-edit",
+    "add subtitles": "vid-ffmpeg-edit",
+    "add subtitles to clip": "vid-ffmpeg-edit",
+    "edit this clip": "vid-ffmpeg-edit",
+    "excalidraw": "viz-excalidraw-diagram",
+    "deseneaza diagrama": "viz-excalidraw-diagram",
+    "vizualizeaza workflow": "viz-excalidraw-diagram",
+    "arhitectura diagrama": "viz-excalidraw-diagram",
+    "system diagram": "viz-excalidraw-diagram",
+    "diagrama": "viz-excalidraw-diagram",
+    "excalidraw diagram": "viz-excalidraw-diagram",
+    "draw a diagram": "viz-excalidraw-diagram",
+    "architecture diagram": "viz-excalidraw-diagram",
+    "create a diagram of": "viz-excalidraw-diagram",
+    "construieste slides": "viz-frontend-slides",
+    "genereaza deck": "viz-frontend-slides",
+    "render prezentare": "viz-frontend-slides",
+    "design slides": "viz-frontend-slides",
+    "html deck": "viz-frontend-slides",
+    "converteste ppt in html": "viz-frontend-slides",
+    "build slides": "viz-frontend-slides",
+    "generate the deck": "viz-frontend-slides",
+    "render presentation": "viz-frontend-slides",
+    "slide design": "viz-frontend-slides",
+    "convert ppt to html": "viz-frontend-slides",
+    "creeaza video": "viz-hyperframes",
+    "video motion graphics": "viz-hyperframes",
+    "video produs": "viz-hyperframes",
+    "launch teaser": "viz-hyperframes",
+    "social reel": "viz-hyperframes",
+    "explainer animat": "viz-hyperframes",
+    "promo video": "viz-hyperframes",
+    "video din asta": "viz-hyperframes",
+    "hyperframes": "viz-hyperframes",
+    "render video": "viz-hyperframes",
+    "video brand": "viz-hyperframes",
+    "title sequence": "viz-hyperframes",
+    "make a motion graphics video": "viz-hyperframes",
+    "product video": "viz-hyperframes",
+    "animated explainer": "viz-hyperframes",
+    "genereaza imagine": "viz-image-gen",
+    "creeaza infografic": "viz-image-gen",
+    "image gen": "viz-image-gen",
+    "sketchnote": "viz-image-gen",
+    "comic strip": "viz-image-gen",
+    "diagrama hand-drawn": "viz-image-gen",
+    "visual pentru": "viz-image-gen",
+    "fa o imagine": "viz-image-gen",
+    "ilustreaza": "viz-image-gen",
+    "draw me": "viz-image-gen",
+    "generate an image": "viz-image-gen",
+    "create an infographic": "viz-image-gen",
+    "make an image of": "viz-image-gen",
+    "gpt image": "viz-image-gen",
+    "gemini image": "viz-image-gen"
   },
   "skills": [
     {
-      "name": "brand-audience",
+      "name": "00-longform-to-shortform",
       "version": "1.0.0",
+      "category": "00",
+      "description": "Pipeline end-to-end automat: YouTube URL → download → transcribe → select clips → reframe (16:9→9:16) → edit (subtitle + illustrations) → render → post. Zero human-in-the-loop default (cu approve gates optionale).",
+      "triggers": [
+        "pipeline complet video",
+        "youtube la shorts",
+        "long to short",
+        "auto pipeline",
+        "creeaza short-form din video",
+        "transforma video lung in shorts",
+        "full pipeline",
+        "process video",
+        "YouTube to shorts",
+        "create short-form content from"
+      ],
+      "negative_triggers": [
+        "blog article",
+        "long-form editorial",
+        "ebook"
+      ],
+      "multi_angle_triggers": [],
+      "context_loads": [
+        "brand/voice.md (tone pentru titles)",
+        "brand/design-tokens.md (highlight color subtitle)",
+        "context/learnings.md (section 00-longform-to-shortform)"
+      ],
+      "inputs": [
+        "youtube_url (required)",
+        "clip_count (optional: default 7)",
+        "duration_range (optional: \"45-90\" sec default)",
+        "layout (optional: split-screen | cursor-track | face-track, default split-screen)",
+        "illustrate (optional: flag, illustrations via viz-image-gen)",
+        "post_mode (optional: skip | draft | auto-post, default skip)"
+      ],
+      "outputs": [
+        "projects/00-longform-to-shortform/{date}/runs/{run-id}/clips/*.mp4 (final clipuri editate)",
+        "projects/00-longform-to-shortform/{date}/runs/{run-id}/pipeline-log.md",
+        "Posts publicate (daca post_mode=auto-post)"
+      ],
+      "modes": [],
+      "secrets_required": [],
+      "secrets_optional": [
+        "YOUTUBE_API_KEY",
+        "GROQ_API_KEY",
+        "ZERNIO_API_KEY"
+      ],
+      "runtime_dependencies": [
+        "python: \">=3.11",
+        "ffmpeg",
+        "uv",
+        "OpenCV DNN models"
+      ],
+      "tier": "video-producer",
+      "last_modified": "2026-05-11T15:47:37.630Z"
+    },
+    {
+      "name": "00-slides",
+      "version": "1.0.0",
+      "category": "00",
+      "description": "Orchestrator end-to-end pentru prezentari: input detection, research, structurare continut, outline approval, render production-quality HTML slides + optional PDF export.",
+      "triggers": [
+        "creeaza prezentare",
+        "creeaza slides",
+        "fa un deck",
+        "prezentare despre",
+        "slides pentru",
+        "slide deck",
+        "construieste prezentare",
+        "create a presentation",
+        "create slides",
+        "make a deck",
+        "presentation about",
+        "slides for",
+        "build a presentation"
+      ],
+      "negative_triggers": [
+        "design slides only",
+        "render existing deck",
+        "research only"
+      ],
+      "multi_angle_triggers": [],
+      "context_loads": [
+        "brand/design-tokens.md (full)",
+        "brand/voice.md (tone only)",
+        "context/learnings.md (section 00-slides)"
+      ],
+      "inputs": [
+        "input (required: topic, outline, transcript, sau path la fisier)",
+        "style (optional: preset sau mood)",
+        "max_slides (optional: cap, default 20)",
+        "pdf (optional: flag pentru PDF export)"
+      ],
+      "outputs": [
+        "projects/00-slides/{date}/{slug}/slides.html",
+        "projects/00-slides/{date}/{slug}/outline.md",
+        "projects/00-slides/{date}/{slug}/slides.pdf (optional)",
+        "projects/00-slides/{date}/logs/pipeline-log.md"
+      ],
+      "modes": [],
+      "secrets_required": [],
+      "secrets_optional": [],
+      "runtime_dependencies": [],
+      "tier": "content-creator",
+      "last_modified": "2026-05-11T15:45:35.174Z"
+    },
+    {
+      "name": "00-social-content",
+      "version": "1.0.1",
+      "category": "00",
+      "description": "Parent orchestrator pentru social content pipeline. 7 scenarii: (A) text → imagine doar; (B) YouTube URL → post + imagini; (C) topic → trending research → post; (D) no input → scrape LinkedIn + YouTube; (E) existing post → repurpose; (F) article/blog URL → screenshot + extract; (G) video/audio local → transcribe → post.",
+      "triggers": [
+        "ruleaza social content",
+        "genereaza post",
+        "creeaza post",
+        "genereaza continut",
+        "post linkedin",
+        "post instagram",
+        "doar imaginile",
+        "genereaza imagine pentru post",
+        "foloseste sursele mele",
+        "din sursele mele",
+        "genereaza continut linkedin",
+        "run social content",
+        "generate post",
+        "create post",
+        "generate content",
+        "use my sources",
+        "from my sources"
+      ],
+      "negative_triggers": [
+        "blog post",
+        "long-form article",
+        "video editing"
+      ],
+      "multi_angle_triggers": [],
+      "context_loads": [
+        "brand/voice.md (full)",
+        "brand/audience.md (full)",
+        "brand/positioning.md (summary)",
+        "context/learnings.md (section 00-social-content)"
+      ],
+      "inputs": [
+        "input (optional: topic / URL / local file path / nothing)",
+        "platform (optional: linkedin | instagram | twitter | tiktok | etc, auto-detected)",
+        "publish (optional: flag → publica imediat dupa generare)"
+      ],
+      "outputs": [
+        "projects/00-social-content/{date}/{slug}/post.yaml",
+        "projects/00-social-content/{date}/{slug}/caption.md",
+        "projects/00-social-content/{date}/{slug}/image.png sau slide-N.png",
+        "projects/00-social-content/{date}/logs/pipeline-log.md",
+        "projects/00-social-content/publish-log.md (aggregat)"
+      ],
+      "modes": [],
+      "secrets_required": [],
+      "secrets_optional": [],
+      "runtime_dependencies": [],
+      "tier": "content-creator",
+      "last_modified": "2026-05-11T15:48:01.171Z"
+    },
+    {
+      "name": "00-youtube-to-ebook",
+      "version": "1.0.0",
+      "category": "00",
+      "description": "Pipeline end-to-end: YouTube URL → PDF editorial long-form fact-checked. Fetch transcript, transforma in articol magazine-style, fact-check claims, pauseaza pentru human review, humanize writing, render PDF clean. 7 faze, 1 human checkpoint.",
+      "triggers": [
+        "transforma video in ebook",
+        "youtube la articol",
+        "video la PDF",
+        "youtube la ebook",
+        "converteste video in long-form",
+        "articol din youtube",
+        "turn this video into an ebook",
+        "youtube to article",
+        "video to PDF",
+        "make an ebook from this video",
+        "youtube to ebook",
+        "convert video to long-form",
+        "article from youtube"
+      ],
+      "negative_triggers": [
+        "short-form",
+        "social post",
+        "video editing"
+      ],
+      "multi_angle_triggers": [],
+      "context_loads": [
+        "brand/voice.md (tone only)",
+        "brand/design-tokens.md (branded PDF mode)",
+        "brand/assets.md (logo + business links, daca branded)",
+        "context/learnings.md (section 00-youtube-to-ebook)"
+      ],
+      "inputs": [
+        "youtube_url (required)",
+        "design (optional: minimal | branded, default minimal)",
+        "screenshots (optional: flag pentru extragere frames vizuale, default on)"
+      ],
+      "outputs": [
+        "projects/00-youtube-to-ebook/{date}/{slug}/{slug}.pdf (final)",
+        "projects/00-youtube-to-ebook/{date}/logs/ (transcript, draft, fact-check, pipeline log)",
+        "Copy PDF la ~/Downloads/{slug}.pdf"
+      ],
+      "modes": [],
+      "secrets_required": [],
+      "secrets_optional": [],
+      "runtime_dependencies": [
+        "python: \">=3.11"
+      ],
+      "tier": "content-creator",
+      "last_modified": "2026-05-11T15:46:10.822Z"
+    },
+    {
+      "name": "brand-audience",
+      "version": "2.0.0",
       "category": "brand",
-      "description": "Build an Ideal Customer Profile through founder interview or competitor/market research. Outputs a structured audience document with demographics, psychographics, pain points, and buying triggers.",
+      "description": "Construieste ICP prin interview founder, research competitive, sau combinatie. Output: profil audienta structurat cu demografie, psihografie, pain points, limbaj real, trigger-uri de cumparare.",
       "triggers": [
         "audienta",
         "client ideal",
@@ -251,8 +810,12 @@
         "cui ii vand",
         "buyer persona",
         "avatar client",
+        "profilul clientului",
         "target audience",
-        "audience research"
+        "audience research",
+        "ideal customer",
+        "who am I selling to",
+        "customer avatar"
       ],
       "negative_triggers": [
         "voce de brand",
@@ -263,29 +826,31 @@
       ],
       "multi_angle_triggers": [],
       "context_loads": [
-        "brand/audience.md (writes)",
+        "brand/audience.md (reads | writes)",
         "brand/positioning.md (summary)",
         "brand/voice.md (summary)",
         "context/learnings.md (section brand-audience)"
       ],
       "inputs": [
-        "mode (optional: interview | research -- auto-detected if not specified)",
-        "source_urls (optional: competitor sites, review pages, social links for research mode)",
-        "product_description (optional: what the business sells)"
+        "mode (optional: interview | research | both — auto-detectat daca nu specificat)",
+        "source_urls (optional: URL-uri competitori, reviews, social pentru research mode)",
+        "product_description (optional: ce vinde brand-ul)"
       ],
       "outputs": [
-        "brand/audience.md (structured ICP document)"
+        "brand/audience.md (document ICP structurat in 8 sectiuni)"
       ],
       "modes": [],
       "secrets_required": [],
       "secrets_optional": [],
-      "last_modified": "2026-05-05T05:19:36.416Z"
+      "runtime_dependencies": [],
+      "tier": "core",
+      "last_modified": "2026-05-11T15:13:44.418Z"
     },
     {
       "name": "brand-positioning",
-      "version": "1.0.0",
+      "version": "2.0.0",
       "category": "brand",
-      "description": "Find the angle that makes a product or brand stand out. Researches competitors, maps the messaging landscape, generates positioning angles, and recommends the strongest one.",
+      "description": "Gaseste unghiul care vinde. Transformare > produs, mapeaza alternative, cerceteaza mesajele competitor, evalueaza sofisticarea pietii, genereaza 3-5 unghiuri din frameworks (Contrarian, Mechanism, Transformation, Enemy, Specificity).",
       "triggers": [
         "pozitionare",
         "diferentiere",
@@ -294,9 +859,14 @@
         "cum ma pozitionez",
         "fa-l sa iasa in evidenta",
         "unghi unic",
+        "ce angle sa folosesc",
+        "de ce nu se vinde",
+        "marketing-ul nu functioneaza",
         "positioning",
         "differentiation",
-        "make this stand out"
+        "make this stand out",
+        "find angles for",
+        "what's the hook"
       ],
       "negative_triggers": [
         "voce de brand",
@@ -306,29 +876,31 @@
       ],
       "multi_angle_triggers": [],
       "context_loads": [
-        "brand/positioning.md (writes)",
+        "brand/positioning.md (reads | writes)",
         "brand/voice.md (summary)",
-        "brand/audience.md (summary)",
+        "brand/audience.md (full)",
         "context/learnings.md (section brand-positioning)"
       ],
       "inputs": [
-        "product_description (required: what the business sells)",
-        "competitors (optional: known competitor names or URLs)",
-        "constraints (optional: what's off the table for positioning)"
+        "product_description (required: ce vinde brand-ul)",
+        "competitors (optional: nume sau URL-uri competitori cunoscuti)",
+        "constraints (optional: ce e off-limits pentru pozitionare)"
       ],
       "outputs": [
-        "brand/positioning.md (complete positioning document)"
+        "brand/positioning.md (document complet pozitionare)"
       ],
       "modes": [],
       "secrets_required": [],
       "secrets_optional": [],
-      "last_modified": "2026-05-05T05:19:44.258Z"
+      "runtime_dependencies": [],
+      "tier": "core",
+      "last_modified": "2026-05-11T15:15:15.879Z"
     },
     {
       "name": "brand-voice",
-      "version": "1.0.0",
+      "version": "2.0.0",
       "category": "brand",
-      "description": "Extract or build a brand voice profile through 4 modes: import existing guidelines, extract from content, build via interview, or auto-scrape from URL.",
+      "description": "Extrage sau construieste profilul de voce brand prin 4 moduri: import ghid existent, extrage din continut, build via interview (quick sau playbook deep), auto-scrape din URL cu Firecrawl + brand assets.",
       "triggers": [
         "voce de brand",
         "stil de scris",
@@ -336,9 +908,13 @@
         "analizeaza continutul meu",
         "ghid voce",
         "defineste vocea",
+        "ruleaza playbook voce",
+        "playbook voce de brand",
         "brand voice",
         "tone of voice",
-        "writing style"
+        "writing style",
+        "voice playbook",
+        "deep voice rebuild"
       ],
       "negative_triggers": [
         "pozitionare",
@@ -349,25 +925,32 @@
       ],
       "multi_angle_triggers": [],
       "context_loads": [
-        "brand/voice.md (writes)",
+        "brand/voice.md (reads | writes)",
         "brand/samples.md (writes)",
+        "brand/assets.md (writes — doar Auto-Scrape cu Firecrawl)",
         "brand/positioning.md (summary)",
         "brand/audience.md (summary)",
         "context/learnings.md (section brand-voice)"
       ],
       "inputs": [
-        "mode (optional: import | extract | build | auto-scrape -- auto-detected if not specified)",
-        "source_urls (optional: URLs for extract/auto-scrape modes)",
-        "guidelines_doc (optional: path or pasted text for import mode)"
+        "mode (optional: import | extract | build | auto-scrape — auto-detectat daca nu e specificat)",
+        "source_urls (optional: URLs pentru extract/auto-scrape)",
+        "guidelines_doc (optional: path sau text paste pentru import)",
+        "depth (optional: quick | playbook — doar pentru Build mode, default quick)"
       ],
       "outputs": [
-        "brand/voice.md (6-dimension voice profile)",
-        "brand/samples.md (3-5 example outputs)"
+        "brand/voice.md (profil voce in 6 dimensiuni)",
+        "brand/samples.md (5-10 sample-uri reprezentative)",
+        "brand/assets.md (logo, culori, fonts — doar Auto-Scrape cu Firecrawl disponibil)"
       ],
       "modes": [],
       "secrets_required": [],
-      "secrets_optional": [],
-      "last_modified": "2026-05-05T05:18:55.977Z"
+      "secrets_optional": [
+        "FIRECRAWL_API_KEY"
+      ],
+      "runtime_dependencies": [],
+      "tier": "core",
+      "last_modified": "2026-05-11T15:12:02.835Z"
     },
     {
       "name": "content-blog-post",
@@ -423,7 +1006,9 @@
       "concurrency_pattern": "multi-angle-creativity (opt-in only)",
       "secrets_required": [],
       "secrets_optional": [],
-      "last_modified": "2026-05-05T20:24:56.319Z"
+      "runtime_dependencies": [],
+      "tier": "core",
+      "last_modified": "2026-05-11T16:12:31.747Z"
     },
     {
       "name": "content-copywriting",
@@ -482,23 +1067,31 @@
       "concurrency_pattern": "multi-angle-creativity (opt-in only)",
       "secrets_required": [],
       "secrets_optional": [],
-      "last_modified": "2026-05-05T20:25:04.492Z"
+      "runtime_dependencies": [],
+      "tier": "core",
+      "last_modified": "2026-05-11T16:12:32.071Z"
     },
     {
       "name": "content-repurpose",
-      "version": "2.0.0",
+      "version": "3.0.0",
       "category": "content",
-      "description": "Turn one piece of content into platform-native posts for LinkedIn, Twitter/X, Instagram, TikTok, YouTube, Threads, Bluesky, Reddit. Multi-Asset: 1 agent per platform writes in parallel; hard-fail if any platform fails.",
+      "description": "Transforma o piesa de continut in posturi platform-native pentru 8 platforme (LinkedIn, Twitter, Instagram, TikTok, YouTube, Threads, Bluesky, Reddit). Multi-Asset parallel + algorithm check + humanizer gate + optional content calendar.",
       "triggers": [
         "transforma in social",
         "fa posturi din asta",
         "calendar content",
+        "calendar saptamanal",
         "fa un thread",
         "post LinkedIn din",
         "adapteaza pentru",
+        "atomizeaza",
         "repurpose this",
         "turn this into social posts",
-        "social posts from"
+        "social posts from",
+        "atomize this",
+        "create social content from",
+        "schedule across platforms",
+        "content calendar from this"
       ],
       "negative_triggers": [
         "scrie copy",
@@ -512,23 +1105,298 @@
       "context_loads": [
         "brand/voice.md (platform agents read)",
         "brand/audience.md (platform agents read summary)",
+        "brand/samples.md (platform agents read)",
         "context/learnings.md (synthesizer appends)"
       ],
       "inputs": [
         "source (required: URL, file path, or pasted text)",
         "platforms (optional: comma-separated list, defaults to all 8)",
-        "angle (optional: specific angle or hook to emphasize)"
+        "angle (optional: specific angle or hook to emphasize)",
+        "calendar (optional: yes — genereaza si content calendar saptamanal)"
       ],
       "outputs": [
         "Per-platform files in projects/content-repurpose/{slug}/",
+        "calendar.md (optional, daca user-ul cere)",
         "data/skill-telemetry.ndjson (appended)"
       ],
       "modes": [],
       "output_discipline": "encapsulated",
       "concurrency_pattern": "multi-asset-generation",
       "secrets_required": [],
+      "secrets_optional": [
+        "FIRECRAWL_API_KEY"
+      ],
+      "runtime_dependencies": [],
+      "tier": "core",
+      "last_modified": "2026-05-11T15:16:31.144Z"
+    },
+    {
+      "name": "mkt-content-analytics",
+      "version": "1.0.0",
+      "category": "content",
+      "description": "Retrieve si analizeaza performance social media via Zernio MCP. Verifica post performance, ofera improvement suggestions, compara metrici across platforms (YouTube, LinkedIn, Instagram, Twitter).",
+      "triggers": [
+        "verifica analytics",
+        "review performance post",
+        "cum a mers ultimul post",
+        "compara posturi",
+        "ce functioneaza",
+        "analytics youtube",
+        "analytics linkedin",
+        "improvement suggestions",
+        "check analytics",
+        "analyze performance"
+      ],
+      "negative_triggers": [
+        "creeaza post",
+        "publica",
+        "draft"
+      ],
+      "multi_angle_triggers": [],
+      "context_loads": [
+        "context/learnings.md (section mkt-content-analytics)"
+      ],
+      "inputs": [
+        "platform (optional: youtube | linkedin | instagram | twitter | tiktok, default = all)",
+        "limit (optional: numar posts, default 10)",
+        "period (optional: 7d | 30d | 90d, default 30d)"
+      ],
+      "outputs": [
+        "Markdown report (return inline, NU saved file)"
+      ],
+      "modes": [],
+      "secrets_required": [
+        "ZERNIO_API_KEY"
+      ],
       "secrets_optional": [],
-      "last_modified": "2026-05-05T20:14:32.506Z"
+      "runtime_dependencies": [],
+      "tier": "social-publisher",
+      "last_modified": "2026-05-11T15:43:13.107Z"
+    },
+    {
+      "name": "mkt-longform-article",
+      "version": "1.0.0",
+      "category": "content",
+      "description": "Transforma transcripturi video in articole editoriale long-form magazine-style (2,000-5,000 cuvinte). Writer-ul interpreteaza video pentru cineva care nu l-a vazut: explica jargon inline, adauga editorial framing, conecteaza idei across sections. Triggered de 00-youtube-to-ebook in pipeline mode.",
+      "triggers": [
+        "scrie articol din transcript",
+        "transforma video in long-form",
+        "editorial din transcript",
+        "articol magazine-style",
+        "articol din video",
+        "feature article",
+        "write an article from this transcript",
+        "turn this video into a long-form piece",
+        "editorial from transcript",
+        "magazine-style article"
+      ],
+      "negative_triggers": [
+        "summarize",
+        "social post",
+        "short-form",
+        "thread"
+      ],
+      "multi_angle_triggers": [],
+      "context_loads": [
+        "brand/voice.md (tone only)",
+        "context/learnings.md (section mkt-longform-article)"
+      ],
+      "inputs": [
+        "transcript (required: full text sau path la fisier)",
+        "title (optional: video title pentru context)",
+        "voice_profile_path (optional: brand voice override)",
+        "mode (optional: standalone | pipeline, auto-detectat)"
+      ],
+      "outputs": [
+        "projects/mkt-longform-article/{date}/{title}.md (standalone)",
+        "Markdown content returnat direct (pipeline mode)"
+      ],
+      "modes": [],
+      "secrets_required": [],
+      "secrets_optional": [],
+      "runtime_dependencies": [],
+      "tier": "content-creator",
+      "last_modified": "2026-05-11T15:42:49.863Z"
+    },
+    {
+      "name": "mkt-short-form-posting",
+      "version": "1.0.0",
+      "category": "content",
+      "description": "Posteaza video short-form (Shorts/Reels/TikTok) cu content packages platform-specific. Transcribe video, creeaza titles/descriptions/hashtags tailored per platforma, handle thumbnails, publica via Zernio API. Suport multi-platform single-request.",
+      "triggers": [
+        "posteaza short",
+        "posteaza reel",
+        "post shorts",
+        "upload short",
+        "short-form",
+        "reels",
+        "post pe youtube instagram tiktok",
+        "post short",
+        "post reel",
+        "upload reel"
+      ],
+      "negative_triggers": [
+        "video long-form",
+        "blog article",
+        "thread"
+      ],
+      "multi_angle_triggers": [],
+      "context_loads": [
+        "brand/voice.md (tone only)",
+        "context/learnings.md (section mkt-short-form-posting)"
+      ],
+      "inputs": [
+        "video_path (required: path local video short-form)",
+        "platforms (optional: comma-separated, default \"shorts,reels,tiktok\")",
+        "title_override (optional: skip auto-generated)"
+      ],
+      "outputs": [
+        "Posts publicate pe platforme selectate",
+        "Update logs in projects/00-social-content/"
+      ],
+      "modes": [],
+      "secrets_required": [
+        "ZERNIO_API_KEY"
+      ],
+      "secrets_optional": [],
+      "runtime_dependencies": [
+        "WhisperX via tool-transcription"
+      ],
+      "tier": "social-publisher",
+      "last_modified": "2026-05-11T15:43:39.720Z"
+    },
+    {
+      "name": "mkt-youtube-content-package",
+      "version": "1.0.0",
+      "category": "content",
+      "description": "Creeaza package complet YouTube: title, description, keywords, timestamps, thumbnail concepts, posting via Zernio MCP. Pentru publish video, YouTube SEO, complete content optimization. 10-step workflow cu user approval gate.",
+      "triggers": [
+        "package YouTube complet",
+        "publica video YouTube",
+        "creeaza continut youtube",
+        "youtube SEO",
+        "title description youtube",
+        "publish video",
+        "create YouTube content",
+        "youtube content package"
+      ],
+      "negative_triggers": [
+        "shorts",
+        "reels",
+        "short-form"
+      ],
+      "multi_angle_triggers": [],
+      "context_loads": [
+        "brand/voice.md (tone only)",
+        "context/learnings.md (section mkt-youtube-content-package)"
+      ],
+      "inputs": [
+        "video_path (required: path video original sau Zernio URL daca deja uploaded)",
+        "title_hint (optional: subiect principal)",
+        "target_audience (optional: override din brand/audience.md)"
+      ],
+      "outputs": [
+        "Video publicat pe YouTube via Zernio",
+        "Log in projects/mkt-youtube-content-package/{date}/"
+      ],
+      "modes": [],
+      "secrets_required": [
+        "ZERNIO_API_KEY"
+      ],
+      "secrets_optional": [],
+      "runtime_dependencies": [
+        "WhisperX via tool-transcription",
+        "HandBrake sau ffmpeg via tool-video-upload"
+      ],
+      "tier": "social-publisher",
+      "last_modified": "2026-05-11T15:44:15.763Z"
+    },
+    {
+      "name": "meta-skill-creator",
+      "version": "1.0.0",
+      "category": "meta",
+      "description": "Creeaza skill-uri noi, modifica si imbunatateste skill-uri existente, masoara performance. Pentru: create skill from scratch, edit/optimize existing, run evals, benchmark cu variance analysis, optimize description pentru triggering accuracy.",
+      "triggers": [
+        "creeaza skill cu eval",
+        "skill creator cu benchmark",
+        "build skill",
+        "improve skill",
+        "edit skill",
+        "optimize skill",
+        "eval skill",
+        "benchmark skill",
+        "skill creator",
+        "create new skill",
+        "skill from scratch"
+      ],
+      "negative_triggers": [
+        "creeaza system",
+        "system package",
+        "PACKAGE.yaml"
+      ],
+      "multi_angle_triggers": [],
+      "context_loads": [
+        "context/learnings.md (section meta-skill-creator)",
+        "skills/_index.json (registry skill-uri existente)"
+      ],
+      "inputs": [
+        "intent (required: ce skill vrei sau ce skill vrei sa modifici)",
+        "mode (optional: create | edit | eval | benchmark | optimize, auto-detectat)"
+      ],
+      "outputs": [
+        "skills/{new-skill-name}/SKILL.md (create mode)",
+        "Update SKILL.md existent (edit mode)",
+        "Eval report (eval/benchmark modes)"
+      ],
+      "modes": [],
+      "secrets_required": [],
+      "secrets_optional": [],
+      "runtime_dependencies": [],
+      "tier": "core",
+      "last_modified": "2026-05-11T15:52:54.717Z"
+    },
+    {
+      "name": "meta-skill-system-creator",
+      "version": "1.0.0",
+      "category": "meta",
+      "description": "Creeaza skill systems — packages multi-skill care lant-uiesc skill-uri in workflows complete. Deep interview, scaneaza skill-uri existente pentru reuse, handle PACKAGE.yaml manifests, install.sh scripts, output directory conventions, template rendering.",
+      "triggers": [
+        "creeaza system",
+        "package skill-urile astea",
+        "build skill system",
+        "transforma in system",
+        "system din skill-uri",
+        "create a system",
+        "package these skills",
+        "build a skill system",
+        "turn this into a system",
+        "system from skills"
+      ],
+      "negative_triggers": [
+        "creeaza skill",
+        "single skill"
+      ],
+      "multi_angle_triggers": [],
+      "context_loads": [
+        "context/learnings.md (section meta-skill-system-creator)",
+        "skills/_index.json (registry skill-uri existente)",
+        "AGENTS.md (System Registry section)"
+      ],
+      "inputs": [
+        "system_intent (required: ce face systemul, ce workflow lant-uieste)"
+      ],
+      "outputs": [
+        "skills/_systems/{system-name}/PACKAGE.yaml",
+        "skills/_systems/{system-name}/install.sh",
+        "skills/_systems/{system-name}/skills/ (skill folders)",
+        "skills/_systems/{system-name}/agents/ (sub-agents)"
+      ],
+      "modes": [],
+      "secrets_required": [],
+      "secrets_optional": [],
+      "runtime_dependencies": [],
+      "tier": "core",
+      "last_modified": "2026-05-11T15:49:27.861Z"
     },
     {
       "name": "mode-anti-dependence",
@@ -565,7 +1433,9 @@
       "output_discipline": "ask-first-propose-second",
       "secrets_required": [],
       "secrets_optional": [],
-      "last_modified": "2026-05-06T05:43:44.133Z"
+      "runtime_dependencies": [],
+      "tier": "core",
+      "last_modified": "2026-05-11T16:12:32.242Z"
     },
     {
       "name": "mode-facilitator",
@@ -602,7 +1472,9 @@
       "output_discipline": "question-only",
       "secrets_required": [],
       "secrets_optional": [],
-      "last_modified": "2026-05-06T05:43:10.938Z"
+      "runtime_dependencies": [],
+      "tier": "core",
+      "last_modified": "2026-05-11T16:12:32.502Z"
     },
     {
       "name": "mode-shadow",
@@ -641,7 +1513,9 @@
       "output_discipline": "structured-flag-list",
       "secrets_required": [],
       "secrets_optional": [],
-      "last_modified": "2026-05-06T05:57:18.892Z"
+      "runtime_dependencies": [],
+      "tier": "core",
+      "last_modified": "2026-05-11T16:12:32.764Z"
     },
     {
       "name": "research-competitors",
@@ -688,13 +1562,15 @@
         "FIRECRAWL_API_KEY"
       ],
       "secrets_optional": [],
-      "last_modified": "2026-05-06T06:39:22.541Z"
+      "runtime_dependencies": [],
+      "tier": "core",
+      "last_modified": "2026-05-11T16:12:33.011Z"
     },
     {
       "name": "research-trending",
-      "version": "2.0.0",
+      "version": "3.0.0",
       "category": "research",
-      "description": "Research what's trending in last 30 days across Reddit, Twitter/X, HN, blogs, video. MapReduce: 5 source agents scan in parallel, a synthesizer merges + dedupes + extracts signals.",
+      "description": "Research trending in ultimele 30 zile pe Reddit, Twitter/X, HN, blogs, video. MapReduce: 5 source agents paraleli + synthesizer. Cu OPENAI_API_KEY si XAI_API_KEY, foloseste Python last30days.py pentru engagement metrics reale (upvotes, likes).",
       "triggers": [
         "ce e trend",
         "ce se discuta despre",
@@ -704,7 +1580,11 @@
         "ce e hot in",
         "research",
         "what's trending",
-        "pulse check on"
+        "pulse check on",
+        "community sentiment on",
+        "what are people saying about",
+        "last 30 days",
+        "recent discussions"
       ],
       "negative_triggers": [
         "voce de brand",
@@ -715,12 +1595,14 @@
       "multi_angle_triggers": [],
       "context_loads": [
         "brand/audience.md (synthesizer reads, for relevance filtering)",
-        "context/learnings.md (synthesizer appends)"
+        "context/learnings.md (synthesizer appends)",
+        "skills/research-trending/references/ (agents read methodology + templates)"
       ],
       "inputs": [
         "topic (required: niche, keyword, or industry)",
         "timeframe (optional: defaults to 30 days)",
-        "focus (optional: pain points | opportunities | opinions | all)"
+        "focus (optional: pain points | opportunities | opinions | all)",
+        "depth (optional: quick | balanced | deep — default balanced)"
       ],
       "outputs": [
         "projects/research-trending/{date}-{slug}/brief.md",
@@ -738,7 +1620,11 @@
         "XAI_API_KEY",
         "YOUTUBE_API_KEY"
       ],
-      "last_modified": "2026-05-06T06:39:10.853Z"
+      "runtime_dependencies": [
+        "python: \">=3.11 (optional, doar pentru engagement metrics reale)"
+      ],
+      "tier": "core",
+      "last_modified": "2026-05-11T15:18:16.158Z"
     },
     {
       "name": "sys-audit",
@@ -788,7 +1674,9 @@
       "concurrency_pattern": "pillar-fan-out",
       "secrets_required": [],
       "secrets_optional": [],
-      "last_modified": "2026-05-05T21:31:34.499Z"
+      "runtime_dependencies": [],
+      "tier": "core",
+      "last_modified": "2026-05-11T16:12:33.286Z"
     },
     {
       "name": "sys-capture-note",
@@ -835,7 +1723,9 @@
       "output_discipline": "minimal",
       "secrets_required": [],
       "secrets_optional": [],
-      "last_modified": "2026-05-06T08:39:51.941Z"
+      "runtime_dependencies": [],
+      "tier": "core",
+      "last_modified": "2026-05-11T16:12:33.599Z"
     },
     {
       "name": "sys-daily-plan",
@@ -874,7 +1764,9 @@
       "output_discipline": "encapsulated",
       "secrets_required": [],
       "secrets_optional": [],
-      "last_modified": "2026-05-05T19:51:36.761Z"
+      "runtime_dependencies": [],
+      "tier": "core",
+      "last_modified": "2026-05-11T16:12:33.808Z"
     },
     {
       "name": "sys-goal-breakdown",
@@ -919,7 +1811,9 @@
       "modes": [],
       "secrets_required": [],
       "secrets_optional": [],
-      "last_modified": "2026-05-05T05:19:12.132Z"
+      "runtime_dependencies": [],
+      "tier": "core",
+      "last_modified": "2026-05-11T16:12:34.039Z"
     },
     {
       "name": "sys-level-up",
@@ -961,7 +1855,9 @@
       "concurrency_pattern": "adversarial-synthesis",
       "secrets_required": [],
       "secrets_optional": [],
-      "last_modified": "2026-05-05T20:19:12.988Z"
+      "runtime_dependencies": [],
+      "tier": "core",
+      "last_modified": "2026-05-11T16:12:34.239Z"
     },
     {
       "name": "sys-onboard",
@@ -1009,7 +1905,9 @@
       "concurrency_pattern": "multi-asset-generation (soft-fail variant)",
       "secrets_required": [],
       "secrets_optional": [],
-      "last_modified": "2026-05-09T19:15:35.361Z"
+      "runtime_dependencies": [],
+      "tier": "core",
+      "last_modified": "2026-05-11T16:12:34.353Z"
     },
     {
       "name": "sys-recall",
@@ -1047,7 +1945,9 @@
       "output_discipline": "minimal",
       "secrets_required": [],
       "secrets_optional": [],
-      "last_modified": "2026-05-06T06:21:30.914Z"
+      "runtime_dependencies": [],
+      "tier": "core",
+      "last_modified": "2026-05-11T16:12:34.506Z"
     },
     {
       "name": "sys-session-close",
@@ -1095,7 +1995,9 @@
       "output_discipline": "encapsulated",
       "secrets_required": [],
       "secrets_optional": [],
-      "last_modified": "2026-05-07T13:58:41.914Z"
+      "runtime_dependencies": [],
+      "tier": "core",
+      "last_modified": "2026-05-11T16:12:34.695Z"
     },
     {
       "name": "sys-session-open",
@@ -1130,7 +2032,9 @@
       "output_discipline": "encapsulated",
       "secrets_required": [],
       "secrets_optional": [],
-      "last_modified": "2026-05-05T19:49:41.901Z"
+      "runtime_dependencies": [],
+      "tier": "core",
+      "last_modified": "2026-05-11T16:12:34.841Z"
     },
     {
       "name": "sys-skill-builder",
@@ -1173,7 +2077,9 @@
       "modes": [],
       "secrets_required": [],
       "secrets_optional": [],
-      "last_modified": "2026-05-05T22:13:58.454Z"
+      "runtime_dependencies": [],
+      "tier": "core",
+      "last_modified": "2026-05-11T16:12:34.956Z"
     },
     {
       "name": "sys-switch-client",
@@ -1224,23 +2130,73 @@
       "output_discipline": "minimal",
       "secrets_required": [],
       "secrets_optional": [],
-      "last_modified": "2026-05-08T18:47:18.197Z"
+      "runtime_dependencies": [],
+      "tier": "core",
+      "last_modified": "2026-05-11T16:12:35.093Z"
+    },
+    {
+      "name": "tool-fact-checker",
+      "version": "1.0.0",
+      "category": "tool",
+      "description": "Verificare sistematica de claim-uri prin analiza bazata pe dovezi. 6 verdicte (TRUE/MOSTLY_TRUE/MIXED/MOSTLY_FALSE/FALSE/UNVERIFIABLE). Standalone sau pipeline mode pentru skill-uri care valideaza claim-uri inainte de publish.",
+      "triggers": [
+        "verifica faptele",
+        "fact check",
+        "verifica acest claim",
+        "e adevarat",
+        "este corect",
+        "valideaza claim-urile",
+        "verifica afirmatiile",
+        "verify this",
+        "is this true",
+        "check these claims",
+        "fact-check this",
+        "verify claims"
+      ],
+      "negative_triggers": [
+        "voce de brand",
+        "brand voice",
+        "ce parere ai",
+        "what do you think",
+        "opinia ta"
+      ],
+      "multi_angle_triggers": [],
+      "context_loads": [
+        "context/learnings.md (section tool-fact-checker)",
+        "skills/tool-fact-checker/references/verification-patterns.md (manipulation patterns)"
+      ],
+      "inputs": [
+        "claims (required: text cu claim-uri sau array structurat in pipeline mode)",
+        "mode (optional: standalone | pipeline, auto-detectat)"
+      ],
+      "outputs": [
+        "projects/tool-fact-checker/{date}/{topic}.md (standalone mode)",
+        "JSON structurat returnat (pipeline mode)"
+      ],
+      "modes": [],
+      "secrets_required": [],
+      "secrets_optional": [],
+      "runtime_dependencies": [],
+      "tier": "core",
+      "last_modified": "2026-05-11T15:23:34.551Z"
     },
     {
       "name": "tool-humanizer",
-      "version": "1.0.0",
+      "version": "2.0.0",
       "category": "tool",
-      "description": "Strip AI writing patterns from text. Detects and fixes 10 pattern categories across 3 modes: quick (obvious fixes), standard (full scan with scoring), and deep (voice-matched rewrite).",
+      "description": "Sterge pattern-uri AI din text si restaureaza vocea umana naturala. 50+ AI tells detectate, scoring 0-10 human-ness, 3 moduri (quick / standard / deep cu voice-profile match). Foloseste pattern-library + replacement-guide din references/.",
       "triggers": [
         "umanizeaza",
         "fa-l natural",
         "sterge pattern AI",
         "suna prea AI",
         "curata textul",
+        "de-AI",
         "humanize this",
         "make this sound human",
         "remove AI patterns",
-        "AI detection"
+        "AI detection",
+        "clean up this copy"
       ],
       "negative_triggers": [
         "voce de brand",
@@ -1252,21 +2208,884 @@
       ],
       "multi_angle_triggers": [],
       "context_loads": [
-        "brand/voice.md (reads, only in deep mode)",
-        "context/learnings.md (section tool-humanizer)"
+        "brand/voice.md (reads, doar in deep mode)",
+        "brand/samples.md (reads, doar in deep mode, pentru tone refs)",
+        "context/learnings.md (section tool-humanizer)",
+        "skills/tool-humanizer/references/pattern-library.md (full pattern detection)",
+        "skills/tool-humanizer/references/replacement-guide.md (replacement strategy)"
       ],
       "inputs": [
-        "text (required: the text to humanize, pasted or file path)",
+        "text (required: text de umanizat — paste sau file path)",
         "mode (optional: quick | standard | deep, default: standard)"
       ],
       "outputs": [
-        "Cleaned text (returned inline or saved to original file)",
-        "Pattern report (standard and deep modes)"
+        "Text curatat (return inline sau salvat in fisier original)",
+        "Pattern report (standard si deep mode)"
       ],
       "modes": [],
       "secrets_required": [],
       "secrets_optional": [],
-      "last_modified": "2026-05-05T05:19:21.281Z"
+      "runtime_dependencies": [],
+      "tier": "core",
+      "last_modified": "2026-05-11T15:19:45.394Z"
+    },
+    {
+      "name": "tool-linkedin-scraper",
+      "version": "1.0.1",
+      "category": "tool",
+      "description": "Fetch posts recente din profile LinkedIn via Apify API. Accepta unul sau mai multe URL-uri profil, returneaza fiecare post ca markdown cu frontmatter (author, url, posted_at, likes, text). Seen-file pentru a evita reprocesare cross-run.",
+      "triggers": [
+        "scrape linkedin",
+        "posts de pe linkedin",
+        "fetch linkedin",
+        "inspiratie linkedin",
+        "profile linkedin",
+        "linkedin posts",
+        "get linkedin content",
+        "fetch linkedin profile",
+        "linkedin inspiration"
+      ],
+      "negative_triggers": [
+        "scrie continut",
+        "repurpose",
+        "publica",
+        "post",
+        "publish"
+      ],
+      "multi_angle_triggers": [],
+      "context_loads": [
+        "context/learnings.md (section tool-linkedin-scraper)"
+      ],
+      "inputs": [
+        "profiles (required: comma-separated URL-uri profil LinkedIn)",
+        "max-posts (optional: per profil, default 5)",
+        "days (optional: cat de departe in trecut, default 7)",
+        "seen-file (optional: tracking file pentru deduplicare)"
+      ],
+      "outputs": [
+        "projects/00-social-content/{date}/logs/inspiration/{slug}.md (per post nou)"
+      ],
+      "modes": [],
+      "secrets_required": [
+        "APIFY_API_KEY"
+      ],
+      "secrets_optional": [],
+      "runtime_dependencies": [
+        "python: \">=3.11",
+        "uv"
+      ],
+      "tier": "researcher",
+      "last_modified": "2026-05-11T15:31:12.120Z"
+    },
+    {
+      "name": "tool-pdf-generator",
+      "version": "1.0.0",
+      "category": "tool",
+      "description": "Genereaza PDF-uri curate, minimaliste din markdown. Tipografie pentru reading, layout cu margini generoase. pandoc + weasyprint (preferat) sau Python weasyprint standalone. Suport theme branded prin brand/design-tokens.md.",
+      "triggers": [
+        "genereaza PDF",
+        "converteste in PDF",
+        "fa un PDF",
+        "export ca PDF",
+        "markdown la PDF",
+        "generate PDF",
+        "convert to PDF",
+        "make a PDF",
+        "export as PDF",
+        "markdown to PDF"
+      ],
+      "negative_triggers": [
+        "citeste PDF",
+        "extrage din PDF",
+        "read PDF",
+        "extract from PDF"
+      ],
+      "multi_angle_triggers": [],
+      "context_loads": [
+        "context/learnings.md (section tool-pdf-generator)",
+        "brand/design-tokens.md (doar in branded theme mode)"
+      ],
+      "inputs": [
+        "input (required: path la fisier .md sau text markdown raw)",
+        "output_path (optional: unde sa salveze; default projects/tool-pdf-generator/{date}/{name}.pdf)",
+        "theme (optional: minimal | branded — default minimal)",
+        "intensity (optional: subtle | heavy — doar pentru branded)",
+        "logo (optional: URL sau path la logo — doar branded)",
+        "links (optional: \"Label1=url1,Label2=url2\" — doar branded)"
+      ],
+      "outputs": [
+        "PDF la output_path",
+        "Copie la ~/Downloads/{name}.pdf (default)"
+      ],
+      "modes": [],
+      "secrets_required": [],
+      "secrets_optional": [],
+      "runtime_dependencies": [
+        "python: \">=3.11",
+        "pandoc OR weasyprint (auto-detected)"
+      ],
+      "tier": "content-creator",
+      "last_modified": "2026-05-11T15:24:47.387Z"
+    },
+    {
+      "name": "tool-publisher",
+      "version": "1.0.1",
+      "category": "tool",
+      "description": "Publica un post social media generat via Zernio MCP. Citeste din projects/00-social-content/{date}/{slug}/, upload imagini via Zernio browser flow, posts_publish_now, update post.yaml + publish-log.md.",
+      "triggers": [
+        "publica post",
+        "publica acum",
+        "vreau sa public",
+        "publica asta",
+        "post acum",
+        "publica draft",
+        "post",
+        "publish",
+        "post now",
+        "publish post",
+        "publish this"
+      ],
+      "negative_triggers": [
+        "scrie post",
+        "creeaza post",
+        "draft post"
+      ],
+      "multi_angle_triggers": [],
+      "context_loads": [
+        "context/learnings.md (section tool-publisher)"
+      ],
+      "inputs": [
+        "slug (optional: match across dates)",
+        "date (optional: combined cu slug pentru exact match)"
+      ],
+      "outputs": [
+        "Update projects/00-social-content/{date}/{slug}/post.yaml (status)",
+        "Append projects/00-social-content/publish-log.md"
+      ],
+      "modes": [],
+      "secrets_required": [
+        "ZERNIO_API_KEY"
+      ],
+      "secrets_optional": [],
+      "runtime_dependencies": [],
+      "tier": "social-publisher",
+      "last_modified": "2026-05-11T15:32:15.931Z"
+    },
+    {
+      "name": "tool-screenshot-annotator",
+      "version": "1.0.0",
+      "category": "tool",
+      "description": "Adnoteaza screenshot-uri cu cercuri numerotate + highlight boxes. Coordonate manuale, elemente din tool-web-screenshot, sau manifest pipeline. Percentage-based positioning + edge clamping. RGBA overlay pe PNG sursa. Auto-pull accent color din brand/design-tokens.md.",
+      "triggers": [
+        "adnoteaza screenshot",
+        "adauga cercuri numerotate",
+        "marcheaza zona",
+        "highlight pe imagine",
+        "callout-uri pe screenshot",
+        "label screenshot",
+        "annotate this screenshot",
+        "add numbered circles",
+        "highlight this area",
+        "mark up this image",
+        "add callouts to"
+      ],
+      "negative_triggers": [
+        "captureaza",
+        "fa screenshot",
+        "generare imagine",
+        "edit imagine cu AI",
+        "capture screenshot",
+        "generate image"
+      ],
+      "multi_angle_triggers": [],
+      "context_loads": [
+        "context/learnings.md (section tool-screenshot-annotator)",
+        "brand/design-tokens.md (pentru accent color \"auto\")",
+        "skills/tool-screenshot-annotator/references/default-config.json (style defaults)"
+      ],
+      "inputs": [
+        "spec (required: path la JSON spec sau JSON inline cu annotations)",
+        "output (optional: path la annotated.png)"
+      ],
+      "outputs": [
+        "projects/tool-screenshot-annotator/{date}/{name}/annotated.png",
+        "manifest.json (cu config_used)"
+      ],
+      "modes": [],
+      "secrets_required": [],
+      "secrets_optional": [],
+      "runtime_dependencies": [
+        "python: \">=3.11",
+        "uv"
+      ],
+      "tier": "content-creator",
+      "last_modified": "2026-05-11T15:30:20.677Z"
+    },
+    {
+      "name": "tool-transcription",
+      "version": "1.1.0",
+      "category": "tool",
+      "description": "Transcribe fisiere video/audio locale cu WhisperX + word-level alignment. 2 moduri output: markdown clean (content pipelines) sau word-level JSON (subtitling, clip selection). Suport MP4, MOV, WebM, MKV, AVI, MP3, WAV, M4A, FLAC, OGG.",
+      "triggers": [
+        "transcribe acest video",
+        "transcript video local",
+        "transcript fisier",
+        "din inregistrarea asta",
+        "transcript local",
+        "speech to text",
+        "video la text",
+        "extrage subtitrari",
+        "transcribe this file",
+        "from this recording",
+        "from this file",
+        "transcribe",
+        "extract captions"
+      ],
+      "negative_triggers": [
+        "youtube",
+        "URL",
+        "site web"
+      ],
+      "multi_angle_triggers": [],
+      "context_loads": [
+        "context/learnings.md (section tool-transcription)"
+      ],
+      "inputs": [
+        "file (required: path absolut sau relativ la video/audio)",
+        "output (optional: markdown | words-json, default markdown)",
+        "model (optional: tiny | base | small | medium | large-v3, default small)",
+        "language (optional: cod limba, default auto-detect)",
+        "device (optional: cpu | cuda, default cpu)",
+        "output-dir (optional: override destinatie)"
+      ],
+      "outputs": [
+        "markdown mode → projects/00-social-content/{date}/logs/inspiration/{slug}.md",
+        "words-json mode → projects/00-longform-to-shortform/{date}/transcripts/{slug}.json"
+      ],
+      "modes": [],
+      "secrets_required": [],
+      "secrets_optional": [],
+      "runtime_dependencies": [
+        "python: \">=3.11",
+        "uv",
+        "ffmpeg",
+        "WhisperX (auto-download ~1.5GB la primul run)"
+      ],
+      "tier": "content-creator",
+      "last_modified": "2026-05-11T15:28:28.961Z"
+    },
+    {
+      "name": "tool-video-screenshots",
+      "version": "1.0.0",
+      "category": "tool",
+      "description": "Extract screenshot-uri inteligente din video-uri YouTube la momente vizuale cheie. 2 moduri: scene-detect (automat via ffmpeg) sau timestamp (lista manuala). Claude review candidates pe baza transcript, alege 2-10 frames + scrie caption-uri.",
+      "triggers": [
+        "screenshot din video",
+        "extrage frames",
+        "video screenshots",
+        "captureaza slide-uri din video",
+        "key moments din video",
+        "frames din",
+        "screenshot from video",
+        "extract frames",
+        "grab frames from"
+      ],
+      "negative_triggers": [
+        "video editing",
+        "clip extraction",
+        "thumbnail",
+        "web screenshot"
+      ],
+      "multi_angle_triggers": [],
+      "context_loads": [
+        "context/learnings.md (section tool-video-screenshots)",
+        "skills/tool-video-screenshots/references/ (frame selection heuristics)"
+      ],
+      "inputs": [
+        "url (required: YouTube URL)",
+        "mode (optional: scene-detect | timestamp, default scene-detect)",
+        "timestamps (timestamp mode: comma-separated \"HH:MM:SS\")",
+        "max-frames (scene-detect: cap pe candidate frames, default 15)",
+        "output-dir (optional: auto)"
+      ],
+      "outputs": [
+        "projects/tool-video-screenshots/{date}/{video-slug}/frames/*.png",
+        "manifest.json (timestamp + frame_path + caption per frame selectat)",
+        "README.md (sumar cu inline frame references)"
+      ],
+      "modes": [],
+      "secrets_required": [],
+      "secrets_optional": [],
+      "runtime_dependencies": [
+        "python: \">=3.11",
+        "ffmpeg",
+        "yt-dlp"
+      ],
+      "tier": "content-creator",
+      "last_modified": "2026-05-11T15:29:50.692Z"
+    },
+    {
+      "name": "tool-video-upload",
+      "version": "1.0.0",
+      "category": "tool",
+      "description": "Compreseaza si upload video-uri pentru publishing YouTube via Zernio. HandBrake CLI + NVENC (rapid pe GPU NVIDIA) sau FFmpeg fallback. Zernio storage limit 500MB. Output: public URL ready pentru mkt-youtube-content-package.",
+      "triggers": [
+        "upload video",
+        "comprima video",
+        "pregateste video pentru youtube",
+        "trimite video la zernio",
+        "compress video",
+        "upload to zernio",
+        "prep video for youtube"
+      ],
+      "negative_triggers": [
+        "scrie continut video",
+        "edit video",
+        "extract clip"
+      ],
+      "multi_angle_triggers": [],
+      "context_loads": [
+        "context/learnings.md (section tool-video-upload)"
+      ],
+      "inputs": [
+        "video_path (required: path local la fisierul video)"
+      ],
+      "outputs": [
+        "Video URL Zernio (public URL ready pentru posting)"
+      ],
+      "modes": [],
+      "secrets_required": [
+        "ZERNIO_API_KEY"
+      ],
+      "secrets_optional": [],
+      "runtime_dependencies": [
+        "HandBrake CLI sau FFmpeg"
+      ],
+      "tier": "social-publisher",
+      "last_modified": "2026-05-11T15:32:40.674Z"
+    },
+    {
+      "name": "tool-web-screenshot",
+      "version": "1.0.0",
+      "category": "tool",
+      "description": "Capture screenshot-uri web cu multi-backend routing. YouTube URLs → thumbnails direct. Pagini simple → ScreenshotOne API (daca cheia exista) cu Playwright fallback. Capturi interactive → Playwright. Suport cookie banner removal, full-page scroll, viewport, enumerate elements.",
+      "triggers": [
+        "screenshot site",
+        "captureaza pagina",
+        "fa screenshot la",
+        "web screenshot",
+        "screenshot URL",
+        "screenshot acesta",
+        "screenshot this website",
+        "capture this page",
+        "take a screenshot of",
+        "grab a screenshot"
+      ],
+      "negative_triggers": [
+        "screenshot din video",
+        "video screenshot",
+        "extract frames",
+        "youtube"
+      ],
+      "multi_angle_triggers": [],
+      "context_loads": [
+        "context/learnings.md (section tool-web-screenshot)",
+        "skills/tool-web-screenshot/references/ (interaction patterns)"
+      ],
+      "inputs": [
+        "url (required: URL de capturat)",
+        "output-dir (optional: auto in projects/tool-web-screenshot/{date}/{slug}/)",
+        "backend (optional: screenshotone | playwright | auto, default auto)",
+        "viewport (optional: dimensions, default 1920x1080)",
+        "actions (optional: JSON array interactiuni)",
+        "enumerate-elements (optional: flag — listeaza elemente interactive)",
+        "block-cookie-banners (optional: flag — inject CSS sa ascunda banners)",
+        "full-page (optional: flag — capture full scrollable)"
+      ],
+      "outputs": [
+        "projects/tool-web-screenshot/{date}/{slug}/screenshot.png",
+        "projects/tool-web-screenshot/{date}/{slug}/manifest.json",
+        "projects/tool-web-screenshot/{date}/{slug}/elements.json (cu --enumerate-elements)"
+      ],
+      "modes": [],
+      "secrets_required": [],
+      "secrets_optional": [
+        "SCREENSHOTONE_API_KEY"
+      ],
+      "runtime_dependencies": [
+        "python: \">=3.11",
+        "uv",
+        "Playwright Chromium (auto-install la primul run)"
+      ],
+      "tier": "content-creator",
+      "last_modified": "2026-05-11T15:29:04.119Z"
+    },
+    {
+      "name": "tool-youtube",
+      "version": "1.0.1",
+      "category": "tool",
+      "description": "Fetch videos YouTube, extract transcripts cu timestamps, metadata + thumbnails. 3 moduri: channel (necesita YOUTUBE_API_KEY), transcript (gratuit via yt-dlp), metadata (yt-dlp). Folosit ca content source de alte skill-uri.",
+      "triggers": [
+        "ultimul video youtube",
+        "transcript de pe youtube",
+        "youtube transcript",
+        "ce a postat",
+        "fetch youtube",
+        "ultimele video-uri canal",
+        "metadata video",
+        "info video",
+        "thumbnail youtube",
+        "detalii video",
+        "latest youtube video",
+        "get transcript",
+        "video metadata",
+        "youtube thumbnail"
+      ],
+      "negative_triggers": [
+        "scrie continut",
+        "repurpose",
+        "editeaza video",
+        "video editing"
+      ],
+      "multi_angle_triggers": [],
+      "context_loads": [
+        "context/learnings.md (section tool-youtube)"
+      ],
+      "inputs": [
+        "mode (optional: channel | transcript | metadata — auto-detectat din input)",
+        "url (transcript / metadata mode)",
+        "channels (channel mode: comma-separated @handles sau lista din config/sources.md)",
+        "hours (channel mode: cat de departe in trecut, default 48)"
+      ],
+      "outputs": [
+        "projects/tool-youtube/{date}/{video-title-slug}.md (transcript clean)",
+        "metadata.json / thumbnail.png in output-dir specificat"
+      ],
+      "modes": [],
+      "secrets_required": [],
+      "secrets_optional": [
+        "YOUTUBE_API_KEY"
+      ],
+      "runtime_dependencies": [
+        "python: \">=3.11",
+        "yt-dlp",
+        "uv"
+      ],
+      "tier": "content-creator",
+      "last_modified": "2026-05-11T15:26:02.415Z"
+    },
+    {
+      "name": "tool-zernio-social",
+      "version": "1.0.0",
+      "category": "tool",
+      "description": "Posteaza pe social media via Zernio MCP. 13 platforme: Twitter, Instagram, LinkedIn, TikTok, YouTube, Facebook, Pinterest, Threads, Bluesky, Google Business, Telegram, Snapchat, Reddit. Suport publish now, draft, scheduled.",
+      "triggers": [
+        "posteaza pe",
+        "scheduleaza post",
+        "social media",
+        "publica pe",
+        "cross-post",
+        "publica pe twitter",
+        "publica pe instagram",
+        "publica pe linkedin",
+        "publica pe youtube",
+        "publica pe tiktok",
+        "publica pe facebook",
+        "publica pe threads",
+        "publica pe bluesky",
+        "post to",
+        "schedule post",
+        "publish to",
+        "upload to"
+      ],
+      "negative_triggers": [
+        "scrie continut",
+        "creeaza post",
+        "draft only"
+      ],
+      "multi_angle_triggers": [],
+      "context_loads": [
+        "context/learnings.md (section tool-zernio-social)",
+        "skills/tool-zernio-social/references/api-examples.md (full curl examples)"
+      ],
+      "inputs": [
+        "content (required: text post)",
+        "platform (required: twitter | instagram | linkedin | tiktok | youtube | facebook | threads | bluesky | reddit | pinterest | telegram | snapchat | google-business)",
+        "media_url (optional: imagine sau video)",
+        "schedule (optional: ISO timestamp pentru scheduled)",
+        "draft (optional: flag — salveaza ca draft fara publish)"
+      ],
+      "outputs": [
+        "Post ID + URL (return inline)",
+        "Status update in calling context"
+      ],
+      "modes": [],
+      "secrets_required": [
+        "ZERNIO_API_KEY"
+      ],
+      "secrets_optional": [],
+      "runtime_dependencies": [],
+      "tier": "social-publisher",
+      "last_modified": "2026-05-11T15:33:18.284Z"
+    },
+    {
+      "name": "vid-clip-extractor",
+      "version": "1.0.0",
+      "category": "vid",
+      "description": "Extract si reframe inteligent clipuri din video-uri 16:9 in format 9:16 portrait cu face-aware layouts. FFmpeg pipe rendering + OpenCV DNN face detection (ResNet-10 SSD) + HSV scene detection. 3 layouts (split-screen, cursor-track, face-track). 100% local, zero cost.",
+      "triggers": [
+        "extrage clipuri",
+        "reframe video",
+        "clip extractor",
+        "portrait crop",
+        "face tracking",
+        "16:9 to 9:16",
+        "smart crop",
+        "fa shorts din video",
+        "auto reframe",
+        "extract clips",
+        "make shorts from video"
+      ],
+      "negative_triggers": [
+        "select clips",
+        "edit subtitles",
+        "transcribe"
+      ],
+      "multi_angle_triggers": [],
+      "context_loads": [
+        "context/learnings.md (section vid-clip-extractor)",
+        "skills/vid-clip-extractor/references/ (layout guide, motion classification)"
+      ],
+      "inputs": [
+        "video (required: path video 16:9 sursa)",
+        "clip_definitions (required: JSON cu start/end per clip)",
+        "layout (optional: split-screen | cursor-track | face-track, default split-screen)",
+        "output_dir (optional: unde salveaza clipurile reframed)"
+      ],
+      "outputs": [
+        "Clipuri MP4 9:16 in output_dir"
+      ],
+      "modes": [],
+      "secrets_required": [],
+      "secrets_optional": [],
+      "runtime_dependencies": [
+        "python: \">=3.11",
+        "ffmpeg",
+        "ffprobe",
+        "OpenCV DNN models (descarcate setup)"
+      ],
+      "tier": "video-producer",
+      "last_modified": "2026-05-11T15:40:43.538Z"
+    },
+    {
+      "name": "vid-clip-selection",
+      "version": "1.0.0",
+      "category": "vid",
+      "description": "Analizeaza transcripturi video long-form sa identifice, scoreze si extraga cele mai bune clip-uri short-form. Framework de scoring 5-categorii (Hook Strength, Value Delivery, Clarity, Shareability, Completeness). Fuzzy matching pentru timestamps.",
+      "triggers": [
+        "selecteaza clipuri",
+        "gaseste cele mai bune clipuri",
+        "clip selection",
+        "extrage shorts din transcript",
+        "analizeaza transcript pentru clipuri",
+        "ce clipuri sa extrag",
+        "select clips",
+        "find best clips",
+        "extract shorts from transcript",
+        "analyze transcript for clips"
+      ],
+      "negative_triggers": [
+        "render video",
+        "reframe",
+        "edit subtitles"
+      ],
+      "multi_angle_triggers": [],
+      "context_loads": [
+        "context/learnings.md (section vid-clip-selection)",
+        "skills/vid-clip-selection/references/ (scoring + selection framework)"
+      ],
+      "inputs": [
+        "transcript (required: path la SRT sau JSON word-level)",
+        "source_video (required: path video original pentru reframe step)",
+        "count (optional: numar clipuri target, default 7)",
+        "duration_range (optional: \"min-max\" seconds, default \"45-90\")",
+        "focus (optional: topics prioritare)"
+      ],
+      "outputs": [
+        "clip_definitions.json (cu timestamps + scoring per clip)",
+        "selection-report.md (raport human-readable)"
+      ],
+      "modes": [],
+      "secrets_required": [],
+      "secrets_optional": [],
+      "runtime_dependencies": [
+        "python: \">=3.11",
+        "rapidfuzz>=3.0.0"
+      ],
+      "tier": "video-producer",
+      "last_modified": "2026-05-11T15:40:17.942Z"
+    },
+    {
+      "name": "vid-ffmpeg-edit",
+      "version": "1.0.0",
+      "category": "vid",
+      "description": "Wrap FFmpeg sa burn ASS subtitles + overlay illustration PNGs pe clip 9:16 reframed. Word-level transcript (JSON/SRT/TS) → ASS captions stilizate (phrase grouping, highlight color din design-tokens), optional ilustratii via viz-image-gen, totul burn intr-un singur pass FFmpeg. ~55s per clip.",
+      "triggers": [
+        "edit clip",
+        "adauga subtitrari",
+        "burn captions",
+        "ilustreaza clip",
+        "edit short-form",
+        "adauga subtitrari la clip",
+        "edit acest clip",
+        "add subtitles",
+        "add subtitles to clip",
+        "edit this clip"
+      ],
+      "negative_triggers": [
+        "full pipeline",
+        "clip selection",
+        "reframe",
+        "transcribe",
+        "upload"
+      ],
+      "multi_angle_triggers": [],
+      "context_loads": [
+        "context/learnings.md (section vid-ffmpeg-edit)",
+        "brand/design-tokens.md (highlight color)",
+        "skills/vid-ffmpeg-edit/references/ (ffmpeg workflow, illustration overlay)"
+      ],
+      "inputs": [
+        "clip_path (required: reframed 9:16 MP4)",
+        "transcript (required: JSON / SRT / TS word file)",
+        "illustrate (optional: flag, genereaza 4-8 illustration PNGs via viz-image-gen)",
+        "highlight_color (optional: override din design-tokens)",
+        "output (optional: path final MP4)"
+      ],
+      "outputs": [
+        "Final MP4 cu subtitrari + (optional) illustration overlays"
+      ],
+      "modes": [],
+      "secrets_required": [],
+      "secrets_optional": [],
+      "runtime_dependencies": [
+        "python: \">=3.11",
+        "ffmpeg"
+      ],
+      "tier": "video-producer",
+      "last_modified": "2026-05-11T15:41:11.224Z"
+    },
+    {
+      "name": "viz-excalidraw-diagram",
+      "version": "1.0.1",
+      "category": "viz",
+      "description": "Genereaza Excalidraw diagram JSON care fac argument vizual — nu doar box-uri label-ate. Workflows, arhitecturi, concepte, protocoale, system designs. Section-by-section build pentru large diagrams, render PNG via Playwright, loop validare pana clean output.",
+      "triggers": [
+        "excalidraw",
+        "deseneaza diagrama",
+        "vizualizeaza workflow",
+        "arhitectura diagrama",
+        "system diagram",
+        "diagrama",
+        "excalidraw diagram",
+        "draw a diagram",
+        "architecture diagram",
+        "create a diagram of"
+      ],
+      "negative_triggers": [
+        "inline SVG",
+        "chart",
+        "graph",
+        "slide deck"
+      ],
+      "multi_angle_triggers": [],
+      "context_loads": [
+        "context/learnings.md (section viz-excalidraw-diagram)",
+        "skills/viz-excalidraw-diagram/references/color-palette.md (brand colors)",
+        "skills/viz-excalidraw-diagram/references/visual-patterns.md (structural patterns)",
+        "skills/viz-excalidraw-diagram/references/element-templates.md (templates)"
+      ],
+      "inputs": [
+        "concept (required: ce diagrama vrei sa argumentezi vizual)",
+        "style (optional: rough | clean — default rough)",
+        "colors (optional: override din color-palette.md)"
+      ],
+      "outputs": [
+        "projects/viz-excalidraw-diagram/{date}/{name}/diagram.excalidraw",
+        "projects/viz-excalidraw-diagram/{date}/{name}/diagram.png"
+      ],
+      "modes": [],
+      "secrets_required": [],
+      "secrets_optional": [],
+      "runtime_dependencies": [
+        "python: \">=3.11",
+        "uv",
+        "Playwright Chromium (auto-install setup.sh)"
+      ],
+      "tier": "content-creator",
+      "last_modified": "2026-05-11T15:37:40.722Z"
+    },
+    {
+      "name": "viz-frontend-slides",
+      "version": "1.0.0",
+      "category": "viz",
+      "description": "Genereaza prezentari HTML production-quality cu 20 principii design (research-backed). Zero dependencies, self-contained, keyboard/touch/wheel nav, viewport-safe, accessibility. Suport style presets, PPT conversion, PDF export.",
+      "triggers": [
+        "construieste slides",
+        "genereaza deck",
+        "render prezentare",
+        "design slides",
+        "HTML deck",
+        "converteste PPT in HTML",
+        "build slides",
+        "generate the deck",
+        "render presentation",
+        "slide design",
+        "convert PPT to HTML"
+      ],
+      "negative_triggers": [
+        "creeaza prezentare",
+        "structureaza continut",
+        "research"
+      ],
+      "multi_angle_triggers": [],
+      "context_loads": [
+        "brand/design-tokens.md (full)",
+        "brand/voice.md (tone only)",
+        "context/learnings.md (section viz-frontend-slides)",
+        "skills/viz-frontend-slides/references/ (design principles, style presets)"
+      ],
+      "inputs": [
+        "outline (required: structured slide-by-slide content)",
+        "type (optional: pitch | teaching | conference | internal)",
+        "preset (optional: style preset name sau mood)",
+        "tokens (optional: brand tokens override path)"
+      ],
+      "outputs": [
+        "HTML file self-contained (single file, no external deps in afara Google Fonts)"
+      ],
+      "modes": [],
+      "secrets_required": [],
+      "secrets_optional": [],
+      "runtime_dependencies": [
+        "python: optional, doar pentru PPT conversion (python-pptx)"
+      ],
+      "tier": "content-creator",
+      "last_modified": "2026-05-11T15:36:24.352Z"
+    },
+    {
+      "name": "viz-hyperframes",
+      "version": "1.0.0",
+      "category": "viz",
+      "description": "Video motion-graphics profesionale via HTML + CSS + GSAP, render MP4 cu HyperFrames. Layout-first: static design intai, apoi choreographed motion. Pentru launch teaser, social reel, animated explainer, product video, title sequence.",
+      "triggers": [
+        "creeaza video",
+        "video motion graphics",
+        "video produs",
+        "launch teaser",
+        "social reel",
+        "explainer animat",
+        "promo video",
+        "video din asta",
+        "hyperframes",
+        "render video",
+        "video brand",
+        "title sequence",
+        "make a motion graphics video",
+        "product video",
+        "animated explainer"
+      ],
+      "negative_triggers": [
+        "UGC video",
+        "talking head",
+        "edit video",
+        "clip extraction"
+      ],
+      "multi_angle_triggers": [],
+      "context_loads": [
+        "brand/design-tokens.md (full)",
+        "brand/voice.md (tone only)",
+        "context/learnings.md (section viz-hyperframes)",
+        "skills/viz-hyperframes/references/ (shader catalog, animation patterns)"
+      ],
+      "inputs": [
+        "direction (required: descriere video, brief, sau outline)",
+        "source (optional: URL, transcript, changelog din care derive content)",
+        "duration (optional: secunde, default 15)",
+        "style (optional: preset sau mood)"
+      ],
+      "outputs": [
+        "projects/viz-hyperframes/{date}/{name}/ (source HTML + GSAP)",
+        "{name}.mp4 (final render in projects dir + copie in ~/Downloads/)"
+      ],
+      "modes": [],
+      "secrets_required": [],
+      "secrets_optional": [],
+      "runtime_dependencies": [
+        "node: >=22",
+        "ffmpeg",
+        "npx hyperframes (auto-install)"
+      ],
+      "tier": "video-producer",
+      "last_modified": "2026-05-11T15:38:21.625Z"
+    },
+    {
+      "name": "viz-image-gen",
+      "version": "1.0.0",
+      "category": "viz",
+      "description": "Direction vizuala interactiva + image generation via GPT Image 2 sau Gemini 3 Pro Image. 6-Element Framework (Subject, Framing, Lighting, Mood, Medium, Style). 10 style presets, reference analysis, multi-gen comparison sets, model recommendation.",
+      "triggers": [
+        "genereaza imagine",
+        "creeaza infografic",
+        "image gen",
+        "sketchnote",
+        "comic strip",
+        "diagrama hand-drawn",
+        "visual pentru",
+        "fa o imagine",
+        "ilustreaza",
+        "draw me",
+        "generate an image",
+        "create an infographic",
+        "make an image of",
+        "GPT image",
+        "Gemini image"
+      ],
+      "negative_triggers": [
+        "excalidraw",
+        "creeaza chart",
+        "bar chart",
+        "pie chart",
+        "slide deck",
+        "text-only"
+      ],
+      "multi_angle_triggers": [],
+      "context_loads": [
+        "context/learnings.md (section viz-image-gen)",
+        "skills/viz-image-gen/references/ (style presets, framework guide)"
+      ],
+      "inputs": [
+        "intent (required: descrierea continutului vizual)",
+        "style (optional: preset name sau description)",
+        "reference (optional: imagine de inspiratie)",
+        "model (optional: gpt | gemini | auto)"
+      ],
+      "outputs": [
+        "projects/viz-image-gen/{date}/{slug}/image-{N}.png",
+        "manifest.json (prompt folosit, model, framework decisions)"
+      ],
+      "modes": [],
+      "secrets_required": [
+        "OPENAI_API_KEY"
+      ],
+      "secrets_optional": [
+        "GEMINI_API_KEY"
+      ],
+      "runtime_dependencies": [
+        "python: \">=3.11"
+      ],
+      "tier": "content-creator",
+      "last_modified": "2026-05-11T15:57:16.361Z"
     }
   ]
 }
