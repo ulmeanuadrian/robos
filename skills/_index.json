@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-11T16:54:09.520Z",
+  "generated_at": "2026-05-11T17:04:03.219Z",
   "count": 51,
   "by_category": {
     "00": 4,
@@ -640,7 +640,7 @@
         "OpenCV DNN models"
       ],
       "tier": "video-producer",
-      "last_modified": "2026-05-11T15:47:37.630Z"
+      "last_modified": "2026-05-11T16:55:40.516Z"
     },
     {
       "name": "00-slides",
@@ -690,7 +690,7 @@
       "secrets_optional": [],
       "runtime_dependencies": [],
       "tier": "content-creator",
-      "last_modified": "2026-05-11T15:45:35.174Z"
+      "last_modified": "2026-05-11T16:55:40.516Z"
     },
     {
       "name": "00-social-content",
@@ -745,7 +745,7 @@
       "secrets_optional": [],
       "runtime_dependencies": [],
       "tier": "content-creator",
-      "last_modified": "2026-05-11T15:48:01.171Z"
+      "last_modified": "2026-05-11T16:55:40.518Z"
     },
     {
       "name": "00-youtube-to-ebook",
@@ -796,7 +796,7 @@
         "python: \">=3.11"
       ],
       "tier": "content-creator",
-      "last_modified": "2026-05-11T15:46:10.822Z"
+      "last_modified": "2026-05-11T16:55:40.518Z"
     },
     {
       "name": "brand-audience",
@@ -844,7 +844,7 @@
       "secrets_optional": [],
       "runtime_dependencies": [],
       "tier": "core",
-      "last_modified": "2026-05-11T15:13:44.418Z"
+      "last_modified": "2026-05-11T16:55:40.518Z"
     },
     {
       "name": "brand-positioning",
@@ -894,7 +894,7 @@
       "secrets_optional": [],
       "runtime_dependencies": [],
       "tier": "core",
-      "last_modified": "2026-05-11T15:15:15.879Z"
+      "last_modified": "2026-05-11T16:55:40.525Z"
     },
     {
       "name": "brand-voice",
@@ -950,7 +950,7 @@
       ],
       "runtime_dependencies": [],
       "tier": "core",
-      "last_modified": "2026-05-11T15:12:02.835Z"
+      "last_modified": "2026-05-11T16:55:40.527Z"
     },
     {
       "name": "content-blog-post",
@@ -1008,7 +1008,7 @@
       "secrets_optional": [],
       "runtime_dependencies": [],
       "tier": "core",
-      "last_modified": "2026-05-11T16:12:31.747Z"
+      "last_modified": "2026-05-11T16:55:40.527Z"
     },
     {
       "name": "content-copywriting",
@@ -1069,7 +1069,7 @@
       "secrets_optional": [],
       "runtime_dependencies": [],
       "tier": "core",
-      "last_modified": "2026-05-11T16:12:32.071Z"
+      "last_modified": "2026-05-11T16:55:40.527Z"
     },
     {
       "name": "content-repurpose",
@@ -1128,7 +1128,7 @@
       ],
       "runtime_dependencies": [],
       "tier": "core",
-      "last_modified": "2026-05-11T15:16:31.144Z"
+      "last_modified": "2026-05-11T16:55:40.532Z"
     },
     {
       "name": "mkt-content-analytics",
@@ -1171,7 +1171,7 @@
       "secrets_optional": [],
       "runtime_dependencies": [],
       "tier": "social-publisher",
-      "last_modified": "2026-05-11T15:43:13.107Z"
+      "last_modified": "2026-05-11T16:55:40.539Z"
     },
     {
       "name": "mkt-longform-article",
@@ -1216,7 +1216,7 @@
       "secrets_optional": [],
       "runtime_dependencies": [],
       "tier": "content-creator",
-      "last_modified": "2026-05-11T15:42:49.863Z"
+      "last_modified": "2026-05-11T16:55:40.539Z"
     },
     {
       "name": "mkt-short-form-posting",
@@ -1263,7 +1263,7 @@
         "WhisperX via tool-transcription"
       ],
       "tier": "social-publisher",
-      "last_modified": "2026-05-11T15:43:39.720Z"
+      "last_modified": "2026-05-11T16:55:40.543Z"
     },
     {
       "name": "mkt-youtube-content-package",
@@ -1309,7 +1309,7 @@
         "HandBrake sau ffmpeg via tool-video-upload"
       ],
       "tier": "social-publisher",
-      "last_modified": "2026-05-11T15:44:15.763Z"
+      "last_modified": "2026-05-11T16:55:40.543Z"
     },
     {
       "name": "meta-skill-creator",
@@ -1353,7 +1353,7 @@
       "secrets_optional": [],
       "runtime_dependencies": [],
       "tier": "core",
-      "last_modified": "2026-05-11T15:52:54.717Z"
+      "last_modified": "2026-05-11T16:55:40.532Z"
     },
     {
       "name": "meta-skill-system-creator",
@@ -1396,7 +1396,7 @@
       "secrets_optional": [],
       "runtime_dependencies": [],
       "tier": "core",
-      "last_modified": "2026-05-11T15:49:27.861Z"
+      "last_modified": "2026-05-11T16:55:40.532Z"
     },
     {
       "name": "mode-anti-dependence",
@@ -1435,7 +1435,7 @@
       "secrets_optional": [],
       "runtime_dependencies": [],
       "tier": "core",
-      "last_modified": "2026-05-11T16:12:32.242Z"
+      "last_modified": "2026-05-11T16:55:40.546Z"
     },
     {
       "name": "mode-facilitator",
@@ -1474,7 +1474,7 @@
       "secrets_optional": [],
       "runtime_dependencies": [],
       "tier": "core",
-      "last_modified": "2026-05-11T16:12:32.502Z"
+      "last_modified": "2026-05-11T16:55:40.546Z"
     },
     {
       "name": "mode-shadow",
@@ -1515,7 +1515,7 @@
       "secrets_optional": [],
       "runtime_dependencies": [],
       "tier": "core",
-      "last_modified": "2026-05-11T16:12:32.764Z"
+      "last_modified": "2026-05-11T16:55:40.546Z"
     },
     {
       "name": "research-competitors",
@@ -1564,7 +1564,7 @@
       "secrets_optional": [],
       "runtime_dependencies": [],
       "tier": "core",
-      "last_modified": "2026-05-11T16:12:33.011Z"
+      "last_modified": "2026-05-11T16:55:40.546Z"
     },
     {
       "name": "research-trending",
@@ -1624,7 +1624,7 @@
         "python: \">=3.11 (optional, doar pentru engagement metrics reale)"
       ],
       "tier": "core",
-      "last_modified": "2026-05-11T15:18:16.158Z"
+      "last_modified": "2026-05-11T16:55:40.546Z"
     },
     {
       "name": "sys-audit",
@@ -1676,7 +1676,7 @@
       "secrets_optional": [],
       "runtime_dependencies": [],
       "tier": "core",
-      "last_modified": "2026-05-11T16:12:33.286Z"
+      "last_modified": "2026-05-11T16:55:40.588Z"
     },
     {
       "name": "sys-capture-note",
@@ -1725,7 +1725,7 @@
       "secrets_optional": [],
       "runtime_dependencies": [],
       "tier": "core",
-      "last_modified": "2026-05-11T16:12:33.599Z"
+      "last_modified": "2026-05-11T16:55:40.588Z"
     },
     {
       "name": "sys-daily-plan",
@@ -1766,7 +1766,7 @@
       "secrets_optional": [],
       "runtime_dependencies": [],
       "tier": "core",
-      "last_modified": "2026-05-11T16:12:33.808Z"
+      "last_modified": "2026-05-11T16:55:40.590Z"
     },
     {
       "name": "sys-goal-breakdown",
@@ -1813,7 +1813,7 @@
       "secrets_optional": [],
       "runtime_dependencies": [],
       "tier": "core",
-      "last_modified": "2026-05-11T16:12:34.039Z"
+      "last_modified": "2026-05-11T16:55:40.591Z"
     },
     {
       "name": "sys-level-up",
@@ -1857,7 +1857,7 @@
       "secrets_optional": [],
       "runtime_dependencies": [],
       "tier": "core",
-      "last_modified": "2026-05-11T16:12:34.239Z"
+      "last_modified": "2026-05-11T16:55:40.591Z"
     },
     {
       "name": "sys-onboard",
@@ -1907,7 +1907,7 @@
       "secrets_optional": [],
       "runtime_dependencies": [],
       "tier": "core",
-      "last_modified": "2026-05-11T16:12:34.353Z"
+      "last_modified": "2026-05-11T16:55:40.591Z"
     },
     {
       "name": "sys-recall",
@@ -1947,7 +1947,7 @@
       "secrets_optional": [],
       "runtime_dependencies": [],
       "tier": "core",
-      "last_modified": "2026-05-11T16:12:34.506Z"
+      "last_modified": "2026-05-11T16:55:40.595Z"
     },
     {
       "name": "sys-session-close",
@@ -1997,7 +1997,7 @@
       "secrets_optional": [],
       "runtime_dependencies": [],
       "tier": "core",
-      "last_modified": "2026-05-11T16:12:34.695Z"
+      "last_modified": "2026-05-11T16:55:40.595Z"
     },
     {
       "name": "sys-session-open",
@@ -2034,7 +2034,7 @@
       "secrets_optional": [],
       "runtime_dependencies": [],
       "tier": "core",
-      "last_modified": "2026-05-11T16:12:34.841Z"
+      "last_modified": "2026-05-11T16:55:40.595Z"
     },
     {
       "name": "sys-skill-builder",
@@ -2079,7 +2079,7 @@
       "secrets_optional": [],
       "runtime_dependencies": [],
       "tier": "core",
-      "last_modified": "2026-05-11T16:12:34.956Z"
+      "last_modified": "2026-05-11T16:55:40.595Z"
     },
     {
       "name": "sys-switch-client",
@@ -2132,7 +2132,7 @@
       "secrets_optional": [],
       "runtime_dependencies": [],
       "tier": "core",
-      "last_modified": "2026-05-11T16:12:35.093Z"
+      "last_modified": "2026-05-11T16:55:40.601Z"
     },
     {
       "name": "tool-fact-checker",
@@ -2178,7 +2178,7 @@
       "secrets_optional": [],
       "runtime_dependencies": [],
       "tier": "core",
-      "last_modified": "2026-05-11T15:23:34.551Z"
+      "last_modified": "2026-05-11T16:55:40.606Z"
     },
     {
       "name": "tool-humanizer",
@@ -2227,7 +2227,7 @@
       "secrets_optional": [],
       "runtime_dependencies": [],
       "tier": "core",
-      "last_modified": "2026-05-11T15:19:45.394Z"
+      "last_modified": "2026-05-11T16:55:40.608Z"
     },
     {
       "name": "tool-linkedin-scraper",
@@ -2275,7 +2275,7 @@
         "uv"
       ],
       "tier": "researcher",
-      "last_modified": "2026-05-11T15:31:12.120Z"
+      "last_modified": "2026-05-11T16:55:40.608Z"
     },
     {
       "name": "tool-pdf-generator",
@@ -2325,7 +2325,7 @@
         "pandoc OR weasyprint (auto-detected)"
       ],
       "tier": "content-creator",
-      "last_modified": "2026-05-11T15:24:47.387Z"
+      "last_modified": "2026-05-11T16:55:40.622Z"
     },
     {
       "name": "tool-publisher",
@@ -2369,7 +2369,7 @@
       "secrets_optional": [],
       "runtime_dependencies": [],
       "tier": "social-publisher",
-      "last_modified": "2026-05-11T15:32:15.931Z"
+      "last_modified": "2026-05-11T16:55:40.630Z"
     },
     {
       "name": "tool-screenshot-annotator",
@@ -2419,7 +2419,7 @@
         "uv"
       ],
       "tier": "content-creator",
-      "last_modified": "2026-05-11T15:30:20.677Z"
+      "last_modified": "2026-05-11T16:55:40.636Z"
     },
     {
       "name": "tool-transcription",
@@ -2472,7 +2472,7 @@
         "WhisperX (auto-download ~1.5GB la primul run)"
       ],
       "tier": "content-creator",
-      "last_modified": "2026-05-11T15:28:28.961Z"
+      "last_modified": "2026-05-11T16:55:40.647Z"
     },
     {
       "name": "tool-video-screenshots",
@@ -2522,7 +2522,7 @@
         "yt-dlp"
       ],
       "tier": "content-creator",
-      "last_modified": "2026-05-11T15:29:50.692Z"
+      "last_modified": "2026-05-11T16:55:40.650Z"
     },
     {
       "name": "tool-video-upload",
@@ -2562,7 +2562,7 @@
         "HandBrake CLI sau FFmpeg"
       ],
       "tier": "social-publisher",
-      "last_modified": "2026-05-11T15:32:40.674Z"
+      "last_modified": "2026-05-11T16:55:40.657Z"
     },
     {
       "name": "tool-web-screenshot",
@@ -2618,7 +2618,7 @@
         "Playwright Chromium (auto-install la primul run)"
       ],
       "tier": "content-creator",
-      "last_modified": "2026-05-11T15:29:04.119Z"
+      "last_modified": "2026-05-11T16:55:40.657Z"
     },
     {
       "name": "tool-youtube",
@@ -2672,7 +2672,7 @@
         "uv"
       ],
       "tier": "content-creator",
-      "last_modified": "2026-05-11T15:26:02.415Z"
+      "last_modified": "2026-05-11T16:55:40.671Z"
     },
     {
       "name": "tool-zernio-social",
@@ -2726,7 +2726,7 @@
       "secrets_optional": [],
       "runtime_dependencies": [],
       "tier": "social-publisher",
-      "last_modified": "2026-05-11T15:33:18.284Z"
+      "last_modified": "2026-05-11T16:55:40.680Z"
     },
     {
       "name": "vid-clip-extractor",
@@ -2775,7 +2775,7 @@
         "OpenCV DNN models (descarcate setup)"
       ],
       "tier": "video-producer",
-      "last_modified": "2026-05-11T15:40:43.538Z"
+      "last_modified": "2026-05-11T16:55:40.685Z"
     },
     {
       "name": "vid-clip-selection",
@@ -2823,7 +2823,7 @@
         "rapidfuzz>=3.0.0"
       ],
       "tier": "video-producer",
-      "last_modified": "2026-05-11T15:40:17.942Z"
+      "last_modified": "2026-05-11T16:55:41.122Z"
     },
     {
       "name": "vid-ffmpeg-edit",
@@ -2873,7 +2873,7 @@
         "ffmpeg"
       ],
       "tier": "video-producer",
-      "last_modified": "2026-05-11T15:41:11.224Z"
+      "last_modified": "2026-05-11T16:55:41.473Z"
     },
     {
       "name": "viz-excalidraw-diagram",
@@ -2923,7 +2923,7 @@
         "Playwright Chromium (auto-install setup.sh)"
       ],
       "tier": "content-creator",
-      "last_modified": "2026-05-11T15:37:40.722Z"
+      "last_modified": "2026-05-11T16:55:41.484Z"
     },
     {
       "name": "viz-frontend-slides",
@@ -2971,7 +2971,7 @@
         "python: optional, doar pentru PPT conversion (python-pptx)"
       ],
       "tier": "content-creator",
-      "last_modified": "2026-05-11T15:36:24.352Z"
+      "last_modified": "2026-05-11T16:55:41.489Z"
     },
     {
       "name": "viz-hyperframes",
@@ -3027,7 +3027,7 @@
         "npx hyperframes (auto-install)"
       ],
       "tier": "video-producer",
-      "last_modified": "2026-05-11T15:38:21.625Z"
+      "last_modified": "2026-05-11T16:55:41.490Z"
     },
     {
       "name": "viz-image-gen",
@@ -3085,7 +3085,7 @@
         "python: \">=3.11"
       ],
       "tier": "content-creator",
-      "last_modified": "2026-05-11T15:57:16.361Z"
+      "last_modified": "2026-05-11T16:55:41.498Z"
     }
   ]
 }
