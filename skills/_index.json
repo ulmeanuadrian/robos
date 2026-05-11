@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-11T15:02:35.908Z",
+  "generated_at": "2026-05-11T15:09:05.872Z",
   "count": 23,
   "by_category": {
     "brand": 3,
@@ -279,6 +279,7 @@
       "modes": [],
       "secrets_required": [],
       "secrets_optional": [],
+      "runtime_dependencies": [],
       "last_modified": "2026-05-05T05:19:36.416Z"
     },
     {
@@ -322,6 +323,7 @@
       "modes": [],
       "secrets_required": [],
       "secrets_optional": [],
+      "runtime_dependencies": [],
       "last_modified": "2026-05-05T05:19:44.258Z"
     },
     {
@@ -367,6 +369,7 @@
       "modes": [],
       "secrets_required": [],
       "secrets_optional": [],
+      "runtime_dependencies": [],
       "last_modified": "2026-05-05T05:18:55.977Z"
     },
     {
@@ -423,6 +426,7 @@
       "concurrency_pattern": "multi-angle-creativity (opt-in only)",
       "secrets_required": [],
       "secrets_optional": [],
+      "runtime_dependencies": [],
       "last_modified": "2026-05-05T20:24:56.319Z"
     },
     {
@@ -482,6 +486,7 @@
       "concurrency_pattern": "multi-angle-creativity (opt-in only)",
       "secrets_required": [],
       "secrets_optional": [],
+      "runtime_dependencies": [],
       "last_modified": "2026-05-05T20:25:04.492Z"
     },
     {
@@ -528,6 +533,7 @@
       "concurrency_pattern": "multi-asset-generation",
       "secrets_required": [],
       "secrets_optional": [],
+      "runtime_dependencies": [],
       "last_modified": "2026-05-05T20:14:32.506Z"
     },
     {
@@ -565,6 +571,7 @@
       "output_discipline": "ask-first-propose-second",
       "secrets_required": [],
       "secrets_optional": [],
+      "runtime_dependencies": [],
       "last_modified": "2026-05-06T05:43:44.133Z"
     },
     {
@@ -602,6 +609,7 @@
       "output_discipline": "question-only",
       "secrets_required": [],
       "secrets_optional": [],
+      "runtime_dependencies": [],
       "last_modified": "2026-05-06T05:43:10.938Z"
     },
     {
@@ -641,6 +649,7 @@
       "output_discipline": "structured-flag-list",
       "secrets_required": [],
       "secrets_optional": [],
+      "runtime_dependencies": [],
       "last_modified": "2026-05-06T05:57:18.892Z"
     },
     {
@@ -688,6 +697,7 @@
         "FIRECRAWL_API_KEY"
       ],
       "secrets_optional": [],
+      "runtime_dependencies": [],
       "last_modified": "2026-05-06T06:39:22.541Z"
     },
     {
@@ -738,6 +748,7 @@
         "XAI_API_KEY",
         "YOUTUBE_API_KEY"
       ],
+      "runtime_dependencies": [],
       "last_modified": "2026-05-06T06:39:10.853Z"
     },
     {
@@ -788,6 +799,7 @@
       "concurrency_pattern": "pillar-fan-out",
       "secrets_required": [],
       "secrets_optional": [],
+      "runtime_dependencies": [],
       "last_modified": "2026-05-05T21:31:34.499Z"
     },
     {
@@ -835,6 +847,7 @@
       "output_discipline": "minimal",
       "secrets_required": [],
       "secrets_optional": [],
+      "runtime_dependencies": [],
       "last_modified": "2026-05-06T08:39:51.941Z"
     },
     {
@@ -874,6 +887,7 @@
       "output_discipline": "encapsulated",
       "secrets_required": [],
       "secrets_optional": [],
+      "runtime_dependencies": [],
       "last_modified": "2026-05-05T19:51:36.761Z"
     },
     {
@@ -919,6 +933,7 @@
       "modes": [],
       "secrets_required": [],
       "secrets_optional": [],
+      "runtime_dependencies": [],
       "last_modified": "2026-05-05T05:19:12.132Z"
     },
     {
@@ -961,6 +976,7 @@
       "concurrency_pattern": "adversarial-synthesis",
       "secrets_required": [],
       "secrets_optional": [],
+      "runtime_dependencies": [],
       "last_modified": "2026-05-05T20:19:12.988Z"
     },
     {
@@ -1009,6 +1025,7 @@
       "concurrency_pattern": "multi-asset-generation (soft-fail variant)",
       "secrets_required": [],
       "secrets_optional": [],
+      "runtime_dependencies": [],
       "last_modified": "2026-05-09T19:15:35.361Z"
     },
     {
@@ -1047,6 +1064,7 @@
       "output_discipline": "minimal",
       "secrets_required": [],
       "secrets_optional": [],
+      "runtime_dependencies": [],
       "last_modified": "2026-05-06T06:21:30.914Z"
     },
     {
@@ -1095,6 +1113,7 @@
       "output_discipline": "encapsulated",
       "secrets_required": [],
       "secrets_optional": [],
+      "runtime_dependencies": [],
       "last_modified": "2026-05-07T13:58:41.914Z"
     },
     {
@@ -1130,6 +1149,7 @@
       "output_discipline": "encapsulated",
       "secrets_required": [],
       "secrets_optional": [],
+      "runtime_dependencies": [],
       "last_modified": "2026-05-05T19:49:41.901Z"
     },
     {
@@ -1173,6 +1193,7 @@
       "modes": [],
       "secrets_required": [],
       "secrets_optional": [],
+      "runtime_dependencies": [],
       "last_modified": "2026-05-05T22:13:58.454Z"
     },
     {
@@ -1224,6 +1245,7 @@
       "output_discipline": "minimal",
       "secrets_required": [],
       "secrets_optional": [],
+      "runtime_dependencies": [],
       "last_modified": "2026-05-08T18:47:18.197Z"
     },
     {
@@ -1266,6 +1288,7 @@
       "modes": [],
       "secrets_required": [],
       "secrets_optional": [],
+      "runtime_dependencies": [],
       "last_modified": "2026-05-05T05:19:21.281Z"
     }
   ]

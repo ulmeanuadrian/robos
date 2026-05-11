@@ -75,9 +75,11 @@ function buildIndex() {
     process.exit(1);
   }
 
+  const strict = process.argv.includes('--strict');
   const entries = readdirSync(SKILLS_DIR, { withFileTypes: true });
   const skills = [];
   const triggerMap = {};
+  const collisions = []; // pentru --strict mode: lista de colizii detectate
 
   for (const entry of entries) {
     if (!entry.isDirectory()) continue;
@@ -92,10 +94,17 @@ function buildIndex() {
       const key = trigger.toLowerCase();
       if (triggerMap[key]) {
         console.warn(`WARN: trigger "${trigger}" este folosit de ${triggerMap[key]} si ${skill.name}`);
+        collisions.push({ trigger, owners: [triggerMap[key], skill.name] });
       } else {
         triggerMap[key] = skill.name;
       }
     }
+  }
+
+  if (strict && collisions.length > 0) {
+    console.error(`\n[FAIL] --strict mode: ${collisions.length} trigger collision(s) detected.`);
+    console.error(`Fix: deduplicate triggers across SKILL.md files, then re-run.`);
+    process.exit(1);
   }
 
   skills.sort((a, b) => {

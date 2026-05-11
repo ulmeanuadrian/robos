@@ -97,6 +97,51 @@ export const PUBLIC_SKILL_FIELDS = [
   'concurrency_pattern',
   'secrets_required',
   'secrets_optional',
+  'runtime_dependencies',
+  'tier',
+];
+
+/**
+ * Categorii valide pentru skill-uri robOS. Folosite de smoke-skills.js pentru
+ * warn (NU fail) cand un skill declara o categorie necunoscuta — toleranta in
+ * timpul portarii, dar visible in CI.
+ *
+ * Categoriile native (v1): brand, content, mode, research, sys, tool.
+ * Categoriile adaugate la migrare (v2, port .claude/skills/):
+ *   - 00:   orchestratori (multi-skill pipeline runners)
+ *   - viz:  vizualizare (slides, diagrame, imagini, motion graphics)
+ *   - vid:  video production (clip extraction, reframing, editing)
+ *   - meta: skill-uri despre skill-uri (creator, system builder)
+ */
+export const VALID_CATEGORIES = [
+  // v1 — robOS native
+  'brand',
+  'content',
+  'mode',
+  'research',
+  'sys',
+  'tool',
+  // v2 — port .claude/skills/
+  '00',
+  'viz',
+  'vid',
+  'meta',
+];
+
+/**
+ * Tier-uri valide pentru tiered onboarding install.
+ *   - core:             instalat default, fara dependencies grele
+ *   - content-creator:  cere Python + ffmpeg + pandoc + Playwright
+ *   - video-producer:   cere Python + OpenCV DNN models + HandBrake + Node hyperframes
+ *   - social-publisher: cere cont Zernio (ZERNIO_API_KEY)
+ *   - researcher:       cere chei API (OPENAI, XAI, FIRECRAWL, APIFY)
+ */
+export const VALID_TIERS = [
+  'core',
+  'content-creator',
+  'video-producer',
+  'social-publisher',
+  'researcher',
 ];
 
 /**
@@ -112,6 +157,7 @@ export function normalizeSkillRecord(fm, fallbackName) {
     'triggers', 'negative_triggers', 'multi_angle_triggers',
     'context_loads', 'inputs', 'outputs', 'modes',
     'secrets_required', 'secrets_optional',
+    'runtime_dependencies',
   ].includes(k);
 
   const record = {
