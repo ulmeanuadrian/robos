@@ -269,12 +269,52 @@ Daca sar peste asta, dupa compactare ma trezesc cu un context gol si operatorul 
 
 ## Core Workflows
 
+### Sesiune zilnica
 - **User nou**: spune "onboard me" sau "ajuta-ma sa incep" -> `sys-onboard`
 - **Dimineata**: spune "plan de zi" sau "plan my day" -> `sys-daily-plan`
 - **Rutina completa**: spune "morning routine" sau "rutina de dimineata" -> compound (vezi mai jos)
 - **Verifica progres**: spune "audit" sau "cum stau" -> `sys-audit` (scor 4C, 0-100)
 - **Gaseste oportunitati**: spune "level up" sau "ce sa automatizez" -> `sys-level-up`
 - **Sfarsit de zi**: spune "gata" sau "done for today" -> `sys-session-close`
+
+### Content & Marketing (tier-uri opt-in la onboarding)
+
+**Core tier (instalat default):**
+- **Articol blog**: "scrie un articol despre X" → `content-blog-post`
+- **Copy LP**: "scrie copy pentru landing page" → `content-copywriting`
+- **Atomic content**: "transforma in social" / "fa posturi din asta" → `content-repurpose`
+- **Voce de brand**: "voce de brand" / "ruleaza playbook voce" → `brand-voice`
+- **Verifica claims**: "fact check" / "verifica claim-urile" → `tool-fact-checker`
+- **Curata AI patterns**: "umanizeaza" → `tool-humanizer`
+
+**Content Creator tier (cere Python + ffmpeg + Playwright):**
+- **YouTube → ebook**: "transforma video in ebook" / "youtube to ebook" → `00-youtube-to-ebook`
+- **Slides**: "creeaza prezentare" / "create slides" → `00-slides`
+- **Social post complet**: "ruleaza social content" / "generate post" → `00-social-content`
+- **Imagine generata**: "genereaza imagine" → `viz-image-gen`
+- **Diagrama**: "excalidraw" / "deseneaza diagrama" → `viz-excalidraw-diagram`
+- **PDF**: "genereaza PDF" → `tool-pdf-generator`
+- **Transcript**: "transcribe acest video" → `tool-transcription`
+- **YouTube transcript**: "transcript de pe youtube" → `tool-youtube`
+- **Screenshot web**: "screenshot site" → `tool-web-screenshot`
+
+**Video Producer tier (cere OpenCV DNN + HandBrake + Node 22+):**
+- **Pipeline shorts**: "pipeline complet video" / "youtube la shorts" → `00-longform-to-shortform`
+- **Selecteaza clipuri**: "selecteaza clipuri" → `vid-clip-selection`
+- **Reframe 9:16**: "reframe video" → `vid-clip-extractor`
+- **Edit clip**: "edit clip" / "adauga subtitrari" → `vid-ffmpeg-edit`
+- **Motion graphics**: "creeaza video motion" / "hyperframes" → `viz-hyperframes`
+
+**Social Publisher tier (cere Zernio cont):**
+- **Publish post**: "publica post" / "publica acum" → `tool-publisher`
+- **YouTube package**: "publica video YouTube" → `mkt-youtube-content-package`
+- **Shorts/Reels**: "posteaza short" / "posteaza reel" → `mkt-short-form-posting`
+- **Analytics**: "verifica analytics" → `mkt-content-analytics`
+
+### Skill management
+- **Creeaza skill nou**: "creeaza skill cu eval" → `meta-skill-creator` (cu evaluation framework)
+- **Skill simplu**: "creeaza un skill" → `sys-skill-builder` (rapid, no evals)
+- **Pachet de skill-uri**: "creeaza system" → `meta-skill-system-creator`
 
 ### Morning Routine (Compound Trigger — model-side)
 
