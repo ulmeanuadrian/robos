@@ -1,0 +1,24 @@
+{
+  "_doc": "Default annotation style. Values here are used unless overridden in the annotation spec. On first run, Claude walks the user through onboarding to set preferences.",
+
+  "onboarded": true,
+
+  "accent_color": "auto",
+  "_accent_color_note": "Set a hex color (#D97757) or 'auto' to pull from brand_context/design-tokens.md. Falls back to #D97757 if no tokens exist.",
+
+  "detail_level": "detailed",
+  "_detail_level_note": "minimal = circles only, no legend. standard = circles + highlight boxes + legend. detailed = circles + boxes + legend + annotate every interactive element from elements.json.",
+
+  "circle_diameter": 44,
+  "border_width": 3,
+  "border_radius": 12,
+
+  "label_style": "inline",
+  "_label_style_note": "legend = numbered key strip below the image. inline = pill-shaped label rendered next to each circle on the image.",
+
+  "legend": true,
+  "_legend_note": "Append a key below the image showing what each numbered circle points to. Only applies when label_style is 'legend'.",
+
+  "legend_position": "bottom",
+  "_legend_position_note": "bottom = strip below image. right = sidebar (not yet implemented)."
+}

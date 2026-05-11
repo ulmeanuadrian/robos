@@ -1,13 +1,13 @@
 {
-  "generated_at": "2026-05-11T15:26:18.124Z",
-  "count": 26,
+  "generated_at": "2026-05-11T15:34:24.339Z",
+  "count": 34,
   "by_category": {
     "brand": 3,
     "content": 3,
     "mode": 3,
     "research": 2,
     "sys": 11,
-    "tool": 4
+    "tool": 12
   },
   "triggers": {
     "audienta": "brand-audience",
@@ -274,6 +274,15 @@
     "remove ai patterns": "tool-humanizer",
     "ai detection": "tool-humanizer",
     "clean up this copy": "tool-humanizer",
+    "scrape linkedin": "tool-linkedin-scraper",
+    "posts de pe linkedin": "tool-linkedin-scraper",
+    "fetch linkedin": "tool-linkedin-scraper",
+    "inspiratie linkedin": "tool-linkedin-scraper",
+    "profile linkedin": "tool-linkedin-scraper",
+    "linkedin posts": "tool-linkedin-scraper",
+    "get linkedin content": "tool-linkedin-scraper",
+    "fetch linkedin profile": "tool-linkedin-scraper",
+    "linkedin inspiration": "tool-linkedin-scraper",
     "genereaza pdf": "tool-pdf-generator",
     "converteste in pdf": "tool-pdf-generator",
     "fa un pdf": "tool-pdf-generator",
@@ -284,6 +293,67 @@
     "make a pdf": "tool-pdf-generator",
     "export as pdf": "tool-pdf-generator",
     "markdown to pdf": "tool-pdf-generator",
+    "publica post": "tool-publisher",
+    "publica acum": "tool-publisher",
+    "vreau sa public": "tool-publisher",
+    "publica asta": "tool-publisher",
+    "post acum": "tool-publisher",
+    "publica draft": "tool-publisher",
+    "post": "tool-publisher",
+    "publish": "tool-publisher",
+    "post now": "tool-publisher",
+    "publish post": "tool-publisher",
+    "publish this": "tool-publisher",
+    "adnoteaza screenshot": "tool-screenshot-annotator",
+    "adauga cercuri numerotate": "tool-screenshot-annotator",
+    "marcheaza zona": "tool-screenshot-annotator",
+    "highlight pe imagine": "tool-screenshot-annotator",
+    "callout-uri pe screenshot": "tool-screenshot-annotator",
+    "label screenshot": "tool-screenshot-annotator",
+    "annotate this screenshot": "tool-screenshot-annotator",
+    "add numbered circles": "tool-screenshot-annotator",
+    "highlight this area": "tool-screenshot-annotator",
+    "mark up this image": "tool-screenshot-annotator",
+    "add callouts to": "tool-screenshot-annotator",
+    "transcribe acest video": "tool-transcription",
+    "transcript video local": "tool-transcription",
+    "transcript fisier": "tool-transcription",
+    "din inregistrarea asta": "tool-transcription",
+    "transcript local": "tool-transcription",
+    "speech to text": "tool-transcription",
+    "video la text": "tool-transcription",
+    "extrage subtitrari": "tool-transcription",
+    "transcribe this file": "tool-transcription",
+    "from this recording": "tool-transcription",
+    "from this file": "tool-transcription",
+    "transcribe": "tool-transcription",
+    "extract captions": "tool-transcription",
+    "screenshot din video": "tool-video-screenshots",
+    "extrage frames": "tool-video-screenshots",
+    "video screenshots": "tool-video-screenshots",
+    "captureaza slide-uri din video": "tool-video-screenshots",
+    "key moments din video": "tool-video-screenshots",
+    "frames din": "tool-video-screenshots",
+    "screenshot from video": "tool-video-screenshots",
+    "extract frames": "tool-video-screenshots",
+    "grab frames from": "tool-video-screenshots",
+    "upload video": "tool-video-upload",
+    "comprima video": "tool-video-upload",
+    "pregateste video pentru youtube": "tool-video-upload",
+    "trimite video la zernio": "tool-video-upload",
+    "compress video": "tool-video-upload",
+    "upload to zernio": "tool-video-upload",
+    "prep video for youtube": "tool-video-upload",
+    "screenshot site": "tool-web-screenshot",
+    "captureaza pagina": "tool-web-screenshot",
+    "fa screenshot la": "tool-web-screenshot",
+    "web screenshot": "tool-web-screenshot",
+    "screenshot url": "tool-web-screenshot",
+    "screenshot acesta": "tool-web-screenshot",
+    "screenshot this website": "tool-web-screenshot",
+    "capture this page": "tool-web-screenshot",
+    "take a screenshot of": "tool-web-screenshot",
+    "grab a screenshot": "tool-web-screenshot",
     "ultimul video youtube": "tool-youtube",
     "transcript de pe youtube": "tool-youtube",
     "youtube transcript": "tool-youtube",
@@ -297,7 +367,24 @@
     "latest youtube video": "tool-youtube",
     "get transcript": "tool-youtube",
     "video metadata": "tool-youtube",
-    "youtube thumbnail": "tool-youtube"
+    "youtube thumbnail": "tool-youtube",
+    "posteaza pe": "tool-zernio-social",
+    "scheduleaza post": "tool-zernio-social",
+    "social media": "tool-zernio-social",
+    "publica pe": "tool-zernio-social",
+    "cross-post": "tool-zernio-social",
+    "publica pe twitter": "tool-zernio-social",
+    "publica pe instagram": "tool-zernio-social",
+    "publica pe linkedin": "tool-zernio-social",
+    "publica pe youtube": "tool-zernio-social",
+    "publica pe tiktok": "tool-zernio-social",
+    "publica pe facebook": "tool-zernio-social",
+    "publica pe threads": "tool-zernio-social",
+    "publica pe bluesky": "tool-zernio-social",
+    "post to": "tool-zernio-social",
+    "schedule post": "tool-zernio-social",
+    "publish to": "tool-zernio-social",
+    "upload to": "tool-zernio-social"
   },
   "skills": [
     {
@@ -1447,6 +1534,54 @@
       "last_modified": "2026-05-11T15:19:45.394Z"
     },
     {
+      "name": "tool-linkedin-scraper",
+      "version": "1.0.1",
+      "category": "tool",
+      "description": "Fetch posts recente din profile LinkedIn via Apify API. Accepta unul sau mai multe URL-uri profil, returneaza fiecare post ca markdown cu frontmatter (author, url, posted_at, likes, text). Seen-file pentru a evita reprocesare cross-run.",
+      "triggers": [
+        "scrape linkedin",
+        "posts de pe linkedin",
+        "fetch linkedin",
+        "inspiratie linkedin",
+        "profile linkedin",
+        "linkedin posts",
+        "get linkedin content",
+        "fetch linkedin profile",
+        "linkedin inspiration"
+      ],
+      "negative_triggers": [
+        "scrie continut",
+        "repurpose",
+        "publica",
+        "post",
+        "publish"
+      ],
+      "multi_angle_triggers": [],
+      "context_loads": [
+        "context/learnings.md (section tool-linkedin-scraper)"
+      ],
+      "inputs": [
+        "profiles (required: comma-separated URL-uri profil LinkedIn)",
+        "max-posts (optional: per profil, default 5)",
+        "days (optional: cat de departe in trecut, default 7)",
+        "seen-file (optional: tracking file pentru deduplicare)"
+      ],
+      "outputs": [
+        "projects/00-social-content/{date}/logs/inspiration/{slug}.md (per post nou)"
+      ],
+      "modes": [],
+      "secrets_required": [
+        "APIFY_API_KEY"
+      ],
+      "secrets_optional": [],
+      "runtime_dependencies": [
+        "python: \">=3.11",
+        "uv"
+      ],
+      "tier": "researcher",
+      "last_modified": "2026-05-11T15:31:12.120Z"
+    },
+    {
       "name": "tool-pdf-generator",
       "version": "1.0.0",
       "category": "tool",
@@ -1495,6 +1630,299 @@
       ],
       "tier": "content-creator",
       "last_modified": "2026-05-11T15:24:47.387Z"
+    },
+    {
+      "name": "tool-publisher",
+      "version": "1.0.1",
+      "category": "tool",
+      "description": "Publica un post social media generat via Zernio MCP. Citeste din projects/00-social-content/{date}/{slug}/, upload imagini via Zernio browser flow, posts_publish_now, update post.yaml + publish-log.md.",
+      "triggers": [
+        "publica post",
+        "publica acum",
+        "vreau sa public",
+        "publica asta",
+        "post acum",
+        "publica draft",
+        "post",
+        "publish",
+        "post now",
+        "publish post",
+        "publish this"
+      ],
+      "negative_triggers": [
+        "scrie post",
+        "creeaza post",
+        "draft post"
+      ],
+      "multi_angle_triggers": [],
+      "context_loads": [
+        "context/learnings.md (section tool-publisher)"
+      ],
+      "inputs": [
+        "slug (optional: match across dates)",
+        "date (optional: combined cu slug pentru exact match)"
+      ],
+      "outputs": [
+        "Update projects/00-social-content/{date}/{slug}/post.yaml (status)",
+        "Append projects/00-social-content/publish-log.md"
+      ],
+      "modes": [],
+      "secrets_required": [
+        "ZERNIO_API_KEY"
+      ],
+      "secrets_optional": [],
+      "runtime_dependencies": [],
+      "tier": "social-publisher",
+      "last_modified": "2026-05-11T15:32:15.931Z"
+    },
+    {
+      "name": "tool-screenshot-annotator",
+      "version": "1.0.0",
+      "category": "tool",
+      "description": "Adnoteaza screenshot-uri cu cercuri numerotate + highlight boxes. Coordonate manuale, elemente din tool-web-screenshot, sau manifest pipeline. Percentage-based positioning + edge clamping. RGBA overlay pe PNG sursa. Auto-pull accent color din brand/design-tokens.md.",
+      "triggers": [
+        "adnoteaza screenshot",
+        "adauga cercuri numerotate",
+        "marcheaza zona",
+        "highlight pe imagine",
+        "callout-uri pe screenshot",
+        "label screenshot",
+        "annotate this screenshot",
+        "add numbered circles",
+        "highlight this area",
+        "mark up this image",
+        "add callouts to"
+      ],
+      "negative_triggers": [
+        "captureaza",
+        "fa screenshot",
+        "generare imagine",
+        "edit imagine cu AI",
+        "capture screenshot",
+        "generate image"
+      ],
+      "multi_angle_triggers": [],
+      "context_loads": [
+        "context/learnings.md (section tool-screenshot-annotator)",
+        "brand/design-tokens.md (pentru accent color \"auto\")",
+        "skills/tool-screenshot-annotator/references/default-config.json (style defaults)"
+      ],
+      "inputs": [
+        "spec (required: path la JSON spec sau JSON inline cu annotations)",
+        "output (optional: path la annotated.png)"
+      ],
+      "outputs": [
+        "projects/tool-screenshot-annotator/{date}/{name}/annotated.png",
+        "manifest.json (cu config_used)"
+      ],
+      "modes": [],
+      "secrets_required": [],
+      "secrets_optional": [],
+      "runtime_dependencies": [
+        "python: \">=3.11",
+        "uv"
+      ],
+      "tier": "content-creator",
+      "last_modified": "2026-05-11T15:30:20.677Z"
+    },
+    {
+      "name": "tool-transcription",
+      "version": "1.1.0",
+      "category": "tool",
+      "description": "Transcribe fisiere video/audio locale cu WhisperX + word-level alignment. 2 moduri output: markdown clean (content pipelines) sau word-level JSON (subtitling, clip selection). Suport MP4, MOV, WebM, MKV, AVI, MP3, WAV, M4A, FLAC, OGG.",
+      "triggers": [
+        "transcribe acest video",
+        "transcript video local",
+        "transcript fisier",
+        "din inregistrarea asta",
+        "transcript local",
+        "speech to text",
+        "video la text",
+        "extrage subtitrari",
+        "transcribe this file",
+        "from this recording",
+        "from this file",
+        "transcribe",
+        "extract captions"
+      ],
+      "negative_triggers": [
+        "youtube",
+        "URL",
+        "site web"
+      ],
+      "multi_angle_triggers": [],
+      "context_loads": [
+        "context/learnings.md (section tool-transcription)"
+      ],
+      "inputs": [
+        "file (required: path absolut sau relativ la video/audio)",
+        "output (optional: markdown | words-json, default markdown)",
+        "model (optional: tiny | base | small | medium | large-v3, default small)",
+        "language (optional: cod limba, default auto-detect)",
+        "device (optional: cpu | cuda, default cpu)",
+        "output-dir (optional: override destinatie)"
+      ],
+      "outputs": [
+        "markdown mode → projects/00-social-content/{date}/logs/inspiration/{slug}.md",
+        "words-json mode → projects/00-longform-to-shortform/{date}/transcripts/{slug}.json"
+      ],
+      "modes": [],
+      "secrets_required": [],
+      "secrets_optional": [],
+      "runtime_dependencies": [
+        "python: \">=3.11",
+        "uv",
+        "ffmpeg",
+        "WhisperX (auto-download ~1.5GB la primul run)"
+      ],
+      "tier": "content-creator",
+      "last_modified": "2026-05-11T15:28:28.961Z"
+    },
+    {
+      "name": "tool-video-screenshots",
+      "version": "1.0.0",
+      "category": "tool",
+      "description": "Extract screenshot-uri inteligente din video-uri YouTube la momente vizuale cheie. 2 moduri: scene-detect (automat via ffmpeg) sau timestamp (lista manuala). Claude review candidates pe baza transcript, alege 2-10 frames + scrie caption-uri.",
+      "triggers": [
+        "screenshot din video",
+        "extrage frames",
+        "video screenshots",
+        "captureaza slide-uri din video",
+        "key moments din video",
+        "frames din",
+        "screenshot from video",
+        "extract frames",
+        "grab frames from"
+      ],
+      "negative_triggers": [
+        "video editing",
+        "clip extraction",
+        "thumbnail",
+        "web screenshot"
+      ],
+      "multi_angle_triggers": [],
+      "context_loads": [
+        "context/learnings.md (section tool-video-screenshots)",
+        "skills/tool-video-screenshots/references/ (frame selection heuristics)"
+      ],
+      "inputs": [
+        "url (required: YouTube URL)",
+        "mode (optional: scene-detect | timestamp, default scene-detect)",
+        "timestamps (timestamp mode: comma-separated \"HH:MM:SS\")",
+        "max-frames (scene-detect: cap pe candidate frames, default 15)",
+        "output-dir (optional: auto)"
+      ],
+      "outputs": [
+        "projects/tool-video-screenshots/{date}/{video-slug}/frames/*.png",
+        "manifest.json (timestamp + frame_path + caption per frame selectat)",
+        "README.md (sumar cu inline frame references)"
+      ],
+      "modes": [],
+      "secrets_required": [],
+      "secrets_optional": [],
+      "runtime_dependencies": [
+        "python: \">=3.11",
+        "ffmpeg",
+        "yt-dlp"
+      ],
+      "tier": "content-creator",
+      "last_modified": "2026-05-11T15:29:50.692Z"
+    },
+    {
+      "name": "tool-video-upload",
+      "version": "1.0.0",
+      "category": "tool",
+      "description": "Compreseaza si upload video-uri pentru publishing YouTube via Zernio. HandBrake CLI + NVENC (rapid pe GPU NVIDIA) sau FFmpeg fallback. Zernio storage limit 500MB. Output: public URL ready pentru mkt-youtube-content-package.",
+      "triggers": [
+        "upload video",
+        "comprima video",
+        "pregateste video pentru youtube",
+        "trimite video la zernio",
+        "compress video",
+        "upload to zernio",
+        "prep video for youtube"
+      ],
+      "negative_triggers": [
+        "scrie continut video",
+        "edit video",
+        "extract clip"
+      ],
+      "multi_angle_triggers": [],
+      "context_loads": [
+        "context/learnings.md (section tool-video-upload)"
+      ],
+      "inputs": [
+        "video_path (required: path local la fisierul video)"
+      ],
+      "outputs": [
+        "Video URL Zernio (public URL ready pentru posting)"
+      ],
+      "modes": [],
+      "secrets_required": [
+        "ZERNIO_API_KEY"
+      ],
+      "secrets_optional": [],
+      "runtime_dependencies": [
+        "HandBrake CLI sau FFmpeg"
+      ],
+      "tier": "social-publisher",
+      "last_modified": "2026-05-11T15:32:40.674Z"
+    },
+    {
+      "name": "tool-web-screenshot",
+      "version": "1.0.0",
+      "category": "tool",
+      "description": "Capture screenshot-uri web cu multi-backend routing. YouTube URLs → thumbnails direct. Pagini simple → ScreenshotOne API (daca cheia exista) cu Playwright fallback. Capturi interactive → Playwright. Suport cookie banner removal, full-page scroll, viewport, enumerate elements.",
+      "triggers": [
+        "screenshot site",
+        "captureaza pagina",
+        "fa screenshot la",
+        "web screenshot",
+        "screenshot URL",
+        "screenshot acesta",
+        "screenshot this website",
+        "capture this page",
+        "take a screenshot of",
+        "grab a screenshot"
+      ],
+      "negative_triggers": [
+        "screenshot din video",
+        "video screenshot",
+        "extract frames",
+        "youtube"
+      ],
+      "multi_angle_triggers": [],
+      "context_loads": [
+        "context/learnings.md (section tool-web-screenshot)",
+        "skills/tool-web-screenshot/references/ (interaction patterns)"
+      ],
+      "inputs": [
+        "url (required: URL de capturat)",
+        "output-dir (optional: auto in projects/tool-web-screenshot/{date}/{slug}/)",
+        "backend (optional: screenshotone | playwright | auto, default auto)",
+        "viewport (optional: dimensions, default 1920x1080)",
+        "actions (optional: JSON array interactiuni)",
+        "enumerate-elements (optional: flag — listeaza elemente interactive)",
+        "block-cookie-banners (optional: flag — inject CSS sa ascunda banners)",
+        "full-page (optional: flag — capture full scrollable)"
+      ],
+      "outputs": [
+        "projects/tool-web-screenshot/{date}/{slug}/screenshot.png",
+        "projects/tool-web-screenshot/{date}/{slug}/manifest.json",
+        "projects/tool-web-screenshot/{date}/{slug}/elements.json (cu --enumerate-elements)"
+      ],
+      "modes": [],
+      "secrets_required": [],
+      "secrets_optional": [
+        "SCREENSHOTONE_API_KEY"
+      ],
+      "runtime_dependencies": [
+        "python: \">=3.11",
+        "uv",
+        "Playwright Chromium (auto-install la primul run)"
+      ],
+      "tier": "content-creator",
+      "last_modified": "2026-05-11T15:29:04.119Z"
     },
     {
       "name": "tool-youtube",
@@ -1549,6 +1977,60 @@
       ],
       "tier": "content-creator",
       "last_modified": "2026-05-11T15:26:02.415Z"
+    },
+    {
+      "name": "tool-zernio-social",
+      "version": "1.0.0",
+      "category": "tool",
+      "description": "Posteaza pe social media via Zernio MCP. 13 platforme: Twitter, Instagram, LinkedIn, TikTok, YouTube, Facebook, Pinterest, Threads, Bluesky, Google Business, Telegram, Snapchat, Reddit. Suport publish now, draft, scheduled.",
+      "triggers": [
+        "posteaza pe",
+        "scheduleaza post",
+        "social media",
+        "publica pe",
+        "cross-post",
+        "publica pe twitter",
+        "publica pe instagram",
+        "publica pe linkedin",
+        "publica pe youtube",
+        "publica pe tiktok",
+        "publica pe facebook",
+        "publica pe threads",
+        "publica pe bluesky",
+        "post to",
+        "schedule post",
+        "publish to",
+        "upload to"
+      ],
+      "negative_triggers": [
+        "scrie continut",
+        "creeaza post",
+        "draft only"
+      ],
+      "multi_angle_triggers": [],
+      "context_loads": [
+        "context/learnings.md (section tool-zernio-social)",
+        "skills/tool-zernio-social/references/api-examples.md (full curl examples)"
+      ],
+      "inputs": [
+        "content (required: text post)",
+        "platform (required: twitter | instagram | linkedin | tiktok | youtube | facebook | threads | bluesky | reddit | pinterest | telegram | snapchat | google-business)",
+        "media_url (optional: imagine sau video)",
+        "schedule (optional: ISO timestamp pentru scheduled)",
+        "draft (optional: flag — salveaza ca draft fara publish)"
+      ],
+      "outputs": [
+        "Post ID + URL (return inline)",
+        "Status update in calling context"
+      ],
+      "modes": [],
+      "secrets_required": [
+        "ZERNIO_API_KEY"
+      ],
+      "secrets_optional": [],
+      "runtime_dependencies": [],
+      "tier": "social-publisher",
+      "last_modified": "2026-05-11T15:33:18.284Z"
     }
   ]
 }
