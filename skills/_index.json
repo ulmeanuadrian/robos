@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-05-11T15:41:27.414Z",
-  "count": 41,
+  "generated_at": "2026-05-11T15:44:29.751Z",
+  "count": 45,
   "by_category": {
     "brand": 3,
-    "content": 3,
+    "content": 7,
     "mode": 3,
     "research": 2,
     "sys": 11,
@@ -88,6 +88,44 @@
     "create social content from": "content-repurpose",
     "schedule across platforms": "content-repurpose",
     "content calendar from this": "content-repurpose",
+    "verifica analytics": "mkt-content-analytics",
+    "review performance post": "mkt-content-analytics",
+    "cum a mers ultimul post": "mkt-content-analytics",
+    "compara posturi": "mkt-content-analytics",
+    "ce functioneaza": "mkt-content-analytics",
+    "analytics youtube": "mkt-content-analytics",
+    "analytics linkedin": "mkt-content-analytics",
+    "improvement suggestions": "mkt-content-analytics",
+    "check analytics": "mkt-content-analytics",
+    "analyze performance": "mkt-content-analytics",
+    "scrie articol din transcript": "mkt-longform-article",
+    "transforma video in long-form": "mkt-longform-article",
+    "editorial din transcript": "mkt-longform-article",
+    "articol magazine-style": "mkt-longform-article",
+    "articol din video": "mkt-longform-article",
+    "feature article": "mkt-longform-article",
+    "write an article from this transcript": "mkt-longform-article",
+    "turn this video into a long-form piece": "mkt-longform-article",
+    "editorial from transcript": "mkt-longform-article",
+    "magazine-style article": "mkt-longform-article",
+    "posteaza short": "mkt-short-form-posting",
+    "posteaza reel": "mkt-short-form-posting",
+    "post shorts": "mkt-short-form-posting",
+    "upload short": "mkt-short-form-posting",
+    "short-form": "mkt-short-form-posting",
+    "reels": "mkt-short-form-posting",
+    "post pe youtube instagram tiktok": "mkt-short-form-posting",
+    "post short": "mkt-short-form-posting",
+    "post reel": "mkt-short-form-posting",
+    "upload reel": "mkt-short-form-posting",
+    "package youtube complet": "mkt-youtube-content-package",
+    "publica video youtube": "mkt-youtube-content-package",
+    "creeaza continut youtube": "mkt-youtube-content-package",
+    "youtube seo": "mkt-youtube-content-package",
+    "title description youtube": "mkt-youtube-content-package",
+    "publish video": "mkt-youtube-content-package",
+    "create youtube content": "mkt-youtube-content-package",
+    "youtube content package": "mkt-youtube-content-package",
     "anti-dependence": "mode-anti-dependence",
     "anti dependence mode": "mode-anti-dependence",
     "ce as face eu intai": "mode-anti-dependence",
@@ -800,6 +838,187 @@
       "runtime_dependencies": [],
       "tier": "core",
       "last_modified": "2026-05-11T15:16:31.144Z"
+    },
+    {
+      "name": "mkt-content-analytics",
+      "version": "1.0.0",
+      "category": "content",
+      "description": "Retrieve si analizeaza performance social media via Zernio MCP. Verifica post performance, ofera improvement suggestions, compara metrici across platforms (YouTube, LinkedIn, Instagram, Twitter).",
+      "triggers": [
+        "verifica analytics",
+        "review performance post",
+        "cum a mers ultimul post",
+        "compara posturi",
+        "ce functioneaza",
+        "analytics youtube",
+        "analytics linkedin",
+        "improvement suggestions",
+        "check analytics",
+        "analyze performance"
+      ],
+      "negative_triggers": [
+        "creeaza post",
+        "publica",
+        "draft"
+      ],
+      "multi_angle_triggers": [],
+      "context_loads": [
+        "context/learnings.md (section mkt-content-analytics)"
+      ],
+      "inputs": [
+        "platform (optional: youtube | linkedin | instagram | twitter | tiktok, default = all)",
+        "limit (optional: numar posts, default 10)",
+        "period (optional: 7d | 30d | 90d, default 30d)"
+      ],
+      "outputs": [
+        "Markdown report (return inline, NU saved file)"
+      ],
+      "modes": [],
+      "secrets_required": [
+        "ZERNIO_API_KEY"
+      ],
+      "secrets_optional": [],
+      "runtime_dependencies": [],
+      "tier": "social-publisher",
+      "last_modified": "2026-05-11T15:43:13.107Z"
+    },
+    {
+      "name": "mkt-longform-article",
+      "version": "1.0.0",
+      "category": "content",
+      "description": "Transforma transcripturi video in articole editoriale long-form magazine-style (2,000-5,000 cuvinte). Writer-ul interpreteaza video pentru cineva care nu l-a vazut: explica jargon inline, adauga editorial framing, conecteaza idei across sections. Triggered de 00-youtube-to-ebook in pipeline mode.",
+      "triggers": [
+        "scrie articol din transcript",
+        "transforma video in long-form",
+        "editorial din transcript",
+        "articol magazine-style",
+        "articol din video",
+        "feature article",
+        "write an article from this transcript",
+        "turn this video into a long-form piece",
+        "editorial from transcript",
+        "magazine-style article"
+      ],
+      "negative_triggers": [
+        "summarize",
+        "social post",
+        "short-form",
+        "thread"
+      ],
+      "multi_angle_triggers": [],
+      "context_loads": [
+        "brand/voice.md (tone only)",
+        "context/learnings.md (section mkt-longform-article)"
+      ],
+      "inputs": [
+        "transcript (required: full text sau path la fisier)",
+        "title (optional: video title pentru context)",
+        "voice_profile_path (optional: brand voice override)",
+        "mode (optional: standalone | pipeline, auto-detectat)"
+      ],
+      "outputs": [
+        "projects/mkt-longform-article/{date}/{title}.md (standalone)",
+        "Markdown content returnat direct (pipeline mode)"
+      ],
+      "modes": [],
+      "secrets_required": [],
+      "secrets_optional": [],
+      "runtime_dependencies": [],
+      "tier": "content-creator",
+      "last_modified": "2026-05-11T15:42:49.863Z"
+    },
+    {
+      "name": "mkt-short-form-posting",
+      "version": "1.0.0",
+      "category": "content",
+      "description": "Posteaza video short-form (Shorts/Reels/TikTok) cu content packages platform-specific. Transcribe video, creeaza titles/descriptions/hashtags tailored per platforma, handle thumbnails, publica via Zernio API. Suport multi-platform single-request.",
+      "triggers": [
+        "posteaza short",
+        "posteaza reel",
+        "post shorts",
+        "upload short",
+        "short-form",
+        "reels",
+        "post pe youtube instagram tiktok",
+        "post short",
+        "post reel",
+        "upload reel"
+      ],
+      "negative_triggers": [
+        "video long-form",
+        "blog article",
+        "thread"
+      ],
+      "multi_angle_triggers": [],
+      "context_loads": [
+        "brand/voice.md (tone only)",
+        "context/learnings.md (section mkt-short-form-posting)"
+      ],
+      "inputs": [
+        "video_path (required: path local video short-form)",
+        "platforms (optional: comma-separated, default \"shorts,reels,tiktok\")",
+        "title_override (optional: skip auto-generated)"
+      ],
+      "outputs": [
+        "Posts publicate pe platforme selectate",
+        "Update logs in projects/00-social-content/"
+      ],
+      "modes": [],
+      "secrets_required": [
+        "ZERNIO_API_KEY"
+      ],
+      "secrets_optional": [],
+      "runtime_dependencies": [
+        "WhisperX via tool-transcription"
+      ],
+      "tier": "social-publisher",
+      "last_modified": "2026-05-11T15:43:39.720Z"
+    },
+    {
+      "name": "mkt-youtube-content-package",
+      "version": "1.0.0",
+      "category": "content",
+      "description": "Creeaza package complet YouTube: title, description, keywords, timestamps, thumbnail concepts, posting via Zernio MCP. Pentru publish video, YouTube SEO, complete content optimization. 10-step workflow cu user approval gate.",
+      "triggers": [
+        "package YouTube complet",
+        "publica video YouTube",
+        "creeaza continut youtube",
+        "youtube SEO",
+        "title description youtube",
+        "publish video",
+        "create YouTube content",
+        "youtube content package"
+      ],
+      "negative_triggers": [
+        "shorts",
+        "reels",
+        "short-form"
+      ],
+      "multi_angle_triggers": [],
+      "context_loads": [
+        "brand/voice.md (tone only)",
+        "context/learnings.md (section mkt-youtube-content-package)"
+      ],
+      "inputs": [
+        "video_path (required: path video original sau Zernio URL daca deja uploaded)",
+        "title_hint (optional: subiect principal)",
+        "target_audience (optional: override din brand/audience.md)"
+      ],
+      "outputs": [
+        "Video publicat pe YouTube via Zernio",
+        "Log in projects/mkt-youtube-content-package/{date}/"
+      ],
+      "modes": [],
+      "secrets_required": [
+        "ZERNIO_API_KEY"
+      ],
+      "secrets_optional": [],
+      "runtime_dependencies": [
+        "WhisperX via tool-transcription",
+        "HandBrake sau ffmpeg via tool-video-upload"
+      ],
+      "tier": "social-publisher",
+      "last_modified": "2026-05-11T15:44:15.763Z"
     },
     {
       "name": "mode-anti-dependence",
