@@ -77,3 +77,9 @@ paperclip/robomarketing/
 
 data/playwright-profile/
 
+
+# vid-* binary models (downloaded by setup-models.sh on video-producer tier install)
+skills/vid-clip-*/lib/**/models/*.caffemodel
+skills/vid-clip-*/lib/**/models/*.task
+skills/vid-clip-*/lib/**/models/*.tflite
+skills/vid-clip-*/lib/**/models/*.onnx
