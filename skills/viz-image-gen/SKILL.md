@@ -21,8 +21,9 @@ triggers:
   - "Gemini image"
 negative_triggers:
   - "excalidraw"
-  - "chart"
-  - "graph"
+  - "creeaza chart"
+  - "bar chart"
+  - "pie chart"
   - "slide deck"
   - "text-only"
 context_loads:

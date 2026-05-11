@@ -1,9 +1,11 @@
 {
-  "generated_at": "2026-05-11T15:44:29.751Z",
-  "count": 45,
+  "generated_at": "2026-05-11T16:01:38.836Z",
+  "count": 51,
   "by_category": {
+    "00": 4,
     "brand": 3,
     "content": 7,
+    "meta": 2,
     "mode": 3,
     "research": 2,
     "sys": 11,
@@ -12,6 +14,59 @@
     "viz": 4
   },
   "triggers": {
+    "pipeline complet video": "00-longform-to-shortform",
+    "youtube la shorts": "00-longform-to-shortform",
+    "long to short": "00-longform-to-shortform",
+    "auto pipeline": "00-longform-to-shortform",
+    "creeaza short-form din video": "00-longform-to-shortform",
+    "transforma video lung in shorts": "00-longform-to-shortform",
+    "full pipeline": "00-longform-to-shortform",
+    "process video": "00-longform-to-shortform",
+    "youtube to shorts": "00-longform-to-shortform",
+    "create short-form content from": "00-longform-to-shortform",
+    "creeaza prezentare": "00-slides",
+    "creeaza slides": "00-slides",
+    "fa un deck": "00-slides",
+    "prezentare despre": "00-slides",
+    "slides pentru": "00-slides",
+    "slide deck": "00-slides",
+    "construieste prezentare": "00-slides",
+    "create a presentation": "00-slides",
+    "create slides": "00-slides",
+    "make a deck": "00-slides",
+    "presentation about": "00-slides",
+    "slides for": "00-slides",
+    "build a presentation": "00-slides",
+    "ruleaza social content": "00-social-content",
+    "genereaza post": "00-social-content",
+    "creeaza post": "00-social-content",
+    "genereaza continut": "00-social-content",
+    "post linkedin": "00-social-content",
+    "post instagram": "00-social-content",
+    "doar imaginile": "00-social-content",
+    "genereaza imagine pentru post": "00-social-content",
+    "foloseste sursele mele": "00-social-content",
+    "din sursele mele": "00-social-content",
+    "genereaza continut linkedin": "00-social-content",
+    "run social content": "00-social-content",
+    "generate post": "00-social-content",
+    "create post": "00-social-content",
+    "generate content": "00-social-content",
+    "use my sources": "00-social-content",
+    "from my sources": "00-social-content",
+    "transforma video in ebook": "00-youtube-to-ebook",
+    "youtube la articol": "00-youtube-to-ebook",
+    "video la pdf": "00-youtube-to-ebook",
+    "youtube la ebook": "00-youtube-to-ebook",
+    "converteste video in long-form": "00-youtube-to-ebook",
+    "articol din youtube": "00-youtube-to-ebook",
+    "turn this video into an ebook": "00-youtube-to-ebook",
+    "youtube to article": "00-youtube-to-ebook",
+    "video to pdf": "00-youtube-to-ebook",
+    "make an ebook from this video": "00-youtube-to-ebook",
+    "youtube to ebook": "00-youtube-to-ebook",
+    "convert video to long-form": "00-youtube-to-ebook",
+    "article from youtube": "00-youtube-to-ebook",
     "audienta": "brand-audience",
     "client ideal": "brand-audience",
     "icp": "brand-audience",
@@ -88,6 +143,27 @@
     "create social content from": "content-repurpose",
     "schedule across platforms": "content-repurpose",
     "content calendar from this": "content-repurpose",
+    "creeaza skill cu eval": "meta-skill-creator",
+    "skill creator cu benchmark": "meta-skill-creator",
+    "build skill": "meta-skill-creator",
+    "improve skill": "meta-skill-creator",
+    "edit skill": "meta-skill-creator",
+    "optimize skill": "meta-skill-creator",
+    "eval skill": "meta-skill-creator",
+    "benchmark skill": "meta-skill-creator",
+    "skill creator": "meta-skill-creator",
+    "create new skill": "meta-skill-creator",
+    "skill from scratch": "meta-skill-creator",
+    "creeaza system": "meta-skill-system-creator",
+    "package skill-urile astea": "meta-skill-system-creator",
+    "build skill system": "meta-skill-system-creator",
+    "transforma in system": "meta-skill-system-creator",
+    "system din skill-uri": "meta-skill-system-creator",
+    "create a system": "meta-skill-system-creator",
+    "package these skills": "meta-skill-system-creator",
+    "build a skill system": "meta-skill-system-creator",
+    "turn this into a system": "meta-skill-system-creator",
+    "system from skills": "meta-skill-system-creator",
     "verifica analytics": "mkt-content-analytics",
     "review performance post": "mkt-content-analytics",
     "cum a mers ultimul post": "mkt-content-analytics",
@@ -509,6 +585,219 @@
     "gemini image": "viz-image-gen"
   },
   "skills": [
+    {
+      "name": "00-longform-to-shortform",
+      "version": "1.0.0",
+      "category": "00",
+      "description": "Pipeline end-to-end automat: YouTube URL → download → transcribe → select clips → reframe (16:9→9:16) → edit (subtitle + illustrations) → render → post. Zero human-in-the-loop default (cu approve gates optionale).",
+      "triggers": [
+        "pipeline complet video",
+        "youtube la shorts",
+        "long to short",
+        "auto pipeline",
+        "creeaza short-form din video",
+        "transforma video lung in shorts",
+        "full pipeline",
+        "process video",
+        "YouTube to shorts",
+        "create short-form content from"
+      ],
+      "negative_triggers": [
+        "blog article",
+        "long-form editorial",
+        "ebook"
+      ],
+      "multi_angle_triggers": [],
+      "context_loads": [
+        "brand/voice.md (tone pentru titles)",
+        "brand/design-tokens.md (highlight color subtitle)",
+        "context/learnings.md (section 00-longform-to-shortform)"
+      ],
+      "inputs": [
+        "youtube_url (required)",
+        "clip_count (optional: default 7)",
+        "duration_range (optional: \"45-90\" sec default)",
+        "layout (optional: split-screen | cursor-track | face-track, default split-screen)",
+        "illustrate (optional: flag, illustrations via viz-image-gen)",
+        "post_mode (optional: skip | draft | auto-post, default skip)"
+      ],
+      "outputs": [
+        "projects/00-longform-to-shortform/{date}/runs/{run-id}/clips/*.mp4 (final clipuri editate)",
+        "projects/00-longform-to-shortform/{date}/runs/{run-id}/pipeline-log.md",
+        "Posts publicate (daca post_mode=auto-post)"
+      ],
+      "modes": [],
+      "secrets_required": [],
+      "secrets_optional": [
+        "YOUTUBE_API_KEY",
+        "GROQ_API_KEY",
+        "ZERNIO_API_KEY"
+      ],
+      "runtime_dependencies": [
+        "python: \">=3.11",
+        "ffmpeg",
+        "uv",
+        "OpenCV DNN models"
+      ],
+      "tier": "video-producer",
+      "last_modified": "2026-05-11T15:47:37.630Z"
+    },
+    {
+      "name": "00-slides",
+      "version": "1.0.0",
+      "category": "00",
+      "description": "Orchestrator end-to-end pentru prezentari: input detection, research, structurare continut, outline approval, render production-quality HTML slides + optional PDF export.",
+      "triggers": [
+        "creeaza prezentare",
+        "creeaza slides",
+        "fa un deck",
+        "prezentare despre",
+        "slides pentru",
+        "slide deck",
+        "construieste prezentare",
+        "create a presentation",
+        "create slides",
+        "make a deck",
+        "presentation about",
+        "slides for",
+        "build a presentation"
+      ],
+      "negative_triggers": [
+        "design slides only",
+        "render existing deck",
+        "research only"
+      ],
+      "multi_angle_triggers": [],
+      "context_loads": [
+        "brand/design-tokens.md (full)",
+        "brand/voice.md (tone only)",
+        "context/learnings.md (section 00-slides)"
+      ],
+      "inputs": [
+        "input (required: topic, outline, transcript, sau path la fisier)",
+        "style (optional: preset sau mood)",
+        "max_slides (optional: cap, default 20)",
+        "pdf (optional: flag pentru PDF export)"
+      ],
+      "outputs": [
+        "projects/00-slides/{date}/{slug}/slides.html",
+        "projects/00-slides/{date}/{slug}/outline.md",
+        "projects/00-slides/{date}/{slug}/slides.pdf (optional)",
+        "projects/00-slides/{date}/logs/pipeline-log.md"
+      ],
+      "modes": [],
+      "secrets_required": [],
+      "secrets_optional": [],
+      "runtime_dependencies": [],
+      "tier": "content-creator",
+      "last_modified": "2026-05-11T15:45:35.174Z"
+    },
+    {
+      "name": "00-social-content",
+      "version": "1.0.1",
+      "category": "00",
+      "description": "Parent orchestrator pentru social content pipeline. 7 scenarii: (A) text → imagine doar; (B) YouTube URL → post + imagini; (C) topic → trending research → post; (D) no input → scrape LinkedIn + YouTube; (E) existing post → repurpose; (F) article/blog URL → screenshot + extract; (G) video/audio local → transcribe → post.",
+      "triggers": [
+        "ruleaza social content",
+        "genereaza post",
+        "creeaza post",
+        "genereaza continut",
+        "post linkedin",
+        "post instagram",
+        "doar imaginile",
+        "genereaza imagine pentru post",
+        "foloseste sursele mele",
+        "din sursele mele",
+        "genereaza continut linkedin",
+        "run social content",
+        "generate post",
+        "create post",
+        "generate content",
+        "use my sources",
+        "from my sources"
+      ],
+      "negative_triggers": [
+        "blog post",
+        "long-form article",
+        "video editing"
+      ],
+      "multi_angle_triggers": [],
+      "context_loads": [
+        "brand/voice.md (full)",
+        "brand/audience.md (full)",
+        "brand/positioning.md (summary)",
+        "context/learnings.md (section 00-social-content)"
+      ],
+      "inputs": [
+        "input (optional: topic / URL / local file path / nothing)",
+        "platform (optional: linkedin | instagram | twitter | tiktok | etc, auto-detected)",
+        "publish (optional: flag → publica imediat dupa generare)"
+      ],
+      "outputs": [
+        "projects/00-social-content/{date}/{slug}/post.yaml",
+        "projects/00-social-content/{date}/{slug}/caption.md",
+        "projects/00-social-content/{date}/{slug}/image.png sau slide-N.png",
+        "projects/00-social-content/{date}/logs/pipeline-log.md",
+        "projects/00-social-content/publish-log.md (aggregat)"
+      ],
+      "modes": [],
+      "secrets_required": [],
+      "secrets_optional": [],
+      "runtime_dependencies": [],
+      "tier": "content-creator",
+      "last_modified": "2026-05-11T15:48:01.171Z"
+    },
+    {
+      "name": "00-youtube-to-ebook",
+      "version": "1.0.0",
+      "category": "00",
+      "description": "Pipeline end-to-end: YouTube URL → PDF editorial long-form fact-checked. Fetch transcript, transforma in articol magazine-style, fact-check claims, pauseaza pentru human review, humanize writing, render PDF clean. 7 faze, 1 human checkpoint.",
+      "triggers": [
+        "transforma video in ebook",
+        "youtube la articol",
+        "video la PDF",
+        "youtube la ebook",
+        "converteste video in long-form",
+        "articol din youtube",
+        "turn this video into an ebook",
+        "youtube to article",
+        "video to PDF",
+        "make an ebook from this video",
+        "youtube to ebook",
+        "convert video to long-form",
+        "article from youtube"
+      ],
+      "negative_triggers": [
+        "short-form",
+        "social post",
+        "video editing"
+      ],
+      "multi_angle_triggers": [],
+      "context_loads": [
+        "brand/voice.md (tone only)",
+        "brand/design-tokens.md (branded PDF mode)",
+        "brand/assets.md (logo + business links, daca branded)",
+        "context/learnings.md (section 00-youtube-to-ebook)"
+      ],
+      "inputs": [
+        "youtube_url (required)",
+        "design (optional: minimal | branded, default minimal)",
+        "screenshots (optional: flag pentru extragere frames vizuale, default on)"
+      ],
+      "outputs": [
+        "projects/00-youtube-to-ebook/{date}/{slug}/{slug}.pdf (final)",
+        "projects/00-youtube-to-ebook/{date}/logs/ (transcript, draft, fact-check, pipeline log)",
+        "Copy PDF la ~/Downloads/{slug}.pdf"
+      ],
+      "modes": [],
+      "secrets_required": [],
+      "secrets_optional": [],
+      "runtime_dependencies": [
+        "python: \">=3.11"
+      ],
+      "tier": "content-creator",
+      "last_modified": "2026-05-11T15:46:10.822Z"
+    },
     {
       "name": "brand-audience",
       "version": "2.0.0",
@@ -1019,6 +1308,93 @@
       ],
       "tier": "social-publisher",
       "last_modified": "2026-05-11T15:44:15.763Z"
+    },
+    {
+      "name": "meta-skill-creator",
+      "version": "1.0.0",
+      "category": "meta",
+      "description": "Creeaza skill-uri noi, modifica si imbunatateste skill-uri existente, masoara performance. Pentru: create skill from scratch, edit/optimize existing, run evals, benchmark cu variance analysis, optimize description pentru triggering accuracy.",
+      "triggers": [
+        "creeaza skill cu eval",
+        "skill creator cu benchmark",
+        "build skill",
+        "improve skill",
+        "edit skill",
+        "optimize skill",
+        "eval skill",
+        "benchmark skill",
+        "skill creator",
+        "create new skill",
+        "skill from scratch"
+      ],
+      "negative_triggers": [
+        "creeaza system",
+        "system package",
+        "PACKAGE.yaml"
+      ],
+      "multi_angle_triggers": [],
+      "context_loads": [
+        "context/learnings.md (section meta-skill-creator)",
+        "skills/_index.json (registry skill-uri existente)"
+      ],
+      "inputs": [
+        "intent (required: ce skill vrei sau ce skill vrei sa modifici)",
+        "mode (optional: create | edit | eval | benchmark | optimize, auto-detectat)"
+      ],
+      "outputs": [
+        "skills/{new-skill-name}/SKILL.md (create mode)",
+        "Update SKILL.md existent (edit mode)",
+        "Eval report (eval/benchmark modes)"
+      ],
+      "modes": [],
+      "secrets_required": [],
+      "secrets_optional": [],
+      "runtime_dependencies": [],
+      "tier": "core",
+      "last_modified": "2026-05-11T15:52:54.717Z"
+    },
+    {
+      "name": "meta-skill-system-creator",
+      "version": "1.0.0",
+      "category": "meta",
+      "description": "Creeaza skill systems — packages multi-skill care lant-uiesc skill-uri in workflows complete. Deep interview, scaneaza skill-uri existente pentru reuse, handle PACKAGE.yaml manifests, install.sh scripts, output directory conventions, template rendering.",
+      "triggers": [
+        "creeaza system",
+        "package skill-urile astea",
+        "build skill system",
+        "transforma in system",
+        "system din skill-uri",
+        "create a system",
+        "package these skills",
+        "build a skill system",
+        "turn this into a system",
+        "system from skills"
+      ],
+      "negative_triggers": [
+        "creeaza skill",
+        "single skill"
+      ],
+      "multi_angle_triggers": [],
+      "context_loads": [
+        "context/learnings.md (section meta-skill-system-creator)",
+        "skills/_index.json (registry skill-uri existente)",
+        "AGENTS.md (System Registry section)"
+      ],
+      "inputs": [
+        "system_intent (required: ce face systemul, ce workflow lant-uieste)"
+      ],
+      "outputs": [
+        "skills/_systems/{system-name}/PACKAGE.yaml",
+        "skills/_systems/{system-name}/install.sh",
+        "skills/_systems/{system-name}/skills/ (skill folders)",
+        "skills/_systems/{system-name}/agents/ (sub-agents)"
+      ],
+      "modes": [],
+      "secrets_required": [],
+      "secrets_optional": [],
+      "runtime_dependencies": [],
+      "tier": "core",
+      "last_modified": "2026-05-11T15:49:27.861Z"
     },
     {
       "name": "mode-anti-dependence",
@@ -2660,8 +3036,9 @@
       ],
       "negative_triggers": [
         "excalidraw",
-        "chart",
-        "graph",
+        "creeaza chart",
+        "bar chart",
+        "pie chart",
         "slide deck",
         "text-only"
       ],
@@ -2691,7 +3068,7 @@
         "python: \">=3.11"
       ],
       "tier": "content-creator",
-      "last_modified": "2026-05-11T15:36:59.583Z"
+      "last_modified": "2026-05-11T15:57:16.361Z"
     }
   ]
 }
