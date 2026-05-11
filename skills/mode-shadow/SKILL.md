@@ -26,6 +26,7 @@ outputs:
   - Lista de 3-7 puncte structurate
   - Fara generare de continut nou
   - Optional: append in context/decision-journal.md daca se rezolva un hallucination
+tier: core
 ---
 
 # Shadow Mode — Verification Gate

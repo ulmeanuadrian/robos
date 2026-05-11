@@ -35,6 +35,7 @@ outputs:
   - context/USER.md, context/priorities.md, connections.md
   - One completed skill run in projects/
   - data/skill-telemetry.ndjson (appended)
+tier: core
 ---
 
 # Step 0: Check if already onboarded

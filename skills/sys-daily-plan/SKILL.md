@@ -26,6 +26,7 @@ inputs:
   - date (optional, defaults to today)
 outputs:
   - Plan zilnic scris in memoria zilei (via sub-agent dupa confirmare)
+tier: core
 ---
 
 # Output Discipline (citeste inainte de a face orice)

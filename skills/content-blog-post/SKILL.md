@@ -43,6 +43,7 @@ outputs:
   - Blog post draft(s) in projects/content-blog-post/
   - SEO metadata
   - data/skill-telemetry.ndjson (appended in mode=options)
+tier: core
 ---
 
 # Output Discipline

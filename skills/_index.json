@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-11T16:10:55.044Z",
+  "generated_at": "2026-05-11T16:15:37.988Z",
   "count": 51,
   "by_category": {
     "00": 4,
@@ -1007,7 +1007,8 @@
       "secrets_required": [],
       "secrets_optional": [],
       "runtime_dependencies": [],
-      "last_modified": "2026-05-05T20:24:56.319Z"
+      "tier": "core",
+      "last_modified": "2026-05-11T16:12:31.747Z"
     },
     {
       "name": "content-copywriting",
@@ -1067,7 +1068,8 @@
       "secrets_required": [],
       "secrets_optional": [],
       "runtime_dependencies": [],
-      "last_modified": "2026-05-05T20:25:04.492Z"
+      "tier": "core",
+      "last_modified": "2026-05-11T16:12:32.071Z"
     },
     {
       "name": "content-repurpose",
@@ -1432,7 +1434,8 @@
       "secrets_required": [],
       "secrets_optional": [],
       "runtime_dependencies": [],
-      "last_modified": "2026-05-06T05:43:44.133Z"
+      "tier": "core",
+      "last_modified": "2026-05-11T16:12:32.242Z"
     },
     {
       "name": "mode-facilitator",
@@ -1470,7 +1473,8 @@
       "secrets_required": [],
       "secrets_optional": [],
       "runtime_dependencies": [],
-      "last_modified": "2026-05-06T05:43:10.938Z"
+      "tier": "core",
+      "last_modified": "2026-05-11T16:12:32.502Z"
     },
     {
       "name": "mode-shadow",
@@ -1510,7 +1514,8 @@
       "secrets_required": [],
       "secrets_optional": [],
       "runtime_dependencies": [],
-      "last_modified": "2026-05-06T05:57:18.892Z"
+      "tier": "core",
+      "last_modified": "2026-05-11T16:12:32.764Z"
     },
     {
       "name": "research-competitors",
@@ -1558,7 +1563,8 @@
       ],
       "secrets_optional": [],
       "runtime_dependencies": [],
-      "last_modified": "2026-05-06T06:39:22.541Z"
+      "tier": "core",
+      "last_modified": "2026-05-11T16:12:33.011Z"
     },
     {
       "name": "research-trending",
@@ -1669,7 +1675,8 @@
       "secrets_required": [],
       "secrets_optional": [],
       "runtime_dependencies": [],
-      "last_modified": "2026-05-05T21:31:34.499Z"
+      "tier": "core",
+      "last_modified": "2026-05-11T16:12:33.286Z"
     },
     {
       "name": "sys-capture-note",
@@ -1717,7 +1724,8 @@
       "secrets_required": [],
       "secrets_optional": [],
       "runtime_dependencies": [],
-      "last_modified": "2026-05-06T08:39:51.941Z"
+      "tier": "core",
+      "last_modified": "2026-05-11T16:12:33.599Z"
     },
     {
       "name": "sys-daily-plan",
@@ -1757,7 +1765,8 @@
       "secrets_required": [],
       "secrets_optional": [],
       "runtime_dependencies": [],
-      "last_modified": "2026-05-05T19:51:36.761Z"
+      "tier": "core",
+      "last_modified": "2026-05-11T16:12:33.808Z"
     },
     {
       "name": "sys-goal-breakdown",
@@ -1803,7 +1812,8 @@
       "secrets_required": [],
       "secrets_optional": [],
       "runtime_dependencies": [],
-      "last_modified": "2026-05-05T05:19:12.132Z"
+      "tier": "core",
+      "last_modified": "2026-05-11T16:12:34.039Z"
     },
     {
       "name": "sys-level-up",
@@ -1846,7 +1856,8 @@
       "secrets_required": [],
       "secrets_optional": [],
       "runtime_dependencies": [],
-      "last_modified": "2026-05-05T20:19:12.988Z"
+      "tier": "core",
+      "last_modified": "2026-05-11T16:12:34.239Z"
     },
     {
       "name": "sys-onboard",
@@ -1895,7 +1906,8 @@
       "secrets_required": [],
       "secrets_optional": [],
       "runtime_dependencies": [],
-      "last_modified": "2026-05-11T16:04:25.501Z"
+      "tier": "core",
+      "last_modified": "2026-05-11T16:12:34.353Z"
     },
     {
       "name": "sys-recall",
@@ -1934,7 +1946,8 @@
       "secrets_required": [],
       "secrets_optional": [],
       "runtime_dependencies": [],
-      "last_modified": "2026-05-06T06:21:30.914Z"
+      "tier": "core",
+      "last_modified": "2026-05-11T16:12:34.506Z"
     },
     {
       "name": "sys-session-close",
@@ -1983,7 +1996,8 @@
       "secrets_required": [],
       "secrets_optional": [],
       "runtime_dependencies": [],
-      "last_modified": "2026-05-07T13:58:41.914Z"
+      "tier": "core",
+      "last_modified": "2026-05-11T16:12:34.695Z"
     },
     {
       "name": "sys-session-open",
@@ -2019,7 +2033,8 @@
       "secrets_required": [],
       "secrets_optional": [],
       "runtime_dependencies": [],
-      "last_modified": "2026-05-05T19:49:41.901Z"
+      "tier": "core",
+      "last_modified": "2026-05-11T16:12:34.841Z"
     },
     {
       "name": "sys-skill-builder",
@@ -2063,7 +2078,8 @@
       "secrets_required": [],
       "secrets_optional": [],
       "runtime_dependencies": [],
-      "last_modified": "2026-05-05T22:13:58.454Z"
+      "tier": "core",
+      "last_modified": "2026-05-11T16:12:34.956Z"
     },
     {
       "name": "sys-switch-client",
@@ -2115,7 +2131,8 @@
       "secrets_required": [],
       "secrets_optional": [],
       "runtime_dependencies": [],
-      "last_modified": "2026-05-08T18:47:18.197Z"
+      "tier": "core",
+      "last_modified": "2026-05-11T16:12:35.093Z"
     },
     {
       "name": "tool-fact-checker",

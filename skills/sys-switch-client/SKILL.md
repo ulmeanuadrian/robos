@@ -39,6 +39,7 @@ outputs:
   - data/active-client.json (set/clear)
   - confirmare scurta catre user
 output_discipline: minimal
+tier: core
 ---
 
 # sys-switch-client

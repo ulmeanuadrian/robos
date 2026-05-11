@@ -32,6 +32,7 @@ outputs:
   - Task list (Level 1)
   - projects/briefs/{slug}/brief.md (Level 2+)
   - projects/briefs/{slug}/.planning/ (Level 3)
+tier: core
 ---
 
 # Step 1: Capture the Goal

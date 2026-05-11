@@ -30,6 +30,7 @@ outputs:
   - skills/{skill-name}/SKILL.md
   - skills/{skill-name}/references/ (if reference materials provided)
   - Updated skills/_catalog/catalog.json
+tier: core
 ---
 
 # Step 1: Gather Requirements
