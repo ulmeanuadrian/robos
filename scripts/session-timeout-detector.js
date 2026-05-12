@@ -213,8 +213,23 @@ async function main() {
     // keeps disk bounded without a separate cleanup job.
     // SCA-5 fix (2026-05-10): also prune cron/logs/ (>14 days). Cron writes
     // ~96 logs/day across all jobs; without retention these grow unbounded.
+    // S23 fix (2026-05-12 codex audit MAJOR): predicate now reads each
+    // recovery JSON and only prunes files with consumed:true. Previously the
+    // 7-day age check applied regardless of consumed state, so an operator
+    // returning after >7 days silently lost unconsumed recovery flags and
+    // startup could no longer surface their abandoned sessions.
     const ssPrune = pruneDirByAge(STATE_DIR, 30);
-    const recPrune = pruneDirByAge(RECOVERY_DIR, 7);
+    const recPrune = pruneDirByAge(RECOVERY_DIR, 7, {
+      predicate: (name) => {
+        if (!name.endsWith('.json')) return false;
+        try {
+          const data = JSON.parse(readFileSync(join(RECOVERY_DIR, name), 'utf-8'));
+          return data && data.consumed === true;
+        } catch {
+          return false; // corrupt → keep, manual review
+        }
+      },
+    });
     const cronLogsDir = join(ROBOS_ROOT, 'cron', 'logs');
     const cronPrune = pruneDirByAge(cronLogsDir, 14, {
       predicate: (name) => name.endsWith('.log'),

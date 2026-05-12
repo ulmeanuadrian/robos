@@ -4,7 +4,7 @@
 // Instaleaza un skill din skills/_catalog/{name}/ in skills/{name}/.
 // Replaces add-skill.sh. Same logic, runs on Windows + Mac.
 
-import { existsSync, readdirSync, readFileSync, cpSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, cpSync, rmSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
@@ -96,15 +96,28 @@ if (existsSync(SKILL_DST)) {
 
 // Copy skill recursively
 cpSync(SKILL_SRC, SKILL_DST, { recursive: true });
-console.log(`[OK] Instalat: ${SKILL_NAME}`);
+console.log(`[OK] Copiat pe disk: ${SKILL_NAME}`);
 
 // Regenerate index
 const rebuildResult = spawnSync(process.execPath, [join(ROBOS_ROOT, 'scripts', 'rebuild-index.js')], {
   cwd: ROBOS_ROOT,
   stdio: 'inherit',
 });
+
+// S25 fix (2026-05-12 codex audit BLOCKER): if rebuild esueaza dupa cpSync,
+// rollback folderul. Altfel ramane drift intre skills/ pe disk si _index.json
+// (invariant "Skill registry sync" rupt — dashboard si router vad realitati
+// diferite). Folder-ul tocmai a fost copiat din catalog; nimic user-edited
+// inca, rollback-ul e safe.
 if (rebuildResult.status !== 0) {
-  console.error('AVERTISMENT: rebuild-index.js a esuat. Reruleaza manual.');
+  console.error('EROARE: rebuild-index.js a esuat. Rollback: scot folderul instalat.');
+  try {
+    rmSync(SKILL_DST, { recursive: true, force: true });
+    console.error(`[ROLLBACK] Scos: ${SKILL_DST}`);
+  } catch (e) {
+    console.error(`[ATENTIE] Rollback partial — sterge manual ${SKILL_DST}: ${e.message}`);
+  }
+  process.exit(1);
 }
 
 console.log('');

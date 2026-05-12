@@ -280,12 +280,18 @@ async function handleApi(req, res, pathname, query) {
     }
     const memoryMatch = pathname.match(/^\/api\/system\/memory\/(\d{4}-\d{2}-\d{2})$/);
     if (memoryMatch && method === 'GET') {
-      const data = getMemoryFile(memoryMatch[1]);
+      // S21 fix: scope passed as query param so the UI can request a specific
+      // workspace and echo it back on save without depending on the active
+      // client (which may have changed in another tab).
+      const data = getMemoryFile(memoryMatch[1], { scope: query.scope });
       return data ? json(res, data) : error(res, 'Not found', 404);
     }
     if (memoryMatch && method === 'PUT') {
       const body = await readBody(req);
-      return json(res, saveMemoryFile(memoryMatch[1], body.content || ''));
+      return json(res, saveMemoryFile(memoryMatch[1], body.content || '', {
+        scope: body.scope,
+        ifMatch: body.ifMatch,
+      }));
     }
     if (pathname === '/api/system/learnings' && method === 'GET') {
       return json(res, getLearnings());

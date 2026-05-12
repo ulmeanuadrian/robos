@@ -121,6 +121,17 @@ export function listFiles() {
  */
 export function readFile(relPath) {
   const normalized = relPath.replace(/^\/+/, '');
+
+  // S20 fix (BLOCKER from 2026-05-12 codex audit): reject any path containing
+  // .. segments before canonicalization. Previously the deny-list was applied
+  // to raw `normalized` (which kept `..` literally), so `brand/../.env`
+  // canonicalized to `.env`, bypassed the prefix check, and leaked secrets.
+  // Defense-in-depth: refuse traversal at parse time AND apply deny-list to
+  // the canonical `rel` below.
+  if (/(^|[\/\\])\.\.([\/\\]|$)/.test(normalized)) {
+    return null;
+  }
+
   const fullPath = resolve(workspaceRoot, normalized);
   const rel = relative(workspaceRoot, fullPath);
 
@@ -129,8 +140,9 @@ export function readFile(relPath) {
     return null;
   }
 
-  // Security: deny credential / runtime-state paths even inside workspace
-  if (isDenied(normalized)) {
+  // Security: deny credential / runtime-state paths even inside workspace.
+  // S20 fix: apply to canonical `rel`, not raw `normalized`.
+  if (isDenied(rel)) {
     return null;
   }
 

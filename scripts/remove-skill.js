@@ -78,8 +78,19 @@ async function main() {
     cwd: ROBOS_ROOT,
     stdio: 'inherit',
   });
+
+  // S25 fix (2026-05-12 codex audit BLOCKER): rebuild esuat dupa rmSync ar
+  // lasa _index.json sa liste-uiasca un skill care nu mai exista pe disk
+  // (invariant "Skill registry sync" rupt). Folder-ul e deja sters — nu mai
+  // putem face rollback simetric ca la add-skill; in schimb ne asiguram ca
+  // exit-ul e non-zero ca scripturile parinti sa detecteze esecul si ca
+  // operatorul ramane cu un index stale dar cu un semnal clar de "trebuie
+  // re-rulat manual".
   if (rebuildResult.status !== 0) {
-    console.error('AVERTISMENT: rebuild-index.js a esuat. Reruleaza manual.');
+    console.error('EROARE: rebuild-index.js a esuat dupa stergere.');
+    console.error(`Indexul (skills/_index.json) inca listeaza ${SKILL_NAME}.`);
+    console.error('Re-ruleaza: node scripts/rebuild-index.js');
+    process.exit(1);
   }
 }
 

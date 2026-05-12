@@ -215,6 +215,16 @@ export function setEnv(payload) {
   // others, and always cleans up the tmp file.
   atomicWrite(ENV_PATH, rendered + (needsTrailingNewline ? '\n' : ''), { mode: 0o600 });
 
+  // S27 fix (2026-05-12 codex audit MAJOR): refresh process.env in-memory
+  // so subsequent runSkill() spawns see the new values without server
+  // restart. Previously the server loaded .env once at startup and skill
+  // spawns inherited that stale snapshot — UI showed "key set" but skill
+  // failed with "key unset". We only mirror keys we know we just wrote
+  // (validated above), so no risk of accepting unvalidated input.
+  for (const u of updates) {
+    process.env[u.key] = u.value;
+  }
+
   return { ok: true, updated: updates.map(u => u.key) };
 }
 

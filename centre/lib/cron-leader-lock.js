@@ -13,7 +13,7 @@
 //
 // Atomicity: write with flag 'wx' (fail if exists). On race lose, recheck staleness.
 
-import { existsSync, readFileSync, unlinkSync, mkdirSync } from 'node:fs';
+import { existsSync, readFileSync, unlinkSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { hostname } from 'node:os';
 import { dataDir } from './config.js';
@@ -39,7 +39,34 @@ function readLock() {
   }
 }
 
-function writeLock(payload) {
+/**
+ * Exclusive create. Returns true if WE created the file, false if it already
+ * existed. Used for INITIAL acquire — guarantees only one of N racing
+ * processes becomes leader.
+ *
+ * S28 fix (2026-05-12 codex audit BLOCKER): previous `writeLock` always used
+ * atomicWrite (temp+rename, NOT exclusive). Two processes could both create
+ * different temp files and both rename over the target — both believed they
+ * were leader, ran cron jobs in parallel, produced duplicate side effects.
+ * `wx` flag is atomic at the OS level (POSIX O_CREAT|O_EXCL, Windows
+ * CREATE_NEW) so exactly one writer wins the race.
+ */
+function writeLockExclusive(payload) {
+  try {
+    writeFileSync(LOCK_PATH, JSON.stringify(payload, null, 2), { flag: 'wx' });
+    return true;
+  } catch (e) {
+    if (e.code === 'EEXIST') return false;
+    throw e;
+  }
+}
+
+/**
+ * Update an existing lock we already own (heartbeat path). Uses atomic
+ * temp+rename — crash mid-write can't leave an empty/corrupt lock. Safe
+ * because at heartbeat time we've already proven we're the leader.
+ */
+function writeLockHeartbeat(payload) {
   // F14 fix: atomic write — heartbeat updates are now safe under crash. Previous
   // plain writeFileSync left the lock file empty/corrupt if the process crashed
   // mid-write, allowing two leaders briefly. atomicWrite uses temp+rename with
@@ -84,9 +111,12 @@ export function tryAcquire() {
     return false;
   }
 
-  // No lock OR stale OR dead PID → take over
+  // Stale or dead — best-effort unlink so exclusive create below can succeed.
+  // If unlink fails or another process unlinked first, that's fine — the wx
+  // gate below is the real arbiter.
   if (existing) {
     console.log(`[cron-lock] preluare: lock vechi PID ${existing.pid} (${isStale(existing) ? 'heartbeat stale' : 'proces mort'})`);
+    try { unlinkSync(LOCK_PATH); } catch { /* may already be gone */ }
   }
 
   const payload = {
@@ -96,10 +126,33 @@ export function tryAcquire() {
     last_heartbeat: Date.now(),
   };
 
+  // S28 fix: exclusive-create with 'wx'. If another process beat us between
+  // our staleness check and this write, the OS rejects us atomically — we
+  // return false and let them be leader. NO race window where two processes
+  // both believe they hold the lock.
+  let acquired;
   try {
-    writeLock(payload);
+    acquired = writeLockExclusive(payload);
   } catch (e) {
     console.warn(`[cron-lock] nu pot scrie lock-ul: ${e.message}`);
+    return false;
+  }
+
+  if (!acquired) {
+    // EEXIST — someone else won the race. Re-read so caller knows who.
+    const winner = readLock();
+    if (winner) {
+      console.log(`[cron-lock] race pierdut catre PID ${winner.pid} — raman pasiv`);
+    }
+    return false;
+  }
+
+  // Defense-in-depth: re-read to verify we still own the lock. If another
+  // process unlinked + recreated in the microsecond window after our wx,
+  // this catches it before we declare leadership.
+  const verify = readLock();
+  if (!verify || verify.pid !== process.pid) {
+    console.warn('[cron-lock] verify a esuat — lock-ul nu mai e al nostru');
     return false;
   }
 
@@ -126,7 +179,7 @@ function startHeartbeat() {
         return;
       }
       lock.last_heartbeat = Date.now();
-      writeLock(lock);
+      writeLockHeartbeat(lock);
     } catch (e) {
       console.warn(`[cron-lock] heartbeat fail: ${e.message}`);
     }

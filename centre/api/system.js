@@ -2,8 +2,9 @@ import { readFileSync, writeFileSync, existsSync, readdirSync, mkdirSync, statSy
 import { join, resolve, relative } from 'path';
 import { spawn } from 'child_process';
 import { workspaceRoot } from '../lib/config.js';
-import { getMemoryDir, getActiveClient, resolveContextPath } from '../../scripts/lib/client-context.js';
+import { getMemoryDir, getActiveClient, resolveContextPath, isValidSlug, getClientsDir, getRobosRoot } from '../../scripts/lib/client-context.js';
 import { validateRunSkillArgs } from '../../scripts/lib/args-validator.js';
+import { atomicWrite } from '../../scripts/lib/atomic-write.js';
 
 // Activity/audit/timeout/learnings-aggregate logs stay GLOBAL — cross-client
 // visibility is useful (the operator audits one disk regardless of which client
@@ -20,6 +21,33 @@ function memoryDir() {
 }
 function learningsFile() {
   return resolveContextPath('context/learnings.md');
+}
+
+/**
+ * Resolve memory dir for an explicit scope (overrides current active client).
+ * S21 fix: callers that read a memory file from scope X must write back to
+ * scope X regardless of whether the active client changed between read and
+ * write. Without this, switching client mid-edit silently re-routed saves to
+ * the wrong workspace.
+ *
+ * @param {'root' | string} scope - 'root', null/undefined (use active), or a client slug.
+ * @returns {string} absolute memory dir
+ */
+function memoryDirForScope(scope) {
+  if (scope === null || scope === undefined) return memoryDir();
+  if (scope === 'root') return join(getRobosRoot(), 'context', 'memory');
+  if (typeof scope !== 'string' || !isValidSlug(scope)) {
+    const err = new Error(`Invalid scope: "${scope}" (use "root" or a valid client slug)`);
+    err.statusCode = 400;
+    throw err;
+  }
+  const clientDir = join(getClientsDir(), scope);
+  if (!existsSync(clientDir)) {
+    const err = new Error(`Client "${scope}" not found`);
+    err.statusCode = 404;
+    throw err;
+  }
+  return join(clientDir, 'context', 'memory');
 }
 
 /**
@@ -94,26 +122,48 @@ export function listMemory() {
 
 /**
  * GET /api/system/memory/:date — read a memory file.
+ *
+ * @param {string} date - YYYY-MM-DD
+ * @param {object} [opts]
+ * @param {'root' | string} [opts.scope] - explicit workspace scope (else active).
  */
-export function getMemoryFile(date) {
+export function getMemoryFile(date, opts = {}) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
     const err = new Error('Invalid date format (expected YYYY-MM-DD)');
     err.statusCode = 400;
     throw err;
   }
-  const path = join(memoryDir(), `${date}.md`);
+  const dir = memoryDirForScope(opts.scope);
+  const path = join(dir, `${date}.md`);
   if (!existsSync(path)) return null;
+  const stat = statSync(path);
   return {
     date,
     content: readFileSync(path, 'utf-8'),
+    // S21 fix: return mtime so the UI can echo it back in If-Match on save.
+    // Together with scope, this gives optimistic concurrency + scope-correct
+    // writes even when the active client changed between read and save.
+    mtime: stat.mtime.toISOString(),
+    scope: opts.scope || (getActiveClient()?.slug || 'root'),
   };
 }
 
 /**
  * PUT /api/system/memory/:date — write a memory file.
  * Safety: rejects writes outside memoryDir(); preserves backup of previous version.
+ *
+ * @param {string} date - YYYY-MM-DD
+ * @param {string} content - markdown body
+ * @param {object} [opts]
+ * @param {'root' | string} [opts.scope] - explicit workspace scope. If passed,
+ *   write goes to this scope (S21 fix: prevents cross-client contamination
+ *   when active client changes between client reads and tab saves). If null/
+ *   omitted, uses current active client.
+ * @param {string} [opts.ifMatch] - optional ISO mtime previously read. If
+ *   provided and the file on disk has a different mtime, the write is rejected
+ *   with statusCode 409 (optimistic concurrency).
  */
-export function saveMemoryFile(date, content) {
+export function saveMemoryFile(date, content, opts = {}) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
     const err = new Error('Invalid date format (expected YYYY-MM-DD)');
     err.statusCode = 400;
@@ -130,15 +180,29 @@ export function saveMemoryFile(date, content) {
     throw err;
   }
 
-  if (!existsSync(memoryDir())) mkdirSync(memoryDir(), { recursive: true });
-  const path = join(memoryDir(), `${date}.md`);
+  const dir = memoryDirForScope(opts.scope);
+  if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
+  const path = join(dir, `${date}.md`);
 
-  // Verify path stays within memoryDir() (paranoia check)
-  const rel = relative(memoryDir(), resolve(path));
+  // Verify path stays within dir (paranoia check)
+  const rel = relative(dir, resolve(path));
   if (rel.startsWith('..') || rel.includes(':')) {
     const err = new Error('path escape detected');
     err.statusCode = 400;
     throw err;
+  }
+
+  // Optimistic concurrency: caller may pass If-Match (the mtime they saw when
+  // they read). If file changed since then, reject with 409 so the UI can
+  // refresh + merge instead of silently overwriting.
+  if (opts.ifMatch && existsSync(path)) {
+    const currentMtime = statSync(path).mtime.toISOString();
+    if (currentMtime !== opts.ifMatch) {
+      const err = new Error('Memory file changed since you read it. Refresh and retry.');
+      err.statusCode = 409;
+      err.current_mtime = currentMtime;
+      throw err;
+    }
   }
 
   // Backup if file exists
@@ -149,7 +213,11 @@ export function saveMemoryFile(date, content) {
     writeFileSync(join(backupDir, `${date}-${ts}.md`), readFileSync(path, 'utf-8'));
   }
 
-  writeFileSync(path, content, 'utf-8');
+  // S22 fix (BLOCKER from 2026-05-12 codex audit): atomic write so a crash
+  // mid-write cannot leave a partial memory file. atomicWrite uses temp+rename
+  // with random suffix + Windows EBUSY retry. Backup above remains a plain
+  // write — backup filename is unique per timestamp, no race possible.
+  atomicWrite(path, content, { encoding: 'utf-8' });
   return { date, bytes: content.length, saved_at: new Date().toISOString() };
 }
 

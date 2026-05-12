@@ -17,18 +17,18 @@
 //
 // Exit codes: 0 = success, 1 = error (printed to stderr).
 
-import { readFileSync, writeFileSync, existsSync, renameSync, copyFileSync } from 'fs';
+import { readFileSync, writeFileSync, existsSync, copyFileSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { randomBytes } from 'crypto';
 import { parseEnv, parseEnvFile, renderEnv } from './lib/env-format.js';
+import { atomicWrite } from './lib/atomic-write.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
 const EXAMPLE_PATH = join(ROOT, '.env.example');
 const ENV_PATH = join(ROOT, '.env');
 const ENV_BAK_PATH = join(ROOT, '.env.bak');
-const ENV_TMP_PATH = join(ROOT, '.env.tmp');
 const REQUIRED_SECRETS_PATH = join(ROOT, 'data', 'required-secrets.json');
 
 const TOKEN_KEY = 'ROBOS_DASHBOARD_TOKEN';
@@ -52,10 +52,11 @@ function readSkillSecrets() {
   }
 }
 
-function atomicWrite(targetPath, content) {
-  writeFileSync(ENV_TMP_PATH, content, { encoding: 'utf-8', mode: 0o600 });
-  renameSync(ENV_TMP_PATH, targetPath);
-}
+// S26 fix (2026-05-12 codex audit MAJOR): removed local atomicWrite that used
+// a global fixed `.env.tmp` path. Two concurrent setup-env.js runs would race
+// on the same temp file (one renaming the other's tmp, or one finding the
+// tmp gone). Now we use scripts/lib/atomic-write.js which generates a unique
+// `.env.<random>.tmp` per write and cleans up on failure.
 
 function main() {
   if (!existsSync(EXAMPLE_PATH)) {
@@ -126,7 +127,7 @@ function main() {
 
     // If we mutated tokenEntry in-place AND it was in envParsed, render handles it.
     // If tokenEntry came from newLines, it's already in entries (we just appended it).
-    atomicWrite(ENV_PATH, renderEnv(entries) + '\n');
+    atomicWrite(ENV_PATH, renderEnv(entries) + '\n', { mode: 0o600 });
   }
 
   // F8 fix: detect orphan keys in .env that are NOT in .env.example AND NOT

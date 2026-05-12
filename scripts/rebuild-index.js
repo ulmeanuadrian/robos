@@ -15,6 +15,20 @@ import { fileURLToPath } from 'url';
 import { parseFrontmatter, normalizeSkillRecord } from './lib/skill-frontmatter.js';
 import { atomicWrite } from './lib/atomic-write.js';
 
+/**
+ * S24 fix: write only if content differs. Combined with byte-stable payload
+ * (no generated_at), this makes rebuild-index idempotent for unchanged input.
+ */
+function writeIfChanged(targetPath, content) {
+  if (existsSync(targetPath)) {
+    try {
+      const current = readFileSync(targetPath, 'utf-8');
+      if (current === content) return; // no-op
+    } catch { /* fall through to write */ }
+  }
+  atomicWrite(targetPath, content);
+}
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const ROBOS_ROOT = join(__dirname, '..');
@@ -112,8 +126,12 @@ function buildIndex() {
     return a.name.localeCompare(b.name);
   });
 
+  // S24 fix (2026-05-12 codex audit MINOR): no `generated_at` timestamp in
+  // _index.json or required-secrets.json. Previously every rebuild rewrote
+  // the file with a new timestamp even when skill content didn't change,
+  // producing spurious git diffs and confusing change-detection tooling.
+  // Skill order + content are now the only inputs; outputs are byte-stable.
   const index = {
-    generated_at: new Date().toISOString(),
     count: skills.length,
     by_category: skills.reduce((acc, s) => {
       acc[s.category] = (acc[s.category] || 0) + 1;
@@ -125,7 +143,9 @@ function buildIndex() {
 
   // Atomic write via shared lib (handles Windows EBUSY/EPERM retry +
   // tmp cleanup + random hex suffix to avoid concurrent-rotation races).
-  atomicWrite(INDEX_FILE, JSON.stringify(index, null, 2) + '\n');
+  // Only write if content changed — short-circuits the rare-but-possible
+  // race where two rebuilds run back-to-back, one being already-correct.
+  writeIfChanged(INDEX_FILE, JSON.stringify(index, null, 2) + '\n');
   console.log(`[OK] skills/_index.json regenerat: ${skills.length} skills, ${Object.keys(triggerMap).length} triggers`);
 
   // Surface catalog orphans (DOC-3): catalog entries with no source AND not
@@ -170,14 +190,14 @@ function buildRequiredSecrets(skills) {
     meta.optional_for.sort();
   }
 
+  // S24 fix: no generated_at — byte-stable output, no churn on re-runs.
   const payload = {
-    generated_at: new Date().toISOString(),
     keys: Object.keys(byKey).sort(),
     by_key: byKey,
   };
 
-  // Atomic write via shared lib.
-  atomicWrite(REQUIRED_SECRETS_FILE, JSON.stringify(payload, null, 2) + '\n');
+  // Atomic write via shared lib, conditional on content change.
+  writeIfChanged(REQUIRED_SECRETS_FILE, JSON.stringify(payload, null, 2) + '\n');
   console.log(`[OK] data/required-secrets.json regenerat: ${payload.keys.length} key-uri din skills`);
 }
 

@@ -64,9 +64,11 @@ function makeTmpRoot() {
 }
 
 function copyScriptDeps(tmpRoot) {
-  // setup-env.js depends on lib/env-format.js — copy both.
+  // setup-env.js depends on lib/env-format.js + lib/atomic-write.js (S26 fix
+  // routes through shared atomicWrite). Copy all three.
   copyFileSync(join(ROBOS_ROOT, 'scripts', 'setup-env.js'), join(tmpRoot, 'scripts', 'setup-env.js'));
   copyFileSync(join(ROBOS_ROOT, 'scripts', 'lib', 'env-format.js'), join(tmpRoot, 'scripts', 'lib', 'env-format.js'));
+  copyFileSync(join(ROBOS_ROOT, 'scripts', 'lib', 'atomic-write.js'), join(tmpRoot, 'scripts', 'lib', 'atomic-write.js'));
 }
 
 function runScript(tmpRoot, scriptRel) {
