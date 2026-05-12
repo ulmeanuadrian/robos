@@ -33,6 +33,7 @@ import https from 'node:https';
 
 import * as state from './lib/launcher-state.js';
 import { PROTECTED_PATHS, isProtected } from './lib/protected-paths.js';
+import { checkLicenseAndIntegrity } from './lib/license-validator.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
@@ -251,6 +252,13 @@ async function restartDashboard() {
 // Main
 // ----------------------------------------------------------------------------
 async function main() {
+  // License + integrity gate — update-ul cere licenta valida + arhiva netampered.
+  // Vezi scripts/lib/license-validator.js.
+  const __gate = await checkLicenseAndIntegrity(ROOT);
+  if (!__gate.ok) {
+    fail(__gate.message);
+  }
+
   const localV = readVersion();
   info(`Verific versiune curenta vs server (local: ${localV})`);
 

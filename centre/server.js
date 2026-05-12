@@ -21,11 +21,13 @@ import { getSkillStats, getCostBreakdown, getQualityStats } from './api/analytic
 import { closeDb } from './lib/db.js';
 import { startScheduler, stopScheduler } from './lib/cron-scheduler.js';
 import { checkBearer, getAuthToken } from './lib/auth.js';
+import { checkLicenseAndIntegrity } from '../scripts/lib/license-validator.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const DIST_DIR = join(__dirname, 'dist');
 const PORT = parseInt(process.env.PORT || '3001', 10);
+const ROBOS_ROOT = join(__dirname, '..');
 
 const MIME_TYPES = {
   '.html': 'text/html',
@@ -417,6 +419,14 @@ async function handler(req, res) {
   }
 
   error(res, 'Not found. Run "npm run build" first.', 404);
+}
+
+// License + integrity gate — refuza sa porneasca daca robOS e tampered
+// sau licenta nu e valida. Vezi scripts/lib/license-validator.js.
+const __gate = await checkLicenseAndIntegrity(ROBOS_ROOT);
+if (!__gate.ok) {
+  console.error(`[robOS Centre] nu poate porni: ${__gate.message}`);
+  process.exit(1);
 }
 
 // Create and start server

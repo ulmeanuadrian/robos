@@ -25,6 +25,7 @@ import { existsSync, mkdirSync, copyFileSync, statSync, chmodSync, readFileSync 
 import { join, dirname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { platform } from 'node:os';
+import { verifyIntegrity } from './lib/license-validator.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
@@ -294,6 +295,16 @@ async function main() {
     return;
   }
   header();
+  // Integrity gate — refuza setup pe arhiva tampered. Licenta verificata separat
+  // la setupLicense() (step 9). Vezi scripts/lib/license-validator.js.
+  const __integrity = verifyIntegrity();
+  if (!__integrity.ok) {
+    fail(
+      `Integritate robOS compromisa (${__integrity.file}). ` +
+      `Re-descarca arhiva originala din emailul de download sau scrie-mi: adrian@robos.vip.`
+    );
+  }
+  ok('Integritate robOS verificata');
   checkNode();
   checkClaude();
   setupCentre();

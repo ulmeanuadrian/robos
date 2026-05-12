@@ -12,7 +12,7 @@
 
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
-import { homedir, hostname, networkInterfaces, cpus, platform, arch } from 'node:os';
+import { homedir, hostname, cpus, platform, arch } from 'node:os';
 import { createHash, createPublicKey, verify as cryptoVerify } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import https from 'node:https';
@@ -35,20 +35,23 @@ const ROBOS_VERSION_PATH = (rootDir) => join(rootDir, 'VERSION');
 // Hardware fingerprinting
 // ----------------------------------------------------------------------------
 
+// Fingerprint v2 (2026-05-12): MAC scos. Windows 11 face MAC randomization per SSID
+// implicit pe Wi-Fi, iar VPN/virtual adapters (Tailscale, Hyper-V, Docker) modifica
+// setul de interfete active intre run-uri pe ACELASI laptop. Rezultatul anterior:
+// drift fingerprint → rebind la fiecare schimbare de retea → REBIND_HARD_LIMIT atins
+// → user blocat. Vezi licensing/src/endpoints/rebind.js:23.
+//
+// Componente pastrate (toate stabile cross-reboot, fara retea):
+//   - hostname (user trebuie sa redenumeasca laptopul manual)
+//   - cpus()[0].model + speed (hardware fix)
+//   - platform + arch (OS + ISA)
+//
+// Trade-off acceptat: doi useri cu acelasi model laptop + acelasi nume host se
+// pot ciocni. In practica nule probabil; oricum un al doilea bind triggereaza
+// warning admin in licensing/src/endpoints/bind.js:62-74.
 export function computeHardwareHash() {
   const parts = [];
   parts.push(hostname() || 'unknown');
-
-  const ifs = networkInterfaces();
-  const macs = [];
-  for (const name of Object.keys(ifs).sort()) {
-    for (const iface of ifs[name] || []) {
-      if (!iface.internal && iface.mac && iface.mac !== '00:00:00:00:00:00') {
-        macs.push(iface.mac);
-      }
-    }
-  }
-  parts.push(macs.length ? macs.sort()[0] : 'no-mac');
 
   const cpu = cpus()[0];
   parts.push(cpu ? `${cpu.model}|${cpu.speed}` : 'no-cpu');

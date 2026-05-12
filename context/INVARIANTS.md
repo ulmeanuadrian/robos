@@ -218,9 +218,9 @@
 ### LIC-2 — Hardware fingerprint stabil intre run-uri
 - **Statement:** `computeHardwareHash()` returneaza acelasi hash pe acelasi device intre run-uri (zero drift legitim).
 - **Why:** drift = student e validat continuu ca "device nou" → rebind blocat → student blocat.
-- **Verify:** `scripts/license-check.js:38-60` foloseste `hostname + sorted MACs[0] + cpus[0].model + platform + arch` → toate stabile cross-reboot.
-- **Status:** `⚠` PARTIAL. Hostname se schimba daca user redenumeste laptop-ul = legitim drift. MAC-ul Wifi vs Ethernet schimba functie de adapter activ — `sorted()[0]` reduce, dar nu elimina.
-- **Gap:** smoke care simuleaza adapter swap. TODO.
+- **Verify:** `scripts/license-check.js:computeHardwareHash` foloseste `hostname + cpus[0].model|speed + platform + arch` → toate stabile cross-reboot, fara network.
+- **Status:** `✓` VERIFIED 2026-05-12. MAC-ul a fost SCOS din fingerprint dupa incident real (Adrian schimbat reteaua → MAC randomization Win11 + virtual adapter drift → rebind_blocked). Vezi context/decision-journal.md 2026-05-12.
+- **Trade-off acceptat:** doi useri cu acelasi model laptop + acelasi hostname se pot ciocni → warning admin la `bind.js:62-74`, nu block.
 
 ### LIC-3 — License check NICIODATA blocheaza prompt cand cheia e valida offline
 - **Statement:** un JWT valid + hardware match = 0 network calls in operare normala. Refresh in background la <30 zile expira. Latency p95 < 100ms.
@@ -251,6 +251,19 @@
 - **Why:** student face restore din backup, sau copia .robos/ se piardea.
 - **Verify:** `licensing/src/endpoints/bind.js:47-58` — `existing` branch reissue.
 - **Status:** `✓` IMPLEMENTED.
+
+### LIC-8 — Cross-hash gate la 4 entry points
+- **Statement:** licenta + integritate cross-verificata la 4 entry points (hook-user-prompt, centre/server, setup, update) via `scripts/lib/license-validator.js`. Tabela SELF + 5 peer hashes (sha256 cu marker lines stripped) detecteaza tampering.
+- **Why:** bypass-ul prin "comenteaza 3 linii in hook" e prea ieftin pentru €97. Cross-hash escaleaza bypass-ul la "modifica 4 fisiere si reruleaza rehash" — non-trivial pentru ChatGPT one-shot.
+- **Verify:** `node scripts/smoke-license-integrity.js` (9 assertii: baseline + peer tamper + self tamper + half-bypass + restore). Maintenance: `node scripts/rehash-validators.js` dupa modificari la oricare din cele 5 fisiere critice.
+- **Status:** `✓` VERIFIED 2026-05-12 (initial implementation).
+- **Trade-off acceptat:** dev care editeaza unul din 5 fisiere fara rehash → loveste integrity_fail. Solutia: pre-commit hook care ruleaza rehash. v3.2 candidate.
+
+### LIC-9 — Perf gate integrity + license < 5ms typical
+- **Statement:** `checkLicenseAndIntegrity()` (full gate) sub 5ms typical pe hardware median. Cross-hash adauga ~1-2ms peste checkLicense baseline.
+- **Why:** ruleaza la fiecare prompt; nu vrem latency vizibila.
+- **Verify:** masurat 2026-05-12: p50=1.87ms, p95=2.42ms, max=2.84ms (N=100).
+- **Status:** `✓` VERIFIED 2026-05-12.
 
 ---
 

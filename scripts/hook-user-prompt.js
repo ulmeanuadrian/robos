@@ -31,7 +31,7 @@ import { loadEnv } from './lib/env-loader.js';
 import { routePrompt } from './skill-route.js';
 import { logHookError } from './lib/hook-error-sink.js';
 import { isClosed, extractOpenThreads as extractOpenThreadsLib } from './lib/memory-format.js';
-import { checkLicense } from './license-check.js';
+import { checkLicenseAndIntegrity } from './lib/license-validator.js';
 import { getActiveClient, getMemoryDir } from './lib/client-context.js';
 
 // Load .env BEFORE any process.env reads (Claude Code spawns hooks with clean env)
@@ -456,10 +456,14 @@ async function main() {
     : 'unknown';
   const prompt = payload.prompt || '';
 
-  // Section 0: License check.
-  // Validare offline ~5ms in caz normal. Network call doar la prima rulare / refresh la 60d.
+  // Section 0: License + integrity check (cross-hash gateway).
+  // Vezi scripts/lib/license-validator.js. Blocheaza prompt-ul daca:
+  //   (a) integritatea unuia din 5 fisiere critice e compromisa, sau
+  //   (b) licenta nu e valida pe acest hardware.
+  // Failure mode: degradat (lasa sa treaca + logheaza) cand check-ul insusi crapa,
+  // ca sa nu DoS-uim user platitor pe bug de-al nostru.
   try {
-    const licenseResult = await checkLicense(ROBOS_ROOT);
+    const licenseResult = await checkLicenseAndIntegrity(ROBOS_ROOT);
     if (!licenseResult.ok) {
       process.stdout.write(JSON.stringify({
         decision: 'block',
@@ -468,8 +472,6 @@ async function main() {
       process.exit(0);
     }
   } catch (e) {
-    // Fallback degradat: daca check-ul crapa, lasam sa treaca + logam.
-    // Gate degradat e mai bun decat DoS pentru user platitor.
     logHookError('license-check', e);
   }
 
