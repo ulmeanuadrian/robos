@@ -3,6 +3,15 @@
 > **Acest fisier e developer-facing** — detalii tehnice, file paths, line numbers.
 > Pentru rezumat in limba operatorului: vezi [WHATS-NEW.md](WHATS-NEW.md).
 
+## [3.1.4] - 2026-05-13
+
+### Fix: Stop hook crash when better-sqlite3 missing (note-candidates static import)
+
+- `scripts/note-candidates.js` (Stop hook) had a top-level `import { getDb, closeDb } from '../centre/lib/db.js'`. When `centre/node_modules/better-sqlite3/` is missing — typical state if the student opens `claude` before running `node scripts/robos.js` (which triggers setup + npm install) — ESM module loader throws `ERR_MODULE_NOT_FOUND` at module load, before any try/catch in main() can swallow it. Result: 30-line stack trace at the end of every Claude turn.
+- Sibling hook `scripts/hook-user-prompt.js` already used dynamic `await import()` inside try/catch (lines 190-218) — the correct pattern. Fix: same pattern in note-candidates. On failure, log to `data/hook-errors.ndjson` with hint to run setup, then exit 0 silently.
+- Regression guard: `scripts/smoke-hook-missing-deps.js` (10 assertions). Lint: no static import of `centre/lib/*` in any hook script. Functional: temporarily renames `better-sqlite3` package, invokes all 5 hooks, asserts exit 0 + no ERR_MODULE_NOT_FOUND leak, restores. Auto-discovered by smoke-all.
+- Note: this fix is defense-in-depth. The PRIMARY recovery for a student in this state is to run `node scripts/robos.js` once — bootstrap-check triggers setup, npm install populates centre/node_modules, after which note-candidates works normally and starts capturing notes again.
+
 ## [3.1.3] - 2026-05-13
 
 ### Fix: sys-onboard Write fails on tarball stubs (Read-first required)

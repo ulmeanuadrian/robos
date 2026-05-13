@@ -28,7 +28,12 @@ import { fileURLToPath } from 'url';
 import { homedir } from 'os';
 import { randomBytes } from 'crypto';
 import { loadEnv } from './lib/env-loader.js';
-import { getDb, closeDb } from '../centre/lib/db.js';
+
+// NOTE: db import is DYNAMIC inside main() — centre/lib/db.js requires
+// better-sqlite3 which may not be installed if student ran `claude` before
+// `node scripts/robos.js` (which triggers setup + npm install). Static import
+// would crash this Stop hook with ERR_MODULE_NOT_FOUND at module load, before
+// any try/catch could swallow it. Bug observed 2026-05-13.
 
 // Load .env BEFORE any process.env reads (Claude Code spawns hooks with clean env)
 loadEnv();
@@ -229,6 +234,20 @@ async function main() {
   // Cap merged set; user-side first.
   const merged = [...fromUser, ...fromAssistant].slice(0, MAX_CANDIDATES_PER_TURN);
   if (merged.length === 0) process.exit(0);
+
+  // Dynamic import — if better-sqlite3 is missing (setup didn't run yet),
+  // we log to the error sink and exit silently instead of crashing the Stop
+  // hook. The user sees a clean session; the operator can diagnose via
+  // data/hook-errors.ndjson.
+  let getDb, closeDb;
+  try {
+    ({ getDb, closeDb } = await import('../centre/lib/db.js'));
+  } catch (e) {
+    logHookError('note-candidates:db-unavailable', e, {
+      hint: 'centre/node_modules missing — run `node scripts/robos.js` to trigger setup',
+    });
+    process.exit(0);
+  }
 
   let db;
   try {

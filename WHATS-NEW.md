@@ -5,6 +5,26 @@ Pentru detalii tehnice complete vezi [CHANGELOG.md](CHANGELOG.md) (developer-fac
 
 ---
 
+## v3.1.4 — Fix: hook Stop nu mai arunca eroare la final de turn
+
+### Ce castigi
+
+**Sesiunile se inchid curat fara stack trace vizibil.** v3.1.3 a deblocat onboarding-ul complet. La final, hook-ul Stop (`note-candidates.js`) afisa 30 de linii de eroare `Cannot find package 'better-sqlite3'` daca studentul deschisese `claude` inainte sa ruleze `node scripts/robos.js` (deci setup nu instalase dependentele centre-ului). Functionalitatea de auto-capture a deciziilor era oricum degradata, dar erorea aparea vizibil dupa fiecare turn.
+
+Fix: hook-ul Stop foloseste acum dynamic import + try/catch (acelasi pattern ca `hook-user-prompt.js`). Daca DB lipseste, capture-ul se opreste tacit, hook-ul iese curat exit 0, log-ul ajunge in `data/hook-errors.ndjson` pentru diagnostic.
+
+### Cum te afecteaza
+
+- **Student care a sarit Pasul 4 (lansare dashboard)** → hook-urile nu mai cad cu stack trace. Capture-ul de note se reactiveaza singur dupa primul `node scripts/robos.js` (care ruleaza setup + npm install).
+- **Operator existent** → niciun impact, deps deja instalate.
+
+### Sub capota
+
+- `scripts/note-candidates.js` — static import inlocuit cu `await import('../centre/lib/db.js')` in main().
+- `scripts/smoke-hook-missing-deps.js` (nou, 10 assertii) — lint + functional simulator: redenumeste `better-sqlite3` temporar, ruleaza toate cele 5 hook-uri, asteapta exit 0. Auto-discovered de smoke-all.
+
+---
+
 ## v3.1.3 — Fix: onboard me nu mai esueaza la Write peste stub-uri
 
 ### Ce castigi

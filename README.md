@@ -2,7 +2,7 @@
 
 Sistem de operare agentic pentru Claude Code. Da unui singur operator AI memorie persistenta, skills instalabile, context de brand, scheduler cron si workspace-uri multi-client izolate.
 
-**Versiune actuala:** 3.1.3
+**Versiune actuala:** 3.1.4
 **Status:** stable — folosibil pentru content/automation/multi-client cu enforcement complet (multi-client real, loop detector, Bearer auth coverage).
 
 ---
