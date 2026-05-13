@@ -3,6 +3,15 @@
 > **Acest fisier e developer-facing** — detalii tehnice, file paths, line numbers.
 > Pentru rezumat in limba operatorului: vezi [WHATS-NEW.md](WHATS-NEW.md).
 
+## [3.1.5] - 2026-05-13
+
+### Fix: SKILL ROUTER hint no longer triggers Claude Code Skill tool
+
+- Claude Code v2.1.140+ introduced a SDK-level Skill tool with its own registry (skills installed in `~/.claude/skills/`). robOS skills live in the project at `skills/` and are dispatched via the `UserPromptSubmit` hook injecting a router hint into context — they are NOT registered in the Skill tool registry.
+- Old hint text said "Foloseste skill-ul X" which the model on newer Claude Code interpreted literally as "invoke Skill tool with name X" → "Error: Unknown skill: sys-onboard" surfaced visibly to user. Model recovered by reading SKILL.md directly (parenthetical instruction), but the red error confused students.
+- Fix in `scripts/hook-user-prompt.js:367-374`: reworded hint to explicitly tell the model to use the Read tool on `skills/X/SKILL.md` and explicitly NOT to invoke the Skill tool with the robOS skill name. Includes an explanation of why (skills/ vs registry).
+- hook-user-prompt.js is in license-validator integrity manifest peers → rehash run automatically by this commit (manifest updated, smoke-license-integrity 10/10 green).
+
 ## [3.1.4] - 2026-05-13
 
 ### Fix: Stop hook crash when better-sqlite3 missing (note-candidates static import)

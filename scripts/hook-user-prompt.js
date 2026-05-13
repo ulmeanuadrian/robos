@@ -366,9 +366,10 @@ function buildSkillRouteHint(prompt) {
 
   return [
     `[SKILL ROUTER]`,
-    `Promptul a matchat trigger-ul "${result.trigger}" pentru skill-ul "${result.skill}".`,
-    `Foloseste skill-ul ${result.skill} (citeste skills/${result.skill}/SKILL.md si urmeaza pasii).`,
-    `Daca alegi sa NU folosesti skill-ul, justifica explicit de ce baza ta de cunostinte e mai potrivita.`,
+    `Promptul a matchat trigger-ul "${result.trigger}" pentru skill-ul robOS "${result.skill}".`,
+    `Citeste fisierul skills/${result.skill}/SKILL.md cu tool-ul Read si urmeaza instructiunile pas cu pas.`,
+    `NU invoca tool-ul Skill cu numele "${result.skill}" — skill-urile robOS traiesc ca fisiere SKILL.md in skills/, nu in registry-ul Claude Code SDK (ar primi "Unknown skill").`,
+    `Daca alegi sa NU urmezi SKILL.md-ul, justifica explicit de ce baza ta de cunostinte e mai potrivita.`,
     `[/SKILL ROUTER]`,
   ].join('\n');
 }

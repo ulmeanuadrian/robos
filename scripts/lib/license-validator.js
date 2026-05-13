@@ -32,7 +32,7 @@ const MANIFEST = {                                                              
   self: 'adaf92f170e965a139fdc8503818937058b2f2c6d2904b5514eea3f9747cfbb3',                                                              // robos:i
   peers: {                                                                                  // robos:i
     'scripts/license-check.js': 'b56f8905c04be618544f8720c03809cf3268062f29cf8fbfa54925b7e313abed',                                        // robos:i
-    'scripts/hook-user-prompt.js': '61a25cd44bc7ea00098d20b51e4b78c64df16fe802ed9711ec14dd22562b9955',                                   // robos:i
+    'scripts/hook-user-prompt.js': '2d04efe89dcf68aa638e5e33c92ce76b218772240661fb2bf6b9b11d0de672e0',                                   // robos:i
     'centre/server.js': 'dab003552db4cc4d91d1d082283608ef5e967bf295a070dd26f3ebb43ecd8386',                                            // robos:i
     'scripts/setup.js': 'fb7c4245349d4ca436c9ed8bfcffdc5949f6992ad7f573c7b0e0e4dabadb8dc9',                                             // robos:i
     'scripts/update.js': 'be215cb3aad7b2dccb11ef6f29dcff10b1bd9bc834bd735444eae8c7e0dde563',                                           // robos:i

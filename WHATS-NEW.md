@@ -5,6 +5,26 @@ Pentru detalii tehnice complete vezi [CHANGELOG.md](CHANGELOG.md) (developer-fac
 
 ---
 
+## v3.1.5 — Fix: "Unknown skill: sys-onboard" nu mai apare la inceput de onboard
+
+### Ce castigi
+
+**Onboarding-ul incepe curat, fara eroare rosie.** Claude Code v2.1.140 a introdus un tool nou `Skill` cu propriul registry (skills in `~/.claude/skills/`). robOS skills traiesc ca fisiere SKILL.md in proiect, dispecate via hook → nu sunt in registry. Hook-ul vechi ii spunea modelului "Foloseste skill-ul X", interpretat ca invocare Skill tool → "Error: Unknown skill: sys-onboard" rosu vizibil. Modelul recupera citind SKILL.md, dar eroarea ramanea ca prima impresie.
+
+Fix: hint-ul ii spune acum explicit modelului sa citeasca fisierul cu Read tool, NU sa invoce Skill tool. Si explica de ce (skills/ vs registry SDK).
+
+### Cum te afecteaza
+
+- **Student nou** → onboarding-ul incepe cu primul mesaj din robOS, fara eroarea rosie de o secunda inainte.
+- **Operator existent** → niciun impact functional. Doar mai putin zgomot in output.
+
+### Sub capota
+
+- `scripts/hook-user-prompt.js:367-374` — reformulat hint-ul. `Foloseste skill-ul X` → `Citeste fisierul skills/X/SKILL.md cu tool-ul Read si urmeaza instructiunile pas cu pas. NU invoca tool-ul Skill...`.
+- Hook-user-prompt e peer in integrity manifest → rehash rulat in cadrul commit-ului. Smoke-license-integrity ramane 10/10.
+
+---
+
 ## v3.1.4 — Fix: hook Stop nu mai arunca eroare la final de turn
 
 ### Ce castigi
