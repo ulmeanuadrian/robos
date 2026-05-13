@@ -3,6 +3,15 @@
 > **Acest fisier e developer-facing** — detalii tehnice, file paths, line numbers.
 > Pentru rezumat in limba operatorului: vezi [WHATS-NEW.md](WHATS-NEW.md).
 
+## [3.1.3] - 2026-05-13
+
+### Fix: sys-onboard Write fails on tarball stubs (Read-first required)
+
+- Claude Code's Write tool refuses to overwrite an existing file unless it was Read first in the current conversation. `sys-onboard` directly Writes to 3 files that ship as stubs in the tarball — `brand/samples.md`, `context/priorities.md`, `connections.md` — without prior Read. Result: 3 of 4 Writes fail during onboarding on a fresh install. The 4th (`context/memory/{today}.md`) succeeds because the `memory/` dir is gitignored and not in tarball → new file, no Read required.
+- Sub-agent skills (`brand-voice`, `brand-audience`, `brand-positioning`) already Read their targets first (line 49, 41, 43 respectively) — only the main `sys-onboard` flow was missing Read steps.
+- Fix in [skills/sys-onboard/SKILL.md](skills/sys-onboard/SKILL.md): added explicit `Read X first` instruction before each of the 3 Writes (Q2 samples, Q3 priorities, Q4 connections). Same pattern as sibling skills.
+- `context/USER.md` Write does NOT need fix — file is NOT in tarball (created fresh).
+
 ## [3.1.2] - 2026-05-13
 
 ### Fix: integrity manifest stable across CRLF/LF (tarball compatibility)

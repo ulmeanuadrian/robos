@@ -97,12 +97,12 @@ Starter pack: {type}
 **Q2 — Voice samples:**
 "Lipeste 1-2 lucruri pe care le-ai scris recent — un email, un post, orice. Nu edita. Vreau vocea ta reala."
 
-→ Save raw samples to `brand/samples.md` (NO analysis yet — analiza se face paralel la Step 3).
+→ **Read `brand/samples.md` first** (exista deja ca stub in tarball — Claude Code refuza Write peste fisier necitit). Apoi Write raw samples (NO analysis yet — analiza se face paralel la Step 3).
 
 **Q3 — Priorities:**
 "Care sunt 2-3 prioritati majore pentru urmatoarele 90 zile?"
 
-→ Write `context/priorities.md`:
+→ **Read `context/priorities.md` first** (exista deja ca stub in tarball). Apoi Write:
 ```markdown
 # Current Priorities
 
@@ -121,7 +121,7 @@ Quarter: {current quarter}
 **Q4 — Tools:**
 "Ce tools folosesti zilnic? Email, project management, calendar, CRM, social, analytics, file storage."
 
-→ Write `connections.md` la radacina proiectului. Mapeaza fiecare tool la unul din 7 tier-1 domains: revenue, customer, calendar, comms, tasks, meetings, knowledge.
+→ **Read `connections.md` first** (exista deja ca stub in tarball). Apoi Write la radacina proiectului. Mapeaza fiecare tool la unul din 7 tier-1 domains: revenue, customer, calendar, comms, tasks, meetings, knowledge.
 
 ```markdown
 # Connections

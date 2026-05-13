@@ -5,6 +5,26 @@ Pentru detalii tehnice complete vezi [CHANGELOG.md](CHANGELOG.md) (developer-fac
 
 ---
 
+## v3.1.3 — Fix: onboard me nu mai esueaza la Write peste stub-uri
+
+### Ce castigi
+
+**Onboarding-ul trece complet pana la final.** v3.1.2 a deblocat integrity gate. Imediat dupa, primul student a lovit al treilea bug in lant: 3 din 4 Write-uri din sys-onboard esuau cu "Error writing file" pentru ca Claude Code refuza sa suprascrie fisier existent fara sa-l fi citit intai. Fisierele `brand/samples.md`, `context/priorities.md`, `connections.md` exista ca stub-uri in tarball.
+
+Fix: skill-ul sys-onboard citeste fiecare fisier inainte de a-l rescrie (acelasi pattern pe care brand-voice / brand-audience / brand-positioning il foloseau deja). Onboarding-ul completeaza voce + audience + positioning + connections fara intrerupere.
+
+### Cum te afecteaza
+
+- **Student nou** → onboarding-ul scrie toate cele 4 fisiere (samples + priorities + connections + memory) fara erori.
+- **Student care a tras v3.1.1 sau v3.1.2 si a esuat la Write** → fie redownload v3.1.3, fie sterge manual cele 3 fisiere si re-ruleaza `onboard me`: `Remove-Item brand\samples.md, context\priorities.md, connections.md` apoi `claude` → `onboard me`.
+
+### Sub capota
+
+- `skills/sys-onboard/SKILL.md` Step 2 — adaugat `Read X first` inainte de Write la samples, priorities, connections.
+- `context/USER.md` Write NU avea bug (file lipseste din tarball, e nou la fiecare instalare).
+
+---
+
 ## v3.1.2 — Fix: integrity check nu mai cade pe instalari fresh
 
 ### Ce castigi
