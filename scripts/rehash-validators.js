@@ -35,7 +35,12 @@ const PEERS = [
 ];
 
 function hashContent(content) {
-  const stripped = content
+  // MUST match scripts/lib/license-validator.js hashContent exactly. Normalize
+  // CRLF -> LF so the manifest works on both CRLF working tree (Windows) and
+  // LF tarball (git archive output). Without this, every fresh student install
+  // hits integrity_fail on first run.
+  const normalized = content.replace(/\r\n/g, '\n');
+  const stripped = normalized
     .split('\n')
     .filter((l) => !l.includes(MARKER))
     .join('\n');

@@ -102,6 +102,26 @@ async function main() {
     );
   });
 
+  // 5. Line-ending stability (REGRESSION GUARD — 2026-05-13 incident):
+  //    Working tree on Windows = CRLF. Tarball from `git archive` = LF.
+  //    If hashContent doesn't normalize, manifest computed on admin's CRLF
+  //    working tree will never match the LF tarball that ships → integrity_fail
+  //    on every fresh student install. The first 2 students hit exactly this.
+  //
+  //    Test: read centre/server.js, convert CRLF→LF (simulate tarball form),
+  //    rewrite to disk temporarily, verifyIntegrity() must still pass.
+  const SERVER = join(ROOT, 'centre', 'server.js');
+  await withBackup(SERVER, async (original) => {
+    const lfVersion = original.replace(/\r\n/g, '\n');
+    writeFileSync(SERVER, lfVersion);
+    const r = await freshVerify();
+    check(
+      'integrity stable across CRLF↔LF (tarball compatibility)',
+      r.ok === true,
+      `LF-version of centre/server.js failed integrity — hashContent doesn't normalize line endings. ${JSON.stringify(r)}`
+    );
+  });
+
   // Final baseline re-check
   const finalCheck = await freshVerify();
   check('final baseline ok', finalCheck.ok === true, JSON.stringify(finalCheck));

@@ -3,6 +3,15 @@
 > **Acest fisier e developer-facing** — detalii tehnice, file paths, line numbers.
 > Pentru rezumat in limba operatorului: vezi [WHATS-NEW.md](WHATS-NEW.md).
 
+## [3.1.2] - 2026-05-13
+
+### Fix: integrity manifest stable across CRLF/LF (tarball compatibility)
+
+- `hashContent` in `scripts/lib/license-validator.js` + `scripts/rehash-validators.js` normalizes CRLF → LF before hashing. Without normalization, the manifest computed on the admin's Windows working tree (CRLF after git checkout with `core.autocrlf=true`) never matched the LF-encoded tarball that `git archive` produces → `integrity_fail` on `centre/server.js` on EVERY fresh student install. The first student to download v3.1.1 hit this immediately after the hooks fix unblocked them.
+- Manifest regenerated via `scripts/rehash-validators.js` — peers now hash against LF content (e.g. `centre/server.js: dab003552db4...` was previously `534cb8da3865...`).
+- Regression guard added to `scripts/smoke-license-integrity.js`: after rewriting `centre/server.js` as LF (simulating tarball form), `verifyIntegrity()` must still pass. Test #10 in suite.
+- Tarball `robos-base-v3.1.2.tar.gz` published to R2 + Worker bumped to `CURRENT_ROBOS_VERSION=3.1.2`. v3.1.1 R2 object kept but Worker no longer references it.
+
 ## [3.1.1] - 2026-05-13
 
 ### Fix: hook commands break on PowerShell (student fresh install)

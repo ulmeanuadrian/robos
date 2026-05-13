@@ -5,6 +5,27 @@ Pentru detalii tehnice complete vezi [CHANGELOG.md](CHANGELOG.md) (developer-fac
 
 ---
 
+## v3.1.2 — Fix: integrity check nu mai cade pe instalari fresh
+
+### Ce castigi
+
+**Instalarea trece de prima validare de integritate.** v3.1.1 a reparat hook-urile dar a expus un al doilea bug ascuns: pe Windows, fisierele in working tree au CRLF (line ending Windows), dar tarball-ul exportat de git e LF (Unix). Hash-urile din manifest erau calculate pe CRLF si nu se potriveau cu LF din tarball → `Integritate robOS compromisa (centre/server.js)` la primul `onboard me`.
+
+Fix: hashing normalizeaza CRLF → LF inainte de hash. Identic pe Windows, Mac, Linux. Toate viitoarele rebuild-uri vor produce hash-uri stabile cross-platform.
+
+### Cum te afecteaza
+
+- **Student nou** → instalarea v3.1.2 trece direct prin gate-ul de integritate. Hook-uri OK + license OK + integritate OK.
+- **Student care a tras v3.1.1** → redownload din ghidul de instalare (acelasi URL, primesc tarball-ul nou). v3.1.1 R2 object exista inca dar nu mai e referit.
+- **Operator existent (admin)** → niciun impact. Hash-urile pe disk se recalculeaza automat la prima rulare.
+
+### Sub capota
+
+- `scripts/lib/license-validator.js` + `scripts/rehash-validators.js` — `hashContent` face `content.replace(/\r\n/g, '\n')` ca prima operatie.
+- `scripts/smoke-license-integrity.js` test #10 — regression guard: dupa ce rescriem `centre/server.js` ca LF, integrity trebuie sa treaca.
+
+---
+
 ## v3.1.1 — Fix: hook-urile robOS nu mai cad pe Windows fara git-bash
 
 ### Ce castigi
