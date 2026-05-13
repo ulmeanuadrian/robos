@@ -3,6 +3,14 @@
 > **Acest fisier e developer-facing** — detalii tehnice, file paths, line numbers.
 > Pentru rezumat in limba operatorului: vezi [WHATS-NEW.md](WHATS-NEW.md).
 
+## [3.1.1] - 2026-05-13
+
+### Fix: hook commands break on PowerShell (student fresh install)
+
+- `.claude/settings.json` folosea sintaxa bash-only `node "$CLAUDE_PROJECT_DIR/scripts/X.js"`. Pe Windows PowerShell `$CLAUDE_PROJECT_DIR` e variabila bash → undefined → empty → node primeste `/scripts/X.js` → rezolva la drive root `C:\scripts\X.js` → "Cannot find module" pe toate cele 5 hook-uri (`hook-user-prompt`, `hook-post-tool`, `checkpoint-reminder`, `activity-capture`, `note-candidates`). Admin nu vede bug-ul daca are git-bash in PATH (Claude Code prefera bash). Pattern observat la 2/2 studenti pe 2 laptopuri (2026-05-12, 2026-05-13).
+- Fix: path-uri relative (`node scripts/hook-user-prompt.js`). Functioneaza pe bash, PowerShell si cmd — Claude Code spawneaza hook-urile cu CWD=project root, deja conventia (`scripts/robos.js:613` cere `cd robos` explicit). Hook scripts-urile isi gasesc singure resursele via `import.meta.url`/`__dirname`, nu depind de env var.
+- Regression guard: `scripts/smoke-hook-shell-resolve.js` (22 assertii) — lint pentru orice `$VAR`/`${VAR}` in commands + functional spawn prin AMBELE cmd.exe SI powershell.exe pe Windows. Auto-discovered de `smoke-all` (37/37 green).
+
 ## [3.0.1] - 2026-05-10
 
 ### MCP servers preconfigured

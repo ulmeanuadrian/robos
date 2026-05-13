@@ -5,6 +5,27 @@ Pentru detalii tehnice complete vezi [CHANGELOG.md](CHANGELOG.md) (developer-fac
 
 ---
 
+## v3.1.1 — Fix: hook-urile robOS nu mai cad pe Windows fara git-bash
+
+### Ce castigi
+
+**Instalare fresh pe Windows merge curat.** Pana acum, daca aveai doar PowerShell (fara Git Bash in PATH), toate cele 5 hook-uri robOS esuau cu "Cannot find module 'C:\\scripts\\hook-X.js'" la primul `onboard me`. Sesiunea nu se inchidea corect, memoria zilei nu se scria, skill router-ul nu rula. Bug observat la 2 studenti pe 2 laptopuri.
+
+Fix: hook commands din `.claude/settings.json` folosesc path-uri relative, nu mai depind de o variabila de mediu specific bash. Functioneaza pe orice shell: bash, PowerShell, cmd.
+
+### Cum te afecteaza
+
+- **Student nou** → instalarea functioneaza din prima, fara sa cer Git Bash.
+- **Operator existent cu git-bash** → niciun impact, hooks-urile mergeau deja.
+- **Operator existent fara git-bash care vede erori** → `git pull` (sau ia tarball-ul nou) si reporneste Claude Code.
+
+### Sub capota
+
+- Nou smoke `smoke-hook-shell-resolve.js` — invoca fiecare hook prin AMBELE cmd.exe SI powershell.exe pe Windows, ca regresia sa nu se mai intample.
+- Total smoke suites: 37/37 verzi (era 36).
+
+---
+
 ## v3.1.0 — Skill ecosystem expanded (51 skill-uri, 5 tier-uri)
 
 ### Ce castigi

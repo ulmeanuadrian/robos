@@ -12,7 +12,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"$CLAUDE_PROJECT_DIR/scripts/hook-user-prompt.js\"",
+            "command": "node scripts/hook-user-prompt.js",
             "timeout": 5
           }
         ]
@@ -23,17 +23,17 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"$CLAUDE_PROJECT_DIR/scripts/checkpoint-reminder.js\"",
+            "command": "node scripts/checkpoint-reminder.js",
             "timeout": 3
           },
           {
             "type": "command",
-            "command": "node \"$CLAUDE_PROJECT_DIR/scripts/activity-capture.js\"",
+            "command": "node scripts/activity-capture.js",
             "timeout": 5
           },
           {
             "type": "command",
-            "command": "node \"$CLAUDE_PROJECT_DIR/scripts/note-candidates.js\"",
+            "command": "node scripts/note-candidates.js",
             "timeout": 5
           }
         ]
@@ -44,12 +44,12 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"$CLAUDE_PROJECT_DIR/scripts/hook-post-tool.js\"",
+            "command": "node scripts/hook-post-tool.js",
             "timeout": 3
           }
         ]
       }
     ]
   },
-  "_note": "robOS project-level hooks. Merged with user's global settings.json. Hooks here enforce session lifecycle and skill routing — see scripts/hook-user-prompt.js."
+  "_note": "robOS project-level hooks. Path-uri RELATIVE intentionat — `$CLAUDE_PROJECT_DIR` se expanda doar in bash; pe PowerShell/cmd ramane empty si node primeste `/scripts/...` care esueaza cu `C:\\scripts\\...`. Claude Code spawneaza hook-urile cu CWD=project root (vezi scripts/robos.js linia ~613 — `cd robos` cerinta explicita). Daca atingi paths aici, ruleaza `node scripts/smoke-hook-shell-resolve.js`."
 }
